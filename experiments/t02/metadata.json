@@ -1,0 +1,299 @@
+{
+  "synthetic": true,
+  "schemaVersion": 1,
+  "description": "SYNTHETIC T02 Pi gate feasibility spike — counters only, no backend, no writes.",
+  "runtime": {
+    "node": "24.21.0",
+    "npm": "11.19.0",
+    "pi": "1.1.0",
+    "piIntegrity": "sha512-SeEi/4hdcHNgA9UWlefZl7ZZpm3dzi2OoxNjDHsBJ9o298LNOtbL4DGKgitlEj6uCTccvtw6f2hlCkTPVJ2RXg==",
+    "sdk": "1.32.1",
+    "sdkIntegrity": "sha512-2DdE+SJDtzLEEWzY1ZjY7Q+VcPhcV1KisD3zI4u0XZyktsjHum1mwbMI+JaulUBi2OZk+KJAi2uPXzxichPkdw==",
+    "zod": "4.5.4",
+    "zodIntegrity": "sha512-sC95tT5iHHH9gtpj6A81kh+NEaRAUFN+qlUPDUbRfOMvNf5QCBqsb3WgvnpVtK5Y+4UfA6KqufotuTvMGiTlsA==",
+    "protocol": "2025-11-25(candidate)",
+    "piAi": "1.1.0",
+    "piAiIntegrity": "sha512-1T7LAkc/5Bvc0v6w4vAGVdCrli0o/E0pEmYKTnixu95vSFArBjvbhS/G4ZwI0RUePgf0Imcu0VyqlM4EcXxqfw=="
+  },
+  "entries": {
+    "fixture": "experiments/t02/fixture-server/server.mjs",
+    "companion": "experiments/t02/dist/index.js",
+    "companionSource": "experiments/t02/companion/index.ts",
+    "provider": "experiments/t02/driver-files/t02-scripted-provider.mjs",
+    "driver": "experiments/t02/driver/run.mjs",
+    "sdkWorker": "experiments/t02/driver/sdk-s1-worker.mjs",
+    "scenarios": "experiments/t02/driver/scenarios.mjs",
+    "diagnostics": {
+      "lateMutator": "experiments/t02/companion/diagnostics/zz-t02-mutator.mjs",
+      "throwingGate": "experiments/t02/companion/diagnostics/aa-t02-throwing-gate.mjs",
+      "replacementMcp": "experiments/t02/companion/diagnostics/probe-replacement-mcp.mjs",
+      "replacementCodemode": "experiments/t02/companion/diagnostics/probe-replacement-codemode.mjs",
+      "unknownResource": "experiments/t02/companion/diagnostics/probe-unknown-resource.mjs"
+    },
+    "sdkReadonlyWorker": "experiments/t02/driver/sdk-readonly-worker.mjs",
+    "sdkGateWorker": "experiments/t02/driver/sdk-gate-worker.mjs",
+    "sdkPreflightWorker": "experiments/t02/driver/sdk-preflight-worker.mjs",
+    "r3Report": "experiments/t02/driver/r3-report.mjs",
+    "eventJournal": "experiments/t02/driver/event-journal.mjs",
+    "eventJournalTypes": "experiments/t02/driver/event-journal.d.mts"
+  },
+  "layers": ["sdk-pipeline", "tui-interactive", "logic-control"],
+  "scenarios": {
+    "direct-readonly": {
+      "harnesses": ["sdk"],
+      "layer": "sdk-pipeline",
+      "exposure": "direct"
+    },
+    "deferred-readonly": {
+      "harnesses": ["sdk"],
+      "layer": "sdk-pipeline",
+      "exposure": "deferred"
+    },
+    "codemode-readonly": {
+      "harnesses": ["sdk"],
+      "layer": "sdk-pipeline",
+      "exposure": "codemode"
+    },
+    "nested-readonly": {
+      "harnesses": ["sdk"],
+      "layer": "sdk-pipeline",
+      "exposure": "direct"
+    },
+    "no-companion": {
+      "harnesses": ["sdk"],
+      "layer": "sdk-pipeline",
+      "exposure": "direct"
+    },
+    "generic-readonly": {
+      "harnesses": ["sdk"],
+      "layer": "sdk-pipeline",
+      "exposure": "direct"
+    },
+    "static-shadow": {
+      "harnesses": ["sdk"],
+      "layer": "sdk-pipeline",
+      "exposure": "direct"
+    },
+    "normalized-collision": {
+      "harnesses": ["sdk"],
+      "layer": "sdk-pipeline",
+      "exposure": "direct"
+    },
+    "normalized-collision-reversed": {
+      "harnesses": ["sdk"],
+      "layer": "sdk-pipeline",
+      "exposure": "direct"
+    },
+    "replacement-mcp": {
+      "harnesses": ["sdk"],
+      "layer": "sdk-pipeline",
+      "exposure": "direct"
+    },
+    "replacement-codemode": {
+      "harnesses": ["sdk"],
+      "layer": "sdk-pipeline",
+      "exposure": "direct"
+    },
+    "missing-mcp": {
+      "harnesses": ["sdk"],
+      "layer": "sdk-pipeline",
+      "exposure": "direct"
+    },
+    "unsupported-inventory": {
+      "harnesses": ["sdk"],
+      "layer": "sdk-pipeline",
+      "exposure": "direct"
+    },
+    "mode-print": {
+      "harnesses": ["sdk"],
+      "layer": "sdk-pipeline",
+      "exposure": "direct"
+    },
+    "mode-json": {
+      "harnesses": ["sdk"],
+      "layer": "sdk-pipeline",
+      "exposure": "direct"
+    },
+    "mode-rpc-has-ui": {
+      "harnesses": ["sdk"],
+      "layer": "sdk-pipeline",
+      "exposure": "direct"
+    },
+    "no-ui": {
+      "harnesses": ["sdk"],
+      "layer": "sdk-pipeline",
+      "exposure": "direct"
+    },
+    "binding-missing": {
+      "harnesses": ["sdk"],
+      "layer": "sdk-pipeline",
+      "exposure": "direct"
+    },
+    "binding-ambiguous": {
+      "harnesses": ["sdk"],
+      "layer": "sdk-pipeline",
+      "exposure": "direct"
+    },
+    "hidden-tool": {
+      "harnesses": ["sdk"],
+      "layer": "sdk-pipeline",
+      "exposure": "direct"
+    },
+    "direct-approve": {
+      "harnesses": ["pty"],
+      "layer": "tui-interactive",
+      "exposure": "direct"
+    },
+    "deferred-approve": {
+      "harnesses": ["pty"],
+      "layer": "tui-interactive",
+      "exposure": "deferred"
+    },
+    "codemode-approve": {
+      "harnesses": ["pty"],
+      "layer": "tui-interactive",
+      "exposure": "codemode"
+    },
+    "nested-approve": {
+      "harnesses": ["pty"],
+      "layer": "tui-interactive",
+      "exposure": "direct"
+    },
+    "direct-reject": {
+      "harnesses": ["pty"],
+      "layer": "tui-interactive",
+      "exposure": "direct"
+    },
+    "deferred-reject": {
+      "harnesses": ["pty"],
+      "layer": "tui-interactive",
+      "exposure": "deferred"
+    },
+    "codemode-reject": {
+      "harnesses": ["pty"],
+      "layer": "tui-interactive",
+      "exposure": "codemode"
+    },
+    "nested-reject": {
+      "harnesses": ["pty"],
+      "layer": "tui-interactive",
+      "exposure": "direct"
+    },
+    "handler-failure": {
+      "harnesses": ["pty"],
+      "layer": "tui-interactive",
+      "exposure": "direct"
+    },
+    "approval-dismiss": {
+      "harnesses": ["pty"],
+      "layer": "tui-interactive",
+      "exposure": "direct"
+    },
+    "approval-cancel": {
+      "harnesses": ["pty"],
+      "layer": "tui-interactive",
+      "exposure": "direct"
+    },
+    "approval-timeout": {
+      "harnesses": ["pty"],
+      "layer": "tui-interactive",
+      "exposure": "direct"
+    },
+    "mutator-boundary": {
+      "harnesses": ["pty"],
+      "layer": "tui-interactive",
+      "exposure": "direct"
+    },
+    "sidecar-unavailable": {
+      "harnesses": ["pty"],
+      "layer": "tui-interactive",
+      "exposure": "direct"
+    },
+    "sidecar-malformed": {
+      "harnesses": ["pty"],
+      "layer": "tui-interactive",
+      "exposure": "direct"
+    },
+    "sidecar-stale": {
+      "harnesses": ["pty"],
+      "layer": "tui-interactive",
+      "exposure": "direct"
+    },
+    "binding-invalidate": {
+      "harnesses": ["pty"],
+      "layer": "tui-interactive",
+      "exposure": "direct"
+    },
+    "reload-invalidate": {
+      "harnesses": ["pty"],
+      "layer": "tui-interactive",
+      "exposure": "direct"
+    },
+    "shutdown-invalidate": {
+      "harnesses": ["pty"],
+      "layer": "tui-interactive",
+      "exposure": "direct"
+    },
+    "calibration-unguarded": {
+      "harnesses": ["pty"],
+      "layer": "tui-interactive",
+      "exposure": "direct",
+      "control": "unguarded"
+    },
+    "calibration-mutation": {
+      "harnesses": ["pty"],
+      "layer": "tui-interactive",
+      "exposure": "direct",
+      "control": "mutation"
+    }
+  },
+  "resourceAliases": {
+    "companion": "experimental gate companion (tool_call gate, registration, sidecar)",
+    "scripted-provider": "keyless offline canned-turn provider (faux toolkit)",
+    "t02_orchestrate": "synthetic nested-path orchestrator tool",
+    "diag:late-mutator": "isolated diagnostic post-approval input patcher",
+    "diag:throwing-gate": "isolated diagnostic throwing tool_call handler",
+    "diag:replacement-mcp": "isolated diagnostic /mcp replacement owner",
+    "diag:replacement-codemode": "isolated diagnostic codemode replacement owner",
+    "diag:unknown-extra": "isolated unexpected-inventory control file",
+    "diag:unknown-resource": "isolated unknown-resource inventory control (inert /t02_unknown)"
+  },
+  "seedVector": {
+    "operationId": "55555555-5555-4555-8555-555555555555",
+    "exerciseId": "11111111-1111-4111-8111-111111111111",
+    "name": "SYNTHETIC T02 Routine",
+    "canonicalSha256": "71a6d7acdeb769821f1b6231f206853c8e9423fec5989a68312b06fa8e6cd456"
+  },
+  "implementationStatus": "accepted-s1-s2a-s2b-r2+r3-candidate",
+  "launchableSubset": [
+    "no-companion/sdk",
+    "generic-readonly/sdk",
+    "direct-readonly/sdk",
+    "deferred-readonly/sdk",
+    "codemode-readonly/sdk",
+    "nested-readonly/sdk",
+    "static-shadow/sdk",
+    "normalized-collision/sdk",
+    "normalized-collision-reversed/sdk",
+    "replacement-mcp/sdk",
+    "replacement-codemode/sdk",
+    "missing-mcp/sdk",
+    "unsupported-inventory/sdk",
+    "binding-missing/sdk",
+    "binding-ambiguous/sdk",
+    "hidden-tool/sdk"
+  ],
+  "launchNote": "S1/S2A/S2B/R2 accepted and launchable (strict no-write gate/refusal evidence only, not PTY approval or overall T02). R3 ten implemented and launchable as unverified candidates (prebind refusal + hidden reachability only); acceptance remains unverified pending independent QA. All other registry combinations remain planned, not ready. No PTY/RPC runner files exist yet by design.",
+  "candidateSubset": [
+    "static-shadow/sdk",
+    "normalized-collision/sdk",
+    "normalized-collision-reversed/sdk",
+    "replacement-mcp/sdk",
+    "replacement-codemode/sdk",
+    "missing-mcp/sdk",
+    "unsupported-inventory/sdk",
+    "binding-missing/sdk",
+    "binding-ambiguous/sdk",
+    "hidden-tool/sdk"
+  ]
+}

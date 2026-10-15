@@ -1,0 +1,51 @@
+{
+  "scope": "T08-S1 QA source preparation only; NOT a compiled-candidate/runtime relay",
+  "recordedAt": "2026-10-14T10:57:29.099746+00:00",
+  "files": [
+    {
+      "path": "test/read-runtime/startup-config.test.mjs",
+      "sha256": "24c3e77c64cff1488e95b74cdefac366e9f5791b6a465ed8bf7c386f731e7ecc",
+      "bytes": 8860
+    },
+    {
+      "path": "test/read-runtime/startup-ownership.test.mjs",
+      "sha256": "20cba4cc00cffcb079641d03d22fbcdeb372b29034c7d44174b94d332c335eff",
+      "bytes": 1750
+    },
+    {
+      "path": "test/read-runtime/reads-success.test.mjs",
+      "sha256": "ecf593584fcae32cd2b066cc0c0006d0bd194417a18bc5b6dc2a2a61f91ec0b9",
+      "bytes": 4042
+    },
+    {
+      "path": "test/read-runtime/reads-pages-filters.test.mjs",
+      "sha256": "2cf3c414edb8cafc7ad5c5deb293315db42ddc40258fec7360e7cdc8dfdf86bb",
+      "bytes": 2732
+    },
+    {
+      "path": "test/read-runtime/canonical-errors.test.mjs",
+      "sha256": "4561afb25c86c32f70d76aa189f1ed11c509da780b84de4e353c15020c09ac88",
+      "bytes": 2346
+    },
+    {
+      "path": "test/read-runtime/validate-before-auth.test.mjs",
+      "sha256": "7e815ada7d20230ff6db58ab5b39346052bc030523b737a616d7842cc3c2154b",
+      "bytes": 2797
+    },
+    {
+      "path": "test/read-runtime/cancel-close.test.mjs",
+      "sha256": "10c1bed1383babcccb174e49c73b6a7980e045e3e3ebfb67541d20b4bd3e93ab",
+      "bytes": 11926
+    },
+    {
+      "path": "test/read-runtime/fixtures.mjs",
+      "sha256": "7e1f0105d9610c695d2ec74990cd46697776b93a9db2520d2e7ab9310ab77ca2",
+      "bytes": 17764
+    },
+    {
+      "path": "test/read-runtime/helpers.mjs",
+      "sha256": "d2afc6f1359621b14fdb2d5c757c97b6103529a68a7ade0a9b7bdb4259d9c9d6",
+      "bytes": 2002
+    }
+  ]
+}

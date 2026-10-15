@@ -1,0 +1,13 @@
+{
+  "artifactId": "t06-s2-f1",
+  "status": "passed",
+  "observation": "isolated six-export public auth import plus source audit; not comprehensive IO interception",
+  "exit": 0,
+  "elapsedMs": 121,
+  "exactExportOutput": true,
+  "stderrEmpty": true,
+  "naturalTermination": true,
+  "homeTempEmpty": true,
+  "cleanup": "Owned disposable HOME/temp removed",
+  "frozenHashesStable": 257
+}

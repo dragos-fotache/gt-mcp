@@ -1,0 +1,17 @@
+# Whole-repo formatting excludes non-owned, generated, and external trees.
+# The `format:check` script is explicitly scoped to production sources, owned
+# config, owned docs, and QA test files; this file is a backstop only.
+package-lock.json
+shared-docs/
+.pi/
+**/dist/
+coverage/
+docs/evidence/
+docs/tasks/
+docs/decisions/t01-foundation-proposal.md
+docs/agent-coordination.md
+docs/architecture.md
+docs/verification.md
+docs/implementation-plan.md
+docs/README.md
+README.md

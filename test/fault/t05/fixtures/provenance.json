@@ -1,0 +1,26 @@
+{
+  "loopback": {
+    "san": "IP:127.0.0.1,IP:::1",
+    "notBefore": "20260101000000Z",
+    "notAfter": "20360101000000Z",
+    "certificateSha256": "383b250a95c4af24a1775905b0dab835c22638fa8f85035ab4905dbd3b737bb3",
+    "keyMatches": true,
+    "verifyExpected": true
+  },
+  "loopback-expired": {
+    "san": "IP:127.0.0.1,IP:::1",
+    "notBefore": "20240101000000Z",
+    "notAfter": "20250101000000Z",
+    "certificateSha256": "62f3b966721938abb29ee6ef2bf4c225110c6f2781516aa8644bcc597efd2a9f",
+    "keyMatches": true,
+    "verifyExpected": true
+  },
+  "loopback-wronghost": {
+    "san": "DNS:example.invalid",
+    "notBefore": "20260101000000Z",
+    "notAfter": "20360101000000Z",
+    "certificateSha256": "02aadc01b6a8b403c7ad508767687a155b0acfe8e244d4df05ea6eba9249651e",
+    "keyMatches": true,
+    "verifyExpected": true
+  }
+}

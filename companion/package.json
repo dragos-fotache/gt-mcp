@@ -1,0 +1,21 @@
+{
+  "name": "@gymtracka/pi-companion",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "description": "GymTracka Pi approval companion (T01 inert extension scaffolding)",
+  "engines": {
+    "node": ">=24.21.0 <25"
+  },
+  "pi": {
+    "extensions": [
+      "./dist/index.js"
+    ]
+  },
+  "files": [
+    "dist"
+  ],
+  "peerDependencies": {
+    "@earendil-works/pi-coding-agent": "*"
+  }
+}

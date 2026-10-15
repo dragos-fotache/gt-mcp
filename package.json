@@ -1,0 +1,49 @@
+{
+  "name": "gymtracka-mcp",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "description": "GymTracka MCP adapter foundation (T01 inert scaffolding; no domain behavior yet)",
+  "packageManager": "npm@11.19.0",
+  "engines": {
+    "node": ">=24.21.0 <25"
+  },
+  "workspaces": [
+    "companion"
+  ],
+  "bin": {
+    "gymtracka-mcp-server": "./dist/protocol/server.js",
+    "gymtracka-mcp": "./dist/cli/index.js"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p companion/tsconfig.json && tsc --noEmit -p experiments/t02/tsconfig.json",
+    "typecheck:t02": "tsc --noEmit -p experiments/t02/tsconfig.json",
+    "t02:build": "tsc -p experiments/t02/tsconfig.json",
+    "lint:production": "eslint src companion/src experiments/t02/companion experiments/t02/driver experiments/t02/driver-files experiments/t02/fixture-server eslint.config.mjs vitest.config.ts",
+    "lint:t02": "eslint experiments/t02/companion experiments/t02/driver experiments/t02/driver-files experiments/t02/fixture-server",
+    "lint": "eslint .",
+    "format:check:production": "prettier --check --ignore-unknown src companion/src experiments/t02/companion experiments/t02/driver experiments/t02/driver-files experiments/t02/fixture-server experiments/t02/metadata.json experiments/t02/tsconfig.json package.json companion/package.json tsconfig.json companion/tsconfig.json eslint.config.mjs vitest.config.ts .prettierrc.json .prettierignore .node-version .nvmrc .github AGENTS.md docs/decisions/t01-implementation-adr.md docs/compatibility.md",
+    "format:check:t02": "prettier --check --ignore-unknown experiments/t02/companion experiments/t02/driver experiments/t02/driver-files experiments/t02/fixture-server experiments/t02/metadata.json experiments/t02/tsconfig.json",
+    "format:check": "prettier --check --ignore-unknown src companion/src test experiments/t02/companion experiments/t02/driver experiments/t02/driver-files experiments/t02/fixture-server experiments/t02/metadata.json experiments/t02/tsconfig.json package.json companion/package.json tsconfig.json companion/tsconfig.json eslint.config.mjs vitest.config.ts .prettierrc.json .prettierignore .node-version .nvmrc .github AGENTS.md docs/decisions/t01-implementation-adr.md docs/compatibility.md",
+    "build": "rm -rf dist companion/dist && tsc -p tsconfig.json && tsc -p companion/tsconfig.json && chmod +x dist/protocol/server.js dist/cli/index.js",
+    "test": "vitest run",
+    "test:t02": "vitest run test/pi-feasibility",
+    "smoke": "vitest run test/foundation",
+    "check": "npm run typecheck && npm run lint && npm run format:check && npm run build && npm run test"
+  },
+  "dependencies": {
+    "@homebridge/dbus-native": "0.7.8",
+    "@modelcontextprotocol/sdk": "1.32.1",
+    "zod": "4.5.4"
+  },
+  "devDependencies": {
+    "@earendil-works/pi-coding-agent": "1.1.0",
+    "@eslint/js": "10.0.1",
+    "@types/node": "24.19.2",
+    "eslint": "10.12.0",
+    "prettier": "3.9.10",
+    "typescript": "5.9.3",
+    "typescript-eslint": "8.71.1",
+    "vitest": "4.1.11"
+  }
+}

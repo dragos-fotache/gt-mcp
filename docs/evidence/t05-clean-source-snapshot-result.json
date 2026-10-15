@@ -1,0 +1,88 @@
+{
+  "revision": "t05-f3",
+  "relayInventorySha256": "4d92f6d7e7c86bb8578d256e0a5f48ec1f9bd603799d0b9ffaa317ed7009d3f2",
+  "snapshotKind": "explicit allowlisted source; NOT clone/release/whole-suite",
+  "sourceFileCount": 174,
+  "sourceInventorySha256": "22d6387480ffd9403c7bed4649ae02a2aaacd830edbf2199ac72d030ee4020c2",
+  "activeOwningSuites": [
+    "test/unit/t05/01-exports-factory.test.mjs",
+    "test/unit/t05/02-validation-identity.test.mjs",
+    "test/unit/t05/03-query-serialization.test.mjs",
+    "test/unit/t05/04-hooks-fences-dispatch.test.mjs",
+    "test/unit/t05/05-budgets-deadlines-retry.test.mjs",
+    "test/unit/t05/06-errors-uncertainty.test.mjs",
+    "test/unit/t05/07-results-decode.test.mjs",
+    "test/unit/t05/08-error-event-interface.test.mjs",
+    "test/unit/t05/10-replay-identity.test.mjs",
+    "test/unit/t05/11-import-smoke.test.mjs",
+    "test/fault/t05/abort-timing.test.mjs",
+    "test/fault/t05/loopback-wire.test.mjs",
+    "test/fault/t05/loopback-tls.test.mjs",
+    "test/fault/t05/production-limits.test.mjs",
+    "test/fault/t05/proxy-boundary.test.mjs"
+  ],
+  "commands": [
+    {
+      "command": "node --version",
+      "exit": 0
+    },
+    {
+      "command": "npm --version",
+      "exit": 0
+    },
+    {
+      "command": "npm ci --ignore-scripts",
+      "exit": 0
+    },
+    {
+      "command": "npm run typecheck",
+      "exit": 0
+    },
+    {
+      "command": "npm run lint:production",
+      "exit": 0
+    },
+    {
+      "command": "npm run format:check:production",
+      "exit": 0
+    },
+    {
+      "command": "npm run build",
+      "exit": 0
+    },
+    {
+      "command": "node node_modules/vitest/vitest.mjs run test/unit/t05/01-exports-factory.test.mjs test/unit/t05/02-validation-identity.test.mjs test/unit/t05/03-query-serialization.test.mjs test/unit/t05/04-hooks-fences-dispatch.test.mjs test/unit/t05/05-budgets-deadlines-retry.test.mjs test/unit/t05/06-errors-uncertainty.test.mjs test/unit/t05/07-results-decode.test.mjs test/unit/t05/08-error-event-interface.test.mjs test/unit/t05/10-replay-identity.test.mjs test/unit/t05/11-import-smoke.test.mjs test/fault/t05/abort-timing.test.mjs test/fault/t05/loopback-wire.test.mjs test/fault/t05/loopback-tls.test.mjs test/fault/t05/production-limits.test.mjs test/fault/t05/proxy-boundary.test.mjs",
+      "exit": 0
+    },
+    {
+      "command": "npm run smoke",
+      "exit": 0
+    },
+    {
+      "command": "node node_modules/vitest/vitest.mjs run test/unit/t03",
+      "exit": 0
+    },
+    {
+      "command": "node node_modules/vitest/vitest.mjs run test/unit/t04",
+      "exit": 0
+    },
+    {
+      "command": "bash <qualified-private-provider-launcher> test/fault/t04",
+      "exit": 0
+    },
+    {
+      "command": "node node_modules/eslint/bin/eslint.js test/unit/t05/01-exports-factory.test.mjs test/unit/t05/02-validation-identity.test.mjs test/unit/t05/03-query-serialization.test.mjs test/unit/t05/04-hooks-fences-dispatch.test.mjs test/unit/t05/05-budgets-deadlines-retry.test.mjs test/unit/t05/06-errors-uncertainty.test.mjs test/unit/t05/07-results-decode.test.mjs test/unit/t05/08-error-event-interface.test.mjs test/unit/t05/10-replay-identity.test.mjs test/unit/t05/11-import-smoke.test.mjs test/fault/t05/abort-timing.test.mjs test/fault/t05/loopback-wire.test.mjs test/fault/t05/loopback-tls.test.mjs test/fault/t05/production-limits.test.mjs test/fault/t05/proxy-boundary.test.mjs test/unit/t05/helpers.mjs test/fault/t05/helpers.mjs test/unit/t05/import-smoke-child.mjs test/fault/t05/proxy-boundary-child.mjs",
+      "exit": 0
+    },
+    {
+      "command": "node node_modules/prettier/bin/prettier.cjs --check test/unit/t05/01-exports-factory.test.mjs test/unit/t05/02-validation-identity.test.mjs test/unit/t05/03-query-serialization.test.mjs test/unit/t05/04-hooks-fences-dispatch.test.mjs test/unit/t05/05-budgets-deadlines-retry.test.mjs test/unit/t05/06-errors-uncertainty.test.mjs test/unit/t05/07-results-decode.test.mjs test/unit/t05/08-error-event-interface.test.mjs test/unit/t05/10-replay-identity.test.mjs test/unit/t05/11-import-smoke.test.mjs test/fault/t05/abort-timing.test.mjs test/fault/t05/loopback-wire.test.mjs test/fault/t05/loopback-tls.test.mjs test/fault/t05/production-limits.test.mjs test/fault/t05/proxy-boundary.test.mjs test/unit/t05/helpers.mjs test/fault/t05/helpers.mjs test/unit/t05/import-smoke-child.mjs test/fault/t05/proxy-boundary-child.mjs",
+      "exit": 0
+    }
+  ],
+  "status": "passed",
+  "privateProviderLauncherSha256": "f14b483b817bbd2f033fc7f0d7101a1eee6914ff034f1ec8730caaa4365c1ddd",
+  "buildMatchesFrozenRelay": true,
+  "sourcesUnchanged": true,
+  "cleanup": "Disposable source/HOME/temp/cache removed; private-provider launcher owns isolated daemon/keyring teardown",
+  "limits": "Bounded T05 + foundation/T03/T04 only; deferred/parked suites excluded explicitly, no backend/host/Google/Android/release claim"
+}

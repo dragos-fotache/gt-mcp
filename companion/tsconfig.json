@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig.json",
+  "compilerOptions": {
+    "target": "ES2023",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "rootDir": "src",
+    "outDir": "dist",
+    "declaration": true,
+    "sourceMap": false,
+    "strict": true,
+    "exactOptionalPropertyTypes": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+    "verbatimModuleSyntax": true,
+    "forceConsistentCasingInFileNames": true,
+    // Approved T01 exception (coordinator): skipLibCheck here ONLY, for the
+    // 43x TS1543 diagnostics in @earendil-works/pi-ai@1.1.0 provider .d.ts
+    // files (JSON imports without type:json attributes under NodeNext),
+    // independently reproduced by Developer and coordinator. Root config stays
+    // fully checked. Revisit on any Pi upgrade.
+    "skipLibCheck": true,
+    "types": []
+  },
+  "include": ["src"]
+}

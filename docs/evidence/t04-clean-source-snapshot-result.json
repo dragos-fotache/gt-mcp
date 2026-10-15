@@ -1,0 +1,65 @@
+{
+  "tag": "t04-f4",
+  "snapshotKind": "allowlisted source, not clone/release",
+  "sourceFileCount": 136,
+  "sourceInventorySha256": "b4a77296f87feaa338786576b83a14df2ce33036033534ba6c44c46f6e92b427",
+  "commands": [
+    {
+      "command": "node --version",
+      "exit": 0
+    },
+    {
+      "command": "npm --version",
+      "exit": 0
+    },
+    {
+      "command": "npm ci --ignore-scripts",
+      "exit": 0
+    },
+    {
+      "command": "npm run typecheck",
+      "exit": 0
+    },
+    {
+      "command": "npm run lint:production",
+      "exit": 0
+    },
+    {
+      "command": "npm run format:check:production",
+      "exit": 0
+    },
+    {
+      "command": "npm run build",
+      "exit": 0
+    },
+    {
+      "command": "node node_modules/vitest/vitest.mjs run test/unit/t04",
+      "exit": 0
+    },
+    {
+      "command": "bash /tmp/gt-mcp-t04-qa-private-run.sh test/fault/t04",
+      "exit": 0
+    },
+    {
+      "command": "npm run smoke",
+      "exit": 0
+    },
+    {
+      "command": "node node_modules/vitest/vitest.mjs run test/unit/t03",
+      "exit": 0
+    },
+    {
+      "command": "node node_modules/eslint/bin/eslint.js test/unit/t04 test/fault/t04",
+      "exit": 0
+    },
+    {
+      "command": "node node_modules/prettier/bin/prettier.cjs --check test/unit/t04 test/fault/t04",
+      "exit": 0
+    }
+  ],
+  "status": "passed",
+  "buildMatchesFrozenRelay": true,
+  "sourcesUnchanged": true,
+  "cleanup": "Disposable source/HOME/temp/npm-cache removed; private provider daemon/keyring teardown",
+  "limits": "Owning T04+foundation+T03 only; no parked suite, backend, whole-machine rollback, hardware power-loss or release claim"
+}

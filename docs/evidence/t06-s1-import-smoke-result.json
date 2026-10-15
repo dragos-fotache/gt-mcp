@@ -1,0 +1,11 @@
+{
+  "artifactId": "t06-s1-f1",
+  "observation": "isolated public auth import plus coordinator source audit; not comprehensive IO interception",
+  "exit": 0,
+  "elapsedMs": 28,
+  "exactExportOutput": true,
+  "stderrEmpty": true,
+  "naturalTermination": true,
+  "cleanup": "Owned disposable HOME/temp removed",
+  "status": "passed"
+}

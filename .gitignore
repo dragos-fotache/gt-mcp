@@ -1,0 +1,32 @@
+# Dependencies and build output
+node_modules/
+dist/
+coverage/
+*.tsbuildinfo
+
+# Pi local harness and state (never project inputs)
+.pi/
+
+# Environment and private state (risk reduction only; never store secrets here)
+.env
+.env.*
+!.env.example
+.private/
+private/
+profiles/
+vault/
+journals/
+receipts/
+
+# Credential and key material
+*.pem
+*.key
+credentials*.json
+auth.json
+
+# Local logs
+*.log
+logs/
+
+# Independent shared-docs checkout (separate repository; see ADR)
+/shared-docs/
