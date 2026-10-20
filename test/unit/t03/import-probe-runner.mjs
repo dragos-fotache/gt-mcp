@@ -157,7 +157,7 @@ export function expectCleanImport(scope, result, label) {
 }
 
 // Verified pinned-vendor globals only (adjudication
-// docs/decisions/t03-zod-import-adjudication.md): exactly the two named own
+// the pinned-Zod import contract): exactly the two named own
 // DATA properties with nonnull object values and no accessors. No wildcard,
 // prefix, or blanket ignores; any other added/removed global name fails.
 // Descriptor categories only — registry/config contents are never recorded.

@@ -6,8 +6,7 @@
 // metadata assertions — never production sources or generated implementation
 // contents (spec §6). Source/secret and implementation-side scope audits, and
 // companion emitted-JS bundle proof beyond metadata, remain coordinator-owned;
-// the boundary is documented in docs/evidence/t01-qa-calibration.md, not in a
-// placeholder check.
+// these metadata checks do not establish live interoperability.
 
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { spawnSync } from "node:child_process";
@@ -109,9 +108,10 @@ describe("T01 package identity and toolchain pins (approved spec §1)", () => {
     }
   });
 
-  it("Node pin files record the selected runtime and a lockfile exists", () => {
-    expect(readText(".node-version").trim()).toBe("24.21.0");
-    expect(readText(".nvmrc").trim()).toBe("24.21.0");
+  it("uses machine Node without exact local pins and keeps CI on the minimum major", () => {
+    expect(exists(".node-version")).toBe(false);
+    expect(exists(".nvmrc")).toBe(false);
+    expect(readText(".github/workflows/ci.yml")).toMatch(/node-version: "24"/);
     expect(exists("package-lock.json")).toBe(true);
   });
 
@@ -314,7 +314,7 @@ describe("T01 ignore rules verified by real git matching (approved spec §6)", (
     "test/foundation/cli-inert.test.mjs",
     "package.json",
     "companion/package.json",
-    "docs/evidence/t01-qa-plan.md",
+    "docs/development.md",
     "AGENTS.md",
   ];
 
@@ -420,6 +420,6 @@ describe("T01 artifact inventory and compatibility matrix (approved spec §§2, 
     expect(new Set(actualComponents).size, "component names must be unique").toBe(
       EXPECTED_COMPONENTS.length,
     );
-    expect(text, "matrix must record the selected Node pin").toContain("24.21.0");
+    expect(text, "matrix must record the current runtime minimum").toContain(">=24.0.0");
   });
 });

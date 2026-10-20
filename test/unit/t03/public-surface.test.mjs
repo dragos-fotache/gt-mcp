@@ -58,7 +58,7 @@ describe("T03 public export surface (spec section 2)", () => {
 
   it("domain entry imports cleanly under arbitrary argv (verified vendor globals only)", () => {
     // Adjudicated test correction
-    // (docs/decisions/t03-zod-import-adjudication.md): the domain entry may
+    // (the pinned-Zod import contract): the domain entry may
     // show only the verified pinned-dependency addition set — exactly the
     // two named own data properties — with all other channels clean. No
     // wildcard/prefix ignores; any other global addition fails.

@@ -20,7 +20,8 @@ def sha(path):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    for name in ("inventory", "android-root", "backend-root", "sdk", "node", "provider", "libraries", "output"):
+    for name in ("inventory", "android-root", "backend-root", "sdk", "node", "provider", "libraries", "output",
+                 "selection", "regression-selection"):
         parser.add_argument("--" + name, required=True)
     args = parser.parse_args()
     workspace = Path.cwd()
@@ -52,8 +53,8 @@ def main():
             shutil.copy2(workspace / relative, destination)
             if sha(destination) != expected:
                 raise RuntimeError("Source copy mismatch")
-        for selection in ("t16-s7-selection.json", "t16-s7-regression-selection.json"):
-            relative = Path("docs/evidence") / selection
+        for selection in (args.selection, args.regression_selection):
+            relative = Path(selection)
             (target / relative).parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(workspace / relative, target / relative)
         for name in ("home", "cache", "runtime"):
@@ -89,13 +90,13 @@ def main():
         result = subprocess.run(
             ["python3", "test/backend-interoperability/run-android.py", "--android-root", args.android_root,
              "--backend-root", args.backend_root, "--sdk", args.sdk, "--node", args.node, "--provider", args.provider,
-             "--libraries", args.libraries, "--selection", "docs/evidence/t16-s7-selection.json", "--output", args.output],
+             "--libraries", args.libraries, "--selection", args.selection, "--output", args.output],
             cwd=target, env=execution_env, timeout=1800)
         report["owningExitCode"] = result.returncode
         if result.returncode == 0:
             result = subprocess.run(
                 ["python3", "test/create-stdio/run-isolated.py", args.node, args.provider, args.libraries,
-                 "docs/evidence/t16-s7-regression-selection.json", args.output + "-regressions"],
+                 args.regression_selection, args.output + "-regressions"],
                 cwd=target, env=execution_env, timeout=660)
             report["regressionsExitCode"] = result.returncode
         code = result.returncode

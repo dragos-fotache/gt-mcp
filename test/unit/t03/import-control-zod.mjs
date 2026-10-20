@@ -4,7 +4,7 @@
 // production contents) so the probe can record its verified initialization:
 // exactly __zod_globalConfig and __zod_globalRegistry as own data.
 // Expected probe outcome: clean channels plus exactly that vendor set.
-// See docs/decisions/t03-zod-import-adjudication.md (read by QA as spec).
+// See the pinned-Zod import contract (read by QA as spec).
 
 import "zod";
 

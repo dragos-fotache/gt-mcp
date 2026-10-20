@@ -1,7 +1,7 @@
 /* global TextDecoder, TextEncoder */
 
 // T06-S5 QA s5 helper — independent, derived ONLY from the settled S5 work
-// order (docs/tasks/t06-s5-work-order.md) and its PUBLIC references. No
+// order (shared MCP authentication/session contract) and its PUBLIC references. No
 // production/implementation imports here (pure builders; dist entry points
 // are imported by the test files, never executed before the coordinator's
 // named frozen relay). Reuses the accepted S1 helper only for the S1-shaped

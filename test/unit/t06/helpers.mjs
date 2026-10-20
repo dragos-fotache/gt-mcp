@@ -1,7 +1,7 @@
 /* global AbortController, TextDecoder, TextEncoder */
 
 // T06-S1 QA synthetic fixtures — independent, derived ONLY from the
-// decision-ready S1 work order (docs/tasks/t06-s1-work-order.md) and the
+// decision-ready S1 work order (shared MCP authentication/session contract) and the
 // normative references it names. No production/implementation imports here.
 //
 // SYNTHETIC PROVENANCE: every UUID/token/timestamp below is fabricated for

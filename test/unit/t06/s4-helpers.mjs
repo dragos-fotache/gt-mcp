@@ -1,7 +1,7 @@
 /* global TextDecoder, TextEncoder */
 
 // T06-S4 QA s4 helper — independent, derived ONLY from the settled S4 work
-// order (docs/tasks/t06-s4-work-order.md) and its PUBLIC references. No
+// order (shared MCP authentication/session contract) and its PUBLIC references. No
 // production/implementation imports here (pure builders; dist entry points
 // are imported by the test files, never executed before the coordinator's
 // named frozen relay).

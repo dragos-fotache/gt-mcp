@@ -1,7 +1,0 @@
-[
-  "test/packaging/artifact-install.test.mjs",
-  "test/packaging/documents.test.mjs",
-  "test/packaging/holder.test.mjs",
-  "test/packaging/replacement-recovery.test.mjs",
-  "test/unit/t12/s4-disclosures.test.mjs"
-]

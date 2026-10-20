@@ -1,9 +1,0 @@
-{
-  "passed": 43,
-  "failed": 0,
-  "pending": 0,
-  "todo": 0,
-  "success": true,
-  "file": "test/foundation/package-contract.test.mjs",
-  "scope": "Final status/compatibility prose only; separate from runtime450/450"
-}

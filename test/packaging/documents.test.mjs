@@ -4,7 +4,7 @@ import path from "node:path";
 import { afterAll, beforeAll, expect, it } from "vitest";
 import { validateConfigRecord } from "../../dist/runtime/config.js";
 import { validateSettings } from "../../dist/login/records.js";
-import { createArtifactFixture, REPO, readJson, run } from "./helpers.mjs";
+import { createArtifactFixture, readJson, run } from "./helpers.mjs";
 
 let fixture;
 let texts;
@@ -118,9 +118,20 @@ it("documents approved budget defaults/ranges and the essential recovery/privacy
         ([, field, value, min, max]) => [field, [Number(value), Number(min), Number(max)]],
       ),
     );
-  const expected = table(
-    fs.readFileSync(path.join(REPO, "docs/decisions/t05-approved-transport-spec.md"), "utf8"),
-  );
+  // Approved transport-budget contract; independent of the operator guide under test.
+  const expected = {
+    maxRequestBytes: [262144, 64, 16777216],
+    maxRequestTargetBytes: [4096, 64, 65536],
+    maxResponseBytes: [1048576, 64, 16777216],
+    maxProjectedResultBytes: [1048576, 64, 16777216],
+    maxHeadBytes: [32768, 4096, 131072],
+    maxHeaderCount: [100, 10, 1000],
+    perAttemptTimeoutMs: [10000, 50, 120000],
+    totalDeadlineMs: [60000, 100, 600000],
+    maxAttempts: [3, 1, 5],
+    baseRetryDelayMs: [500, 0, 10000],
+    maxRetryDelayMs: [5000, 0, 60000],
+  };
   expect(Object.keys(expected)).toHaveLength(11);
   expect(table(texts["docs/stdio-server.md"])).toEqual({
     ...expected,

@@ -21,7 +21,8 @@ def sha(file):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     for name in ("node", "provider", "libraries", "baseline", "inventory", "delivery",
-                 "backend-root", "android-root", "output"):
+                 "backend-root", "android-root", "output",
+                 "main-selection", "storage-selection", "cleanup-selection"):
         parser.add_argument("--" + name, required=True)
     args = parser.parse_args()
     workspace = Path.cwd()
@@ -31,10 +32,7 @@ def main():
     assert reference["failed"] == reference["pending"] == reference["todo"] == 0
     assert all(result["other"] == 0 for result in reference["results"])
     source = {p: h for p, h in reference["hashes"].items() if "dist" not in Path(p).parts}
-    oracle = "docs/decisions/t05-approved-transport-spec.md"
-    source[oracle] = "5ff4ddb3e576ac48058654e30c87cd7e7414b0159d9facc04adeb344c04fb168"
-    selections = ["docs/evidence/t21-s6-main-selection.json", "docs/evidence/t21-s6-storage-selection.json",
-                  "docs/evidence/t21-s6-cleanup-selection.json"]
+    selections = [args.main_selection, args.storage_selection, args.cleanup_selection]
     for name in selections:
         source[name] = sha(workspace / name)
     expected_main = json.loads((workspace / selections[0]).read_text())

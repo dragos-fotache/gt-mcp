@@ -1,9 +1,0 @@
-{
-  "node": "24.21.0",
-  "umask": "022",
-  "sourceDirectoryMode": "0700",
-  "copiedDirectoryMode": "0755",
-  "copiedFileMode": "0600",
-  "productionImports": false,
-  "repair": "explicit chmod0700/assert destination fixture; expected fence_mismatch unchanged"
-}

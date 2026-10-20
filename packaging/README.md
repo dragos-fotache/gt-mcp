@@ -1,22 +1,15 @@
-# GymTracka MCP — installer-update private candidate
+# GymTracka MCP
 
-Compiled portable stdio server and trusted local CLI for strict version-2 config,
-single-record credentials and invocation-local routine creation. Version0.0.0 is
-unchanged; identify this candidate by its archive SHA256 and inventory, prepared
-separately under `dist/delivery/installer-update/`. Multiple connected servers may
-share a profile: idle servers release ownership; calls serialize through result
-delivery. S3 parent acceptance and independent review remain pending.
-Node major24 or later is permitted,
-with no upper-version guard; newer-Node compatibility testing was explicitly
-excluded by the user. Original T21-S6 bytes and evidence remain historical.
-This guide does not establish acceptance,
-release approval or a deployed installation. The historical T18-R1 archive and
-existing laptop installation retain their earlier behavior and bundled guides.
+Compiled stdio MCP server, trusted local CLI and installer. The server uses
+version-2 configuration, single-record encrypted credentials and independent
+routine-creation calls. Multiple server processes may share a profile: idle
+connections release ownership; calls serialize through result delivery. Identify
+this private build by its archive SHA256 and inventory, rather than version 0.0.0
+alone. Archive availability is not release certification.
 
-Use Linux x64, Node24 or later, compatible util-linux flock and an unlocked
+Use Linux x64, Node.js 24 or later, compatible util-linux flock and an unlocked
 OS Secret Service on an explicitly selected Unix bus. Required safe local IO must
-work; there is no filesystem-name gate. Agent evidence uses disposable ext4;
-Btrfs testing is user-owned. No general filesystem or power-loss claim follows.
+work; there is no filesystem-name gate. Btrfs qualification is user-owned. No general filesystem or power-loss claim follows.
 Desktop browser login also needs xdg-open and prepared Google/localhost settings.
 
 For prompted installation, verify/extract this archive and run node install.mjs.
@@ -33,11 +26,11 @@ config/profile/key and Hermes registration. Follow the
 [update procedure](docs/installation.md#updating-a-compatible-installation).
 
 Verify the exact archive checksum, extract into a fresh dedicated application
-directory and run `npm ci --omit=dev --ignore-scripts` using Node24 or later.
+directory and run `npm ci --omit=dev --ignore-scripts` using Node.js 24 or later.
 Extract-and-ci is the sole supported installation route. Dependencies require
 registry/cache access and are not bundled. No global package, compilation, Pi
 runtime or permission extension is needed. Start the absolute installed
-`dist/protocol/server.js` or `dist/cli/main.js` entry using Node24 or later.
+`dist/protocol/server.js` or `dist/cli/main.js` entry using Node.js 24 or later.
 
 Start with [installation and prerequisites](docs/installation.md), then
 [trusted setup/login/lifecycle](docs/login.md), [server operations](docs/stdio-server.md)
@@ -63,9 +56,9 @@ transcripts, backups or snapshots.
 
 Existing config1/old-format profiles are refused without migration, replay or
 reset. Inspect old uncertain remote work, select a separate nonexistent new root
-and sign in afresh using config2. Keep historical state untouched unless separately
+and sign in afresh using config2. Keep existing state untouched unless separately
 performing explicit cleanup under its own bundled guide. Keep executable replacement
 separate from private config, credentials.enc, owner.lock and the OS-protected key.
 
-This private candidate grants no new project license. Runtime dependency notices
+This private package grants no new project license. Runtime dependency notices
 are in THIRD-PARTY-NOTICES.txt; dependency packages retain their own terms.

@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "description": "GymTracka MCP adapter foundation (T01 inert scaffolding; no domain behavior yet)",
+  "description": "Local stdio MCP server and trusted CLI for GymTracka",
   "packageManager": "npm@11.19.0",
   "engines": {
     "node": ">=24.0.0"
@@ -22,9 +22,9 @@
     "lint:production": "eslint scripts src companion/src experiments/t02/companion experiments/t02/driver experiments/t02/driver-files experiments/t02/fixture-server eslint.config.mjs vitest.config.ts",
     "lint:t02": "eslint experiments/t02/companion experiments/t02/driver experiments/t02/driver-files experiments/t02/fixture-server",
     "lint": "eslint .",
-    "format:check:production": "prettier --check --ignore-unknown scripts packaging src companion/src experiments/t02/companion experiments/t02/driver experiments/t02/driver-files experiments/t02/fixture-server experiments/t02/metadata.json experiments/t02/tsconfig.json package.json companion/package.json tsconfig.json companion/tsconfig.json eslint.config.mjs vitest.config.ts .prettierrc.json .prettierignore .node-version .nvmrc .github AGENTS.md docs/decisions/t01-implementation-adr.md docs/compatibility.md",
+    "format:check:production": "prettier --check --ignore-unknown scripts packaging src companion/src experiments/t02/companion experiments/t02/driver experiments/t02/driver-files experiments/t02/fixture-server experiments/t02/metadata.json experiments/t02/tsconfig.json package.json companion/package.json tsconfig.json companion/tsconfig.json eslint.config.mjs vitest.config.ts .prettierrc.json .prettierignore .github AGENTS.md README.md docs",
     "format:check:t02": "prettier --check --ignore-unknown experiments/t02/companion experiments/t02/driver experiments/t02/driver-files experiments/t02/fixture-server experiments/t02/metadata.json experiments/t02/tsconfig.json",
-    "format:check": "prettier --check --ignore-unknown scripts packaging src companion/src test experiments/t02/companion experiments/t02/driver experiments/t02/driver-files experiments/t02/fixture-server experiments/t02/metadata.json experiments/t02/tsconfig.json package.json companion/package.json tsconfig.json companion/tsconfig.json eslint.config.mjs vitest.config.ts .prettierrc.json .prettierignore .node-version .nvmrc .github AGENTS.md docs/decisions/t01-implementation-adr.md docs/compatibility.md",
+    "format:check": "prettier --check --ignore-unknown scripts packaging src companion/src test experiments/t02/companion experiments/t02/driver experiments/t02/driver-files experiments/t02/fixture-server experiments/t02/metadata.json experiments/t02/tsconfig.json package.json companion/package.json tsconfig.json companion/tsconfig.json eslint.config.mjs vitest.config.ts .prettierrc.json .prettierignore .github AGENTS.md README.md docs",
     "build": "rm -rf dist companion/dist && tsc -p tsconfig.json && tsc -p companion/tsconfig.json && chmod +x dist/protocol/server.js dist/cli/index.js dist/cli/main.js",
     "test": "vitest run",
     "test:t02": "vitest run test/pi-feasibility",

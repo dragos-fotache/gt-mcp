@@ -1,7 +1,7 @@
 """Fixed T18-R1 clean replay; explicit isolated prerequisites, no ambient npm config.
 
 Usage: python3 test/packaging/reproduce-refresh.py <node> <provider> <libraries>
-       <baseline> <workspace-inventory> <delivery-directory> <output-prefix>
+       <baseline> <workspace-inventory> <delivery-directory> <output-prefix> <selection>
 """
 import hashlib
 import json
@@ -17,7 +17,7 @@ def sha(file):
     return hashlib.sha256(file.read_bytes()).hexdigest()
 
 
-node, provider, libraries, baseline, reference_file, delivery, output = sys.argv[1:]
+node, provider, libraries, baseline, reference_file, delivery, output, selection = sys.argv[1:]
 workspace = Path.cwd()
 baseline = Path(baseline).resolve()
 delivery = Path(delivery).resolve()
@@ -26,10 +26,6 @@ assert reference["success"] and reference["stable"] and reference["exitCode"] ==
 assert reference["failed"] == reference["pending"] == reference["todo"] == 0
 assert all(result["other"] == 0 for result in reference["results"])
 source = {p: h for p, h in reference["hashes"].items() if "dist" not in Path(p).parts}
-# Required unchanged independent oracle for the shipped operational-budget table.
-oracle = "docs/decisions/t05-approved-transport-spec.md"
-source[oracle] = "5ff4ddb3e576ac48058654e30c87cd7e7414b0159d9facc04adeb344c04fb168"
-selection = "docs/evidence/t18-r1-selection.json"
 source[selection] = sha(workspace / selection)
 emitted = {p: h for p, h in reference["hashes"].items()
            if p.startswith(("dist/", "companion/dist/"))

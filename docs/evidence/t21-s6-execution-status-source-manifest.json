@@ -1,9 +1,0 @@
-{
-  "purpose": "Exact two monitored status documents used by final workspace and clean runtime proof; later closure prose is reconciled separately. Restore only in a disposable reproduction snapshot, never over current working status.",
-  "archive": "docs/evidence/t21-s6-execution-status-sources.tar.gz",
-  "archiveSha256": "16929124899931b1fa4219008ee495a99bc73b66ec34c494f9c8e74a92e10a3b",
-  "files": {
-    "AGENTS.md": "413f2608b23ff5d068ddb6b24ccf79e2e0bd7eea66e0af65b0bac208b59e38cf",
-    "docs/compatibility.md": "2f7ef239c4f4deee27bab0ea714d4108c17a44cc64b9a94bc9f7e22543140683"
-  }
-}

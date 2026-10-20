@@ -1,7 +1,0 @@
-[
-  "test/installer/install.test.mjs",
-  "test/packaging/artifact-install.test.mjs",
-  "test/packaging/documents.test.mjs",
-  "test/packaging/holder.test.mjs",
-  "test/foundation/package-contract.test.mjs"
-]

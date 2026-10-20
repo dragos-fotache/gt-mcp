@@ -48,14 +48,7 @@ export function hashes() {
     ".gitignore",
     ".prettierignore",
     ".prettierrc.json",
-    ".node-version",
-    ".nvmrc",
-    "docs/compatibility.md",
-    "docs/decisions/t01-implementation-adr.md",
-    "docs/installation.md",
-    "docs/login.md",
-    "docs/stdio-server.md",
-    "docs/recovery.md",
+    "docs",
   ])
     visit(p);
   return result;

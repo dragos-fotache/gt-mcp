@@ -1,5 +1,0 @@
-[
-  "test/fault/t09/s3-persistence.test.mjs",
-  "test/fault/t12/s1-lifecycle.test.mjs",
-  "test/fault/t12/s3-status.test.mjs"
-]

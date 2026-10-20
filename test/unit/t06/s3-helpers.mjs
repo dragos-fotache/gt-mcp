@@ -1,7 +1,7 @@
 /* global TextDecoder, TextEncoder, setTimeout */
 
 // T06-S3 QA s3 helper — independent, derived ONLY from the settled S3 work
-// order (docs/tasks/t06-s3-work-order.md) and its PUBLIC references. No
+// order (shared MCP authentication/session contract) and its PUBLIC references. No
 // production/implementation imports here.
 //
 // SYNTHETIC PROVENANCE: every UUID/token/timestamp below is fabricated for
