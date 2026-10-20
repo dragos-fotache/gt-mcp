@@ -117,7 +117,7 @@ describe("S2 configured S1 composition (separate isolated relay)", () => {
     }
   });
 
-  it("true write policy cannot activate creation and config/descriptor are detached startup snapshots", async () => {
+  it("true write policy cannot activate creation and config is a detached startup snapshot", async () => {
     const fixture = await prepare();
     let session;
     try {
@@ -126,7 +126,6 @@ describe("S2 configured S1 composition (separate isolated relay)", () => {
       session = await connectServer(server);
       // No watcher/reload: after startup both metadata files become invalid.
       fixture.write({ version: "synthetic-invalid-replacement" });
-      fs.writeFileSync(fixture.descriptorPath, "{}");
       expectError(
         await rawCall(session.client, { name: "create_routine", arguments: CREATE_ARGS }),
         "configuration_required",

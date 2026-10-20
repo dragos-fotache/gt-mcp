@@ -32,12 +32,18 @@ function attribute(value: string): string {
 }
 
 /** Render the fixed trusted login page. No IO occurs while rendering or importing. */
-export function renderLoginPage({
-  settings,
-  challenge,
-  csrf,
-  scriptNonce,
-}: LoginPageOptions): string {
+export function renderLoginPage(options: LoginPageOptions): string {
+  return renderPage(options, false);
+}
+
+export function renderAccountStatusPage(options: LoginPageOptions): string {
+  return renderPage(options, true);
+}
+
+function renderPage(
+  { settings, challenge, csrf, scriptNonce }: LoginPageOptions,
+  accountStatus: boolean,
+): string {
   const nonce = attribute(scriptNonce);
   const configuration = scriptJson({
     clientId: settings.googleWebClientId,
@@ -49,7 +55,7 @@ export function renderLoginPage({
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>GymTracka login</title>
+<title>${accountStatus ? "GymTracka account status" : "GymTracka login"}</title>
 <style nonce="${nonce}">
 body { font: 1rem/1.5 system-ui, sans-serif; margin: 3rem auto; padding: 0 1rem; max-width: 34rem; color: #17202a; background: #fff; }
 button { font: inherit; padding: .5rem 1rem; margin-top: 1rem; }
@@ -58,8 +64,8 @@ button { font: inherit; padding: .5rem 1rem; margin-top: 1rem; }
 </head>
 <body>
 <main>
-<h1>Sign in to GymTracka</h1>
-<p>Choose your Google account to sign in. Keep this page open until login finishes.</p>
+<h1>${accountStatus ? "Verify cached account status" : "Sign in to GymTracka"}</h1>
+<p>${accountStatus ? "Use Google to verify this cached account. If the service confirms deletion, matching local credentials will be removed. This does not delete your backend account. Keep this page open until verification finishes." : "Choose your Google account to sign in. Keep this page open until login finishes."}</p>
 <div id="google-signin" aria-label="Sign in with Google"></div>
 <p id="status" role="status" aria-live="polite">Loading Google sign-in…</p>
 <button id="cancel" type="button">Cancel</button>
@@ -76,8 +82,8 @@ button { font: inherit; padding: .5rem 1rem; margin-top: 1rem; }
   let initialized = false;
   let admitted = false;
   let cancelled = false;
-  const failure = "Login could not finish. Return to the trusted local application for recovery or a new attempt.";
-  const setupFailure = "Google sign-in could not load. Check the configured Google web client and authorized localhost origin, then start a new login from the trusted local application.";
+  const failure = ${scriptJson(accountStatus ? "Account-status verification could not finish. Start a fresh attempt from the trusted local application." : "Login could not finish. Return to the trusted local application for recovery or a new attempt.")};
+  const setupFailure = "Google sign-in could not load. Check the configured Google web client and authorized localhost origin, then start a new ${accountStatus ? "verification" : "login"} from the trusted local application.";
 
   function disableSignIn() {
     signIn.replaceChildren();
@@ -95,7 +101,7 @@ button { font: inherit; padding: .5rem 1rem; margin-top: 1rem; }
       status.textContent = failure;
       return;
     }
-    status.textContent = "Finishing login…";
+    status.textContent = "${accountStatus ? "Verifying account status…" : "Finishing login…"}";
     let body = JSON.stringify({ csrf: configuration.csrf, idToken });
     idToken = null;
     let request;
@@ -118,7 +124,7 @@ button { font: inherit; padding: .5rem 1rem; margin-top: 1rem; }
     request.then((result) => {
       if (cancelled) return;
       status.textContent = result.ok
-        ? "Login complete. Return to the trusted local application. You may close this page."
+        ? "${accountStatus ? "Account-status verification complete" : "Login complete"}. Return to the trusted local application. You may close this page."
         : failure;
     }).catch(() => {
       if (!cancelled) status.textContent = failure;
@@ -151,7 +157,7 @@ button { font: inherit; padding: .5rem 1rem; margin-top: 1rem; }
     cancelled = true;
     disableSignIn();
     cancel.disabled = true;
-    status.textContent = "Cancelling login…";
+    status.textContent = "${accountStatus ? "Cancelling verification…" : "Cancelling login…"}";
     fetch("/cancel", {
       method: "POST",
       mode: "same-origin",
@@ -162,7 +168,7 @@ button { font: inherit; padding: .5rem 1rem; margin-top: 1rem; }
       body: JSON.stringify({ csrf: configuration.csrf })
     }).then((result) => {
       status.textContent = result.ok
-        ? "Login cancelled. Return to the trusted local application. You may close this page."
+        ? "${accountStatus ? "Account-status verification cancelled" : "Login cancelled"}. Return to the trusted local application. You may close this page."
         : failure;
     }).catch(() => { status.textContent = failure; });
   });

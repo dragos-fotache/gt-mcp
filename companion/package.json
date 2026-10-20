@@ -5,7 +5,7 @@
   "type": "module",
   "description": "GymTracka Pi approval companion (T01 inert extension scaffolding)",
   "engines": {
-    "node": ">=24.21.0 <25"
+    "node": ">=24.0.0"
   },
   "pi": {
     "extensions": [

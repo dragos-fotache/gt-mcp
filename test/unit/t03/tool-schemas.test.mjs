@@ -114,7 +114,7 @@ function workoutRecord(revision = "3") {
 }
 
 function receipt() {
-  return { operationId: U.operation, routineId: U.routine, status: "saved" };
+  return { routineId: U.routine, status: "saved" };
 }
 
 function successEnvelope(name) {
@@ -341,7 +341,6 @@ describe("T03 compiled strict input matrices (M03 schema aspect)", () => {
     create_routine: [
       validCreateInput(),
       {
-        operationId: U.operation,
         name: "Upper Body A",
         exercises: [{ exerciseId: U.exerciseA, sets: [{}] }],
       },

@@ -16,15 +16,23 @@ const DESCRIPTIONS: Readonly<Record<ToolName, string>> = {
     "Routine creation is unavailable in this build; configuration alone cannot enable it.",
 };
 
-export function catalogue(): Tool[] {
+export function catalogue(creation = false): Tool[] {
   return TOOL_NAMES.map((name) => ({
     name,
-    description: DESCRIPTIONS[name],
+    description:
+      name === "create_routine" && creation
+        ? "Create a saved routine when operator config-file writesEnabled is true. Any connected client may request valid authenticated creation without per-routine confirmation. Each call starts fresh; repeating it may duplicate a routine. Interrupted attempts cannot be resumed."
+        : DESCRIPTIONS[name],
     inputSchema: structuredClone(toolSchemas[name].inputSchema) as Tool["inputSchema"],
     outputSchema: { ...structuredClone(toolSchemas[name].outputSchema), type: "object" },
     annotations:
       name === "create_routine"
-        ? { readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true }
+        ? {
+            readOnlyHint: false,
+            destructiveHint: false,
+            idempotentHint: false,
+            openWorldHint: true,
+          }
         : { readOnlyHint: true, idempotentHint: true, openWorldHint: true },
   }));
 }

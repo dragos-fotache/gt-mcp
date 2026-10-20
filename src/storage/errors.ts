@@ -23,8 +23,6 @@ export type StorageErrorCode =
   | "resource_exhausted"
   | "binding_mismatch"
   | "generation_mismatch"
-  | "fence_mismatch"
-  | "anchor_missing"
   | "already_provisioned"
   | "incomplete_provision"
   | "not_provisioned"
@@ -47,8 +45,6 @@ export const STORAGE_ERROR_CODES: readonly StorageErrorCode[] = [
   "resource_exhausted",
   "binding_mismatch",
   "generation_mismatch",
-  "fence_mismatch",
-  "anchor_missing",
   "already_provisioned",
   "incomplete_provision",
   "not_provisioned",

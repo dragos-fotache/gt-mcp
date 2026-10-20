@@ -1,0 +1,16 @@
+{
+  "task": "T16-S1",
+  "status": "FAIL",
+  "stage": "shared-input verification",
+  "realGoogle": false,
+  "androidObservation": false,
+  "node": "24.21.0",
+  "npm": "11.19.0",
+  "launcherSha256": "631180c5f573a9ad2e51772e1ac32d7729ca955b0d25817d27dab16ab51bc3c8",
+  "backendCommit": "1d20cec9cf5c5465d52a2ca90a472f83dbf527f1",
+  "backendDirty": true,
+  "failureClass": "CalledProcessError",
+  "ownedBackendExited": true,
+  "privateBackendConfigRemoved": true,
+  "privateSnapshotRemoved": true
+}

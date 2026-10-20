@@ -1,0 +1,42 @@
+{
+  "comparison": "Accepted S4 runtime inventory vs final S5 runtime inventory; status prose closes separately afterward",
+  "baselineFileCount": 569,
+  "finalRuntimeFileCount": 569,
+  "changedRuntimeInputPaths": [
+    "test/backend-interoperability/account-deletion.test.mjs",
+    "test/backend-interoperability/auth-restart.test.mjs",
+    "test/backend-interoperability/checkpoint-child.mjs",
+    "test/backend-interoperability/checkpoint-helper.mjs",
+    "test/backend-interoperability/crash-cancellation.test.mjs",
+    "test/backend-interoperability/creation-decisions.test.mjs",
+    "test/backend-interoperability/creation-replay.test.mjs",
+    "test/backend-interoperability/helpers.mjs",
+    "test/backend-interoperability/races-lifecycle.test.mjs",
+    "test/backend-interoperability/run-isolated.py",
+    "test/pi-integration/helpers.mjs",
+    "test/pi-integration/paths-policy.test.mjs"
+  ],
+  "addedRuntimeInputPaths": [],
+  "unchangedRuntimeInputCount": 557,
+  "compiledOutputCount": 176,
+  "allCompiledOutputsByteIdenticalToS4": true,
+  "productionBackendContractDependencyChanges": false,
+  "completeActiveS5CreationProtocolBackendSelection": true,
+  "androidCurrentArtifactGate": "Preserved unchanged, explicitly outside S5 execution, not passed; no whole-T16 acceptance claim",
+  "documentationOnlyClosureDeltas": {
+    "AGENTS.md": {
+      "runtimeSha256": "1b2364c418fc3034ab3707cbb051b3e1395c5ca4d430cf213b677698c389d36d",
+      "closureSha256": "413f2608b23ff5d068ddb6b24ccf79e2e0bd7eea66e0af65b0bac208b59e38cf"
+    },
+    "docs/compatibility.md": {
+      "runtimeSha256": "ec23d4980302f8f222097b55f33eaf4bbcee23ea75950c8d6c3b3066236b29ef",
+      "closureSha256": "2f7ef239c4f4deee27bab0ea714d4108c17a44cc64b9a94bc9f7e22543140683"
+    }
+  },
+  "executionSourceTestCompiledBytesStillMatch": true,
+  "contractFilesSnapshotUnchanged": 34,
+  "R1Sha256": "ed5877dd16fc79043bc8773d3d15bb6fed2887dc891100ccebf8ddf2b3b22563",
+  "noStagingOrCommits": true,
+  "piUntouched": true,
+  "parentAcceptance": false
+}

@@ -6,17 +6,34 @@ import type { Transport } from "@modelcontextprotocol/sdk/shared/transport.js";
 import { z } from "zod";
 import { TOOL_NAMES, parseArguments } from "../domain/index.js";
 import type { ReadToolName, ToolName } from "../domain/index.js";
-import type { ReadRuntime } from "../runtime/index.js";
+import type { ReadRuntime, ToolRuntime } from "../runtime/index.js";
 import { isReadRuntimeError } from "../runtime/index.js";
-import { openReadRuntimeSnapshot } from "../runtime/read.js";
+import { openReadRuntimeSnapshot, openToolRuntimeSnapshot } from "../runtime/read.js";
+import { runtimeDelivery } from "../runtime/delivery.js";
+import type { RuntimeDelivery, RuntimeInvocation } from "../runtime/delivery.js";
+import { ProfileAcquisitionError } from "../storage/credential/acquire.js";
+import { RuntimeResponseTransport } from "./delivery.js";
 import { DEFAULT_MAX_TOOL_RESULT_BYTES, isToolResultBudget } from "../runtime/protocolBudget.js";
 import { isReadToolServerError, ReadToolServerError } from "./errors.js";
 import { catalogue } from "./catalogue.js";
-import { boundedResult, failure, readEnvelope, thrownReadFailure } from "./results.js";
+import {
+  boundedResult,
+  boundedCreationResult,
+  creationEnvelope,
+  creationFailure,
+  failure,
+  readEnvelope,
+  thrownReadFailure,
+} from "./results.js";
 import { exactKeys, hasOwn, ownRecord, validMetadata } from "./validation.js";
 
 export interface ReadToolServerOptions {
   readonly runtime: ReadRuntime;
+  readonly maxToolResultBytes?: number;
+}
+
+export interface ToolServerOptions {
+  readonly runtime: ToolRuntime;
   readonly maxToolResultBytes?: number;
 }
 
@@ -32,7 +49,9 @@ export interface ReadToolServer {
 type ReadMethod = (args: unknown, signal: AbortSignal) => Promise<unknown>;
 interface CapturedRuntime {
   readonly reads: Readonly<Record<ReadToolName, ReadMethod>>;
+  readonly create?: ReadMethod;
   readonly close: () => Promise<void>;
+  readonly delivery?: RuntimeDelivery;
 }
 
 const METHODS = {
@@ -70,7 +89,7 @@ function captureMethod(value: unknown, key: string): (...args: unknown[]) => unk
   invalidOptions();
 }
 
-function captureRuntime(value: unknown): CapturedRuntime {
+function captureRuntime(value: unknown, creation: boolean): CapturedRuntime {
   try {
     const reads = Object.fromEntries(
       Object.entries(METHODS).map(([tool, method]) => {
@@ -82,9 +101,18 @@ function captureRuntime(value: unknown): CapturedRuntime {
         ];
       }),
     ) as Record<ReadToolName, ReadMethod>;
+    const create = creation ? captureMethod(value, "createRoutine") : undefined;
     const close = captureMethod(value, "close");
+    const delivery = runtimeDelivery(value as object);
     return {
       reads,
+      ...(delivery === undefined ? {} : { delivery }),
+      ...(create === undefined
+        ? {}
+        : {
+            create: (args: unknown, signal: AbortSignal): Promise<unknown> =>
+              Promise.resolve(create(args, signal)),
+          }),
       close: async (): Promise<void> => {
         await close();
       },
@@ -120,6 +148,17 @@ export function adapterOutcome(server: ReadToolServer): Readonly<AdapterOutcome>
 }
 
 export function createReadToolServer(options: ReadToolServerOptions): ReadToolServer {
+  return createServer(options, false);
+}
+
+export function createToolServer(options: ToolServerOptions): ReadToolServer {
+  return createServer(options, true);
+}
+
+function createServer(
+  options: ReadToolServerOptions | ToolServerOptions,
+  creation: boolean,
+): ReadToolServer {
   const record = ownRecord(options);
   if (
     record === null ||
@@ -131,7 +170,7 @@ export function createReadToolServer(options: ReadToolServerOptions): ReadToolSe
     ? record["maxToolResultBytes"]
     : DEFAULT_MAX_TOOL_RESULT_BYTES;
   if (!isToolResultBudget(budget)) invalidOptions();
-  const runtime = captureRuntime(record["runtime"]);
+  const runtime = captureRuntime(record["runtime"], creation);
   try {
     return createAdapter(runtime, budget);
   } catch {
@@ -151,6 +190,8 @@ function createAdapter(runtime: CapturedRuntime, budget: number): ReadToolServer
   let initialized = false;
   const outcome: AdapterOutcome = { sdkFailed: false, cleanupFailed: false };
   let faultClose: Promise<boolean> | undefined;
+  let responseTransport: RuntimeResponseTransport | undefined;
+  let deliveryFailed = false;
 
   const close = (): Promise<void> => {
     if (closeOutcome !== undefined) return closeOutcome;
@@ -163,6 +204,7 @@ function createAdapter(runtime: CapturedRuntime, budget: number): ReadToolServer
       rejectClose = reject;
     });
     void closeOutcome.catch(() => undefined);
+    responseTransport?.stop();
     const settle = async (): Promise<void> => {
       let failed = false;
       try {
@@ -176,6 +218,7 @@ function createAdapter(runtime: CapturedRuntime, budget: number): ReadToolServer
       } catch {
         failed = true;
       }
+      failed ||= deliveryFailed;
       outcome.cleanupFailed = failed;
       if (failed || outcome.sdkFailed) throw new ReadToolServerError("internal_error");
     };
@@ -211,7 +254,7 @@ function createAdapter(runtime: CapturedRuntime, budget: number): ReadToolServer
     if (hasOwn(request, "params") && request.params !== undefined) {
       checkedParams(request.params, ["_meta"]);
     }
-    return { tools: catalogue() };
+    return { tools: catalogue(runtime.create !== undefined) };
   });
   sdk.fallbackRequestHandler = async (request, extra) => {
     if (request.method !== "tools/call")
@@ -229,27 +272,63 @@ function createAdapter(runtime: CapturedRuntime, budget: number): ReadToolServer
       return boundedResult(tool, failure("invalid_arguments"), budget);
     }
     const interrupted = (): boolean => closing || extra.signal.aborted;
-    if (interrupted()) return boundedResult(tool, failure("operation_interrupted"), budget);
-    if (tool === "create_routine") {
-      return boundedResult(
-        tool,
-        failure("configuration_required", "Routine creation is unavailable in this build."),
-        budget,
-      );
-    }
-    let result: CallToolResult;
-    try {
-      const envelope = await runtime.reads[tool](args, extra.signal);
-      try {
-        result = boundedResult(tool, readEnvelope(tool, envelope), budget);
-      } catch {
-        result = boundedResult(tool, failure("internal_error"), budget);
+    if (interrupted())
+      return boundedResult(tool, failure("operation_interrupted", undefined, tool), budget);
+    let held: RuntimeInvocation | undefined;
+    const invoke = async (): Promise<unknown> => {
+      if (runtime.delivery !== undefined) {
+        held = await runtime.delivery(tool, args, extra.signal);
+        return held.result;
       }
-    } catch (error: unknown) {
-      result = boundedResult(tool, thrownReadFailure(error), budget);
+      return tool === "create_routine"
+        ? runtime.create!(args, extra.signal)
+        : runtime.reads[tool](args, extra.signal);
+    };
+    const perform = async (): Promise<CallToolResult> => {
+      if (tool === "create_routine" && runtime.create !== undefined) {
+        let envelope;
+        try {
+          envelope = creationEnvelope(await invoke());
+        } catch (error: unknown) {
+          envelope = thrownReadFailure(error, tool);
+        }
+        // The configured runtime's private lease keeps this validated history
+        // owned through transport handoff. Never query storage to decorate failure.
+        if (interrupted()) envelope = creationFailure(envelope, "operation_interrupted");
+        return boundedCreationResult(envelope, budget);
+      }
+      if (tool === "create_routine") {
+        return boundedResult(
+          tool,
+          failure("configuration_required", "Routine creation is unavailable in this build."),
+          budget,
+        );
+      }
+      let result: CallToolResult;
+      try {
+        const envelope = await invoke();
+        try {
+          result = boundedResult(tool, readEnvelope(tool, envelope), budget);
+        } catch {
+          result = boundedResult(tool, failure("internal_error"), budget);
+        }
+      } catch (error: unknown) {
+        result = boundedResult(tool, thrownReadFailure(error), budget);
+      }
+      // SDK may suppress the reply; we never deliver a successful late result ourselves.
+      return interrupted()
+        ? boundedResult(tool, failure("operation_interrupted", undefined, tool), budget)
+        : result;
+    };
+    try {
+      const result = await perform();
+      if (held !== undefined && responseTransport !== undefined)
+        return await responseTransport.retain(result, held, extra.signal);
+      return result;
+    } catch {
+      await held?.release();
+      throw new ReadToolServerError("internal_error");
     }
-    // SDK may suppress the reply; we never deliver a successful late result ourselves.
-    return interrupted() ? boundedResult(tool, failure("operation_interrupted"), budget) : result;
   };
 
   const connect = async (transport: Transport): Promise<void> => {
@@ -269,7 +348,13 @@ function createAdapter(runtime: CapturedRuntime, budget: number): ReadToolServer
     }
     attempted = true;
     try {
-      await sdk.connect(transport);
+      if (runtime.delivery !== undefined) {
+        responseTransport = new RuntimeResponseTransport(transport, () => {
+          deliveryFailed = true;
+          void close().catch(() => {});
+        });
+      }
+      await sdk.connect(responseTransport?.transport ?? transport);
       if (closing) {
         await close();
         throw new ReadToolServerError("internal_error");
@@ -287,15 +372,42 @@ function createAdapter(runtime: CapturedRuntime, budget: number): ReadToolServer
 export async function openConfiguredReadToolServer(
   options: ConfiguredReadToolServerOptions,
 ): Promise<ReadToolServer> {
-  // S1 captures the exact caller shape synchronously before its first await and loads once.
-  let acquired: Awaited<ReturnType<typeof openReadRuntimeSnapshot>>;
+  return openConfiguredServer(options, false);
+}
+
+export async function openConfiguredToolServer(
+  options: ConfiguredReadToolServerOptions,
+): Promise<ReadToolServer> {
+  return openConfiguredServer(options, true);
+}
+
+/** Process-only startup cancellation; never part of the public factory options. */
+export async function openProcessToolServer(
+  options: ConfiguredReadToolServerOptions,
+  signal: AbortSignal,
+): Promise<ReadToolServer> {
+  return openConfiguredServer(options, true, signal);
+}
+
+async function openConfiguredServer(
+  options: ConfiguredReadToolServerOptions,
+  creation: boolean,
+  startupSignal?: AbortSignal,
+): Promise<ReadToolServer> {
+  // Capture exact caller shape and the config/budget snapshot once.
+  let acquired:
+    | Awaited<ReturnType<typeof openReadRuntimeSnapshot>>
+    | Awaited<ReturnType<typeof openToolRuntimeSnapshot>>;
   try {
-    acquired = await openReadRuntimeSnapshot(options);
+    acquired = await (creation
+      ? openToolRuntimeSnapshot(options, startupSignal)
+      : openReadRuntimeSnapshot(options));
   } catch (error: unknown) {
+    if (error instanceof ProfileAcquisitionError && error.code === "interrupted") throw error;
     throw new ReadToolServerError(isReadRuntimeError(error) ? error.code : "internal_error");
   }
   try {
-    return createReadToolServer(acquired);
+    return createServer(acquired, creation);
   } catch (error: unknown) {
     try {
       await acquired.runtime.close();

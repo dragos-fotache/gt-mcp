@@ -1,0 +1,85 @@
+{
+  "task": "T17-S1",
+  "runs": [
+    {
+      "run": "focused",
+      "passed": 0,
+      "failed": 8,
+      "pending": 0,
+      "todo": 0,
+      "stable": true,
+      "cleanup": {
+        "privateProviderQualified": true,
+        "ownedProviderExited": true,
+        "ownedBusExited": true,
+        "privateRootsRemoved": true
+      },
+      "finding": "Test harness assumed Pi ToolInfo exposed outputSchema; public ToolInfo omits it. Product effects not evaluated by the failed assertions.",
+      "newTestSourceHashes": {
+        "test/pi-integration/helpers.mjs": "660e0cfaadc20d804a45d6c9ed887e28cd23d9ea4730b49aedcff73f876e21ce",
+        "test/pi-integration/host-worker.mjs": "8a7d67da595415e84f1a740e11107e9710ada26ceb27eebab4dd351d7de82581",
+        "test/pi-integration/paths-policy.test.mjs": "10a69f0f3cabd99c85d1619090ea924b7b29ed83b774b63288911f7cba02127d"
+      }
+    },
+    {
+      "run": "repair1",
+      "passed": 2,
+      "failed": 6,
+      "pending": 0,
+      "todo": 0,
+      "stable": true,
+      "cleanup": {
+        "privateProviderQualified": true,
+        "ownedProviderExited": true,
+        "ownedBusExited": true,
+        "privateRootsRemoved": true
+      },
+      "finding": "Product read/policy/creation/retry assertions passed, but before_provider_request was not emitted by the faux adapter and codemode header was mistaken for complete multi-block text.",
+      "newTestSourceHashes": {
+        "test/pi-integration/helpers.mjs": "a034e1be21e92fd62553711a3fc9c1f77e0507cabc2b584b2f21963ea0b0ec61",
+        "test/pi-integration/host-worker.mjs": "045200acde1281761ac8a3432bb9ac6dcb98501a525411548bec1e5febb05610",
+        "test/pi-integration/paths-policy.test.mjs": "10a69f0f3cabd99c85d1619090ea924b7b29ed83b774b63288911f7cba02127d"
+      }
+    },
+    {
+      "run": "repair2",
+      "passed": 4,
+      "failed": 4,
+      "pending": 0,
+      "todo": 0,
+      "stable": true,
+      "cleanup": {
+        "privateProviderQualified": true,
+        "ownedProviderExited": true,
+        "ownedBusExited": true,
+        "privateRootsRemoved": true
+      },
+      "finding": "Schema/metadata/passive initialize observations and codemode output passed. Test harness read obsolete context.tools; normalized public provider context carries tool declarations in system-message deltas.",
+      "newTestSourceHashes": {
+        "test/pi-integration/helpers.mjs": "ca0ad48fe8f449de06109960bb9bcbf7e26430530d8ac7d187f7002884a47ecf",
+        "test/pi-integration/host-worker.mjs": "26c5401d5c7ba413cf45e33b46b77bed8797279f7b2a5f4f6f8c6a31dbef2fdb",
+        "test/pi-integration/paths-policy.test.mjs": "0f15dc0b92f121a57ee0717e05f9e235b148e8e269ee2bd7c79a4b2d6f39598a"
+      }
+    },
+    {
+      "run": "final-runtime",
+      "passed": 25,
+      "failed": 0,
+      "pending": 0,
+      "todo": 0,
+      "stable": true,
+      "cleanup": {
+        "privateProviderQualified": true,
+        "ownedProviderExited": true,
+        "ownedBusExited": true,
+        "privateRootsRemoved": true
+      },
+      "finding": "Use public getCurrentTools(context.messages), passive default-transport metadata listener and combined codemode text. All owning and selected unchanged regressions pass.",
+      "newTestSourceHashes": {
+        "test/pi-integration/helpers.mjs": "ca0ad48fe8f449de06109960bb9bcbf7e26430530d8ac7d187f7002884a47ecf",
+        "test/pi-integration/host-worker.mjs": "4dcabb5cd847d0908cfbb5207fe9a7564642fe95208ea7c66bd33c6c80a4e27b",
+        "test/pi-integration/paths-policy.test.mjs": "b34acc982acaa599e72c558a3b08607893fc58449d77a89455d43009e41b93be"
+      }
+    }
+  ]
+}

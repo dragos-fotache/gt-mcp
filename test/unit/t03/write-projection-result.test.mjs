@@ -45,7 +45,6 @@ describe("T03 buildRoutineInput whitelist projection", () => {
 
   it("expands intent defaults into the projection", () => {
     const input = {
-      operationId: U.operation,
       name: "Upper Body A",
       exercises: [{ exerciseId: U.exerciseA, sets: [{}] }],
     };
@@ -122,7 +121,7 @@ describe("T03 makeToolResult envelopes (M02)", () => {
       name === "create_routine"
         ? {
             ok: true,
-            data: { operationId: U.operation, routineId: U.routine, status: "saved" },
+            data: { routineId: U.routine, status: "saved" },
           }
         : name === "search_exercises"
           ? {

@@ -30,8 +30,6 @@ export const ALL_CODES = [
   "resource_exhausted",
   "binding_mismatch",
   "generation_mismatch",
-  "fence_mismatch",
-  "anchor_missing",
   "already_provisioned",
   "incomplete_provision",
   "not_provisioned",

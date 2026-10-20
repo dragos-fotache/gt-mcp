@@ -1,24 +1,5 @@
-/**
- * T08-S1 strict version-1 startup schemas: operator config plus private
- * binding descriptor.
- *
- * All nonoptional fields are required; unknown keys are rejected at every
- * schema object level. `writesEnabled` omitted means false and only a
- * strict boolean is accepted. Transport budget omissions receive accepted
- * T05 defaults via the authoritative T05 factory, which also enforces
- * value/range/interfield constraints on the exact supplied shape — S1 adds
- * no insecure-origin/test-CA/sender fields. `serviceOrigin` is canonicalized
- * with the accepted canonical-origin gates (HTTPS only in S1) and the
- * descriptor origin must be the identical canonical origin. Roots and the
- * descriptor path are absolute normalized paths; storage/bus UUID/
- * generation rules follow the accepted T04 grammar. Config and descriptor
- * must be separate files outside both storage roots. Every validation
- * failure here throws ReadRuntimeError(configuration_required) with a fixed
- * generic message: malformed/unsafe/incompatible selected metadata is
- * fatal, never "missing", and never exposes excerpts or native detail.
- *
- * This module parses detached JSON records only; it performs no IO.
- */
+/** Strict config2 startup schema. Config stays outside the selected private profile.
+ * No descriptor/anchor selectors, legacy mode or ambient configuration overrides. */
 
 import path from "node:path";
 import { createBackendTransport } from "../http/index.js";
@@ -30,7 +11,6 @@ function failConfiguration(): never {
   throw new ReadRuntimeError("configuration_required");
 }
 
-const CANONICAL_UUID_RE: RegExp = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 const BUS_GUID_RE: RegExp = /^[0-9a-f]{32}$/;
 const BUS_ADDRESS_RE: RegExp = /^unix:(path|socket)=([^,;]+?)(?:,guid=([0-9a-fA-F]+))?$/;
 
@@ -61,10 +41,8 @@ export interface ValidatedBinding {
 export interface ValidatedConfig {
   readonly canonicalOrigin: string;
   readonly profileRoot: string;
-  readonly anchorRoot: string;
   readonly secretServiceBusAddress: string;
   readonly timeoutMs: number | undefined;
-  readonly descriptorPath: string;
   readonly writesEnabled: boolean;
   readonly maxToolResultBytes: number;
   readonly budgets: Partial<TransportBudgets> | undefined;
@@ -246,32 +224,12 @@ function assertTimeout(value: unknown): number | undefined {
   return timeout;
 }
 
-function assertUuid(value: unknown): string {
-  if (typeof value !== "string" || !CANONICAL_UUID_RE.test(value)) {
-    failConfiguration();
-  }
-  return value;
-}
-
-function assertGeneration(value: unknown): number {
-  if (typeof value !== "number" || !Number.isSafeInteger(value) || value < 0) {
-    failConfiguration();
-  }
-  return value;
-}
-
 const VALIDATION_HOOKS: SessionHooks = {
   checkBinding: async (): Promise<void> => undefined,
   selectCredential: async () => null,
   beforeDispatch: async (): Promise<void> => undefined,
   isCurrent: (): boolean => true,
 };
-
-/**
- * Validate the supplied budgets shape with the authoritative T05 factory
- * (unknown fields, coercion, and range/interfield violations reject there)
- * and return a detached copy for the lifecycle transport configuration.
- */
 function assertBudgets(
   value: unknown,
   canonicalOrigin: string,
@@ -311,7 +269,6 @@ export function validateConfigRecord(record: Record<string, unknown>): Validated
     "version",
     "serviceOrigin",
     "storage",
-    "bindingDescriptorPath",
     "writesEnabled",
     "transportBudgets",
     "protocol",
@@ -319,12 +276,11 @@ export function validateConfigRecord(record: Record<string, unknown>): Validated
   if (
     !hasOwn(record, "version") ||
     !hasOwn(record, "serviceOrigin") ||
-    !hasOwn(record, "storage") ||
-    !hasOwn(record, "bindingDescriptorPath")
+    !hasOwn(record, "storage")
   ) {
     failConfiguration();
   }
-  if (typeof record["version"] !== "number" || record["version"] !== 1) {
+  if (typeof record["version"] !== "number" || record["version"] !== 2) {
     failConfiguration();
   }
   const canonicalOrigin: string = canonicalizeServiceOrigin(record["serviceOrigin"]);
@@ -333,28 +289,15 @@ export function validateConfigRecord(record: Record<string, unknown>): Validated
     failConfiguration();
   }
   const storage: Record<string, unknown> = storageRaw as Record<string, unknown>;
-  requireExactKeys(storage, ["profileRoot", "anchorRoot", "secretServiceBusAddress", "timeoutMs"]);
-  if (
-    !hasOwn(storage, "profileRoot") ||
-    !hasOwn(storage, "anchorRoot") ||
-    !hasOwn(storage, "secretServiceBusAddress")
-  ) {
+  requireExactKeys(storage, ["profileRoot", "secretServiceBusAddress", "timeoutMs"]);
+  if (!hasOwn(storage, "profileRoot") || !hasOwn(storage, "secretServiceBusAddress")) {
     failConfiguration();
   }
   const profileRoot: string = assertAbsoluteNormalizedPath(storage["profileRoot"]);
-  const anchorRoot: string = assertAbsoluteNormalizedPath(storage["anchorRoot"]);
-  if (
-    profileRoot === anchorRoot ||
-    isContained(anchorRoot, profileRoot) ||
-    isContained(profileRoot, anchorRoot)
-  ) {
-    failConfiguration();
-  }
   const secretServiceBusAddress: string = assertBusAddress(storage["secretServiceBusAddress"]);
   const timeoutMs: number | undefined = assertTimeout(
     hasOwn(storage, "timeoutMs") ? storage["timeoutMs"] : undefined,
   );
-  const descriptorPath: string = assertAbsoluteNormalizedPath(record["bindingDescriptorPath"]);
   const writesRaw: unknown = hasOwn(record, "writesEnabled") ? record["writesEnabled"] : undefined;
   if (writesRaw !== undefined && typeof writesRaw !== "boolean") {
     failConfiguration();
@@ -382,10 +325,8 @@ export function validateConfigRecord(record: Record<string, unknown>): Validated
   return {
     canonicalOrigin,
     profileRoot,
-    anchorRoot,
     secretServiceBusAddress,
     timeoutMs,
-    descriptorPath,
     writesEnabled,
     maxToolResultBytes,
     budgets,
@@ -410,74 +351,5 @@ function isContained(container: string, candidate: string): boolean {
  * descriptor file access.
  */
 export function assertFileSeparation(config: ValidatedConfig, configPath: string): void {
-  if (
-    config.descriptorPath === configPath ||
-    isContained(config.profileRoot, configPath) ||
-    isContained(config.anchorRoot, configPath) ||
-    isContained(config.profileRoot, config.descriptorPath) ||
-    isContained(config.anchorRoot, config.descriptorPath)
-  ) {
-    failConfiguration();
-  }
-}
-
-export function validateDescriptorRecord(
-  record: Record<string, unknown>,
-  canonicalOrigin: string,
-): ValidatedBinding {
-  requireExactKeys(record, ["version", "binding"]);
-  if (!hasOwn(record, "version") || !hasOwn(record, "binding")) {
-    failConfiguration();
-  }
-  if (typeof record["version"] !== "number" || record["version"] !== 1) {
-    failConfiguration();
-  }
-  const bindingRaw: unknown = record["binding"];
-  if (!isPlainRecord(bindingRaw)) {
-    failConfiguration();
-  }
-  const binding: Record<string, unknown> = bindingRaw as Record<string, unknown>;
-  requireExactKeys(binding, ["origin", "accountUuid", "sessionGeneration", "profileGenerationId"]);
-  if (
-    !hasOwn(binding, "origin") ||
-    !hasOwn(binding, "accountUuid") ||
-    !hasOwn(binding, "sessionGeneration") ||
-    !hasOwn(binding, "profileGenerationId")
-  ) {
-    failConfiguration();
-  }
-  if (typeof binding["origin"] !== "string" || binding["origin"] !== canonicalOrigin) {
-    failConfiguration();
-  }
-  const accountRaw: unknown = binding["accountUuid"];
-  const accountUuid: string | null = accountRaw === null ? null : assertUuid(accountRaw);
-  const sessionGeneration: number = assertGeneration(binding["sessionGeneration"]);
-  const profileGenerationId: string = assertUuid(binding["profileGenerationId"]);
-  return { origin: canonicalOrigin, accountUuid, sessionGeneration, profileGenerationId };
-}
-
-/**
- * Combine an already separated config with its validated binding.
- * Descriptor schema/origin/config incompatibility is
- * configuration_required before any storage opening, while an internally
- * valid same-origin descriptor that later proves stale versus the durable
- * T04 binding fails at storage opening instead (recovery_unavailable),
- * with no automatic repair.
- */
-export function combineStartup(
-  config: ValidatedConfig,
-  binding: ValidatedBinding,
-): ValidatedStartup {
-  return {
-    canonicalOrigin: config.canonicalOrigin,
-    profileRoot: config.profileRoot,
-    anchorRoot: config.anchorRoot,
-    secretServiceBusAddress: config.secretServiceBusAddress,
-    timeoutMs: config.timeoutMs,
-    descriptorPath: config.descriptorPath,
-    writesEnabled: config.writesEnabled,
-    maxToolResultBytes: config.maxToolResultBytes,
-    budgets: config.budgets,
-    binding,
-  };
+  if (isContained(config.profileRoot, configPath)) failConfiguration();
 }

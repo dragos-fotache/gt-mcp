@@ -96,7 +96,7 @@ export function memoryProfile(source, initial = Buffer.alloc(0)) {
   };
   const owner = {
     get binding() {
-      return { ...source };
+      return { ...state.binding };
     },
     async readVaultBytes() {
       return Buffer.from(state.vault);

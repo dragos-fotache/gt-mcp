@@ -60,8 +60,7 @@ describe("T06-S1 real T04 diagnostic persistence integration", () => {
     try {
       profile = await facility.provision(ORIGIN);
       const issued = profile.binding.profileGenerationId;
-      const operations = utf8('{"synthetic":"operation-evidence"}');
-      await profile.commit({ operationBytes: operations });
+
       const installer = await openSessionState({
         profile,
         clock: liveClock(),
@@ -80,7 +79,6 @@ describe("T06-S1 real T04 diagnostic persistence integration", () => {
       installer.invalidate();
       await profile.close();
       profile = await facility.open(installed);
-      expect(await profile.readOperationStoreBytes()).toEqual(operations);
       const vaultText = utf8Text(await profile.readVaultBytes());
       expect(vaultText).toContain("2026-09-27T12:15:00.000Z");
       expect(vaultText).toContain("2026-10-27T12:00:00.000Z");
@@ -125,7 +123,7 @@ describe("T06-S1 representative commit-failure fence", () => {
       });
       try {
         await facility.armFault({
-          point: "commit.before.prepare",
+          point: "replace.before.rename",
           action: "throw",
         });
         const error = await captureRejection(

@@ -58,7 +58,10 @@ describe("S3 actual SDK stdio delivery", () => {
         for (const [index, tool] of catalogue.tools.entries()) {
           expect(tool).toEqual({
             name: TOOL_NAMES[index],
-            description: DESCRIPTIONS[index],
+            description:
+              index < 6
+                ? DESCRIPTIONS[index]
+                : "Create a saved routine when operator config-file writesEnabled is true. Any connected client may request valid authenticated creation without per-routine confirmation. Each call starts fresh; repeating it may duplicate a routine. Interrupted attempts cannot be resumed.",
             inputSchema: toolSchemas[tool.name].inputSchema,
             outputSchema: { ...toolSchemas[tool.name].outputSchema, type: "object" },
             annotations:
@@ -67,7 +70,7 @@ describe("S3 actual SDK stdio delivery", () => {
                 : {
                     readOnlyHint: false,
                     destructiveHint: false,
-                    idempotentHint: true,
+                    idempotentHint: false,
                     openWorldHint: true,
                   },
           });
@@ -81,7 +84,7 @@ describe("S3 actual SDK stdio delivery", () => {
         expectError(
           await client.callTool({ name: "create_routine", arguments: CREATE_ARGS }),
           "configuration_required",
-          { message: "Routine creation is unavailable in this build." },
+          { message: "Routine creation is disabled in the operator configuration." },
         );
         expectError(
           await client.request(

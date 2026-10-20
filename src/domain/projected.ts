@@ -146,13 +146,16 @@ function checkRelationshipDuplicates(
   equipment: unknown[],
   code: CodecErrorCode,
 ): void {
-  const muscleIds = new Set<string>();
+  // Catalogue membership is keyed by muscle UUID and role. Bundled records may
+  // reference one muscle in distinct roles; custom overlap is checked below.
+  const muscleMemberships = new Set<string>();
   for (const item of muscles) {
-    const id = (item as Record<string, unknown>)["id"] as string;
-    if (muscleIds.has(id)) {
+    const rec = item as Record<string, unknown>;
+    const membership = `${rec["id"] as string}:${rec["type"] as string}`;
+    if (muscleMemberships.has(membership)) {
       fail(code, "Invalid muscle relationship.");
     }
-    muscleIds.add(id);
+    muscleMemberships.add(membership);
   }
   const equipmentIds = new Set<string>();
   for (const item of equipment) {
@@ -440,17 +443,16 @@ export function validateProjectedPageToken(
   }
 }
 
-/** Exact saved receipt {operationId, routineId, status:"saved"}. */
-export function validateReceipt(value: unknown, code: CodecErrorCode): void {
-  const rec = asRecord(value, code, "Invalid creation receipt.");
+/** Exact invocation-local result {routineId, status:"saved"}. */
+export function validateSavedRoutineResult(value: unknown, code: CodecErrorCode): void {
+  const rec = asRecord(value, code, "Invalid creation result.");
   const keys = Object.keys(rec);
-  if (keys.length !== 3) {
-    fail(code, "Invalid creation receipt.");
+  if (keys.length !== 2) {
+    fail(code, "Invalid creation result.");
   }
-  checkUuid(rec["operationId"], code);
   checkUuid(rec["routineId"], code);
   if (rec["status"] !== "saved") {
-    fail(code, "Invalid creation receipt.");
+    fail(code, "Invalid creation result.");
   }
 }
 
@@ -460,7 +462,6 @@ const ERROR_KEYS = new Set([
   "message",
   "backendErrorCode",
   "retryAfterSeconds",
-  "operationId",
   "routineId",
   "lastConfirmedStep",
   "outcomeUnknown",
@@ -500,9 +501,6 @@ export function validateErrorObject(value: unknown, code: CodecErrorCode): void 
     ) {
       fail(code, "Invalid error envelope.");
     }
-  }
-  if (hasKey(rec, "operationId")) {
-    checkUuid(rec["operationId"], code);
   }
   if (hasKey(rec, "routineId")) {
     checkUuid(rec["routineId"], code);
@@ -637,8 +635,7 @@ export interface RoutineListPage {
   readonly [key: string]: unknown;
 }
 
-export interface SavedReceipt {
-  readonly operationId: string;
+export interface SavedRoutineResult {
   readonly routineId: string;
   readonly status: "saved";
 }
@@ -660,4 +657,4 @@ export type ProjectedData =
   | WorkoutRecord
   | RoutineListPage
   | RoutineRecord
-  | SavedReceipt;
+  | SavedRoutineResult;

@@ -1,0 +1,16 @@
+{
+  "runtime": "Node 24.21.0",
+  "npm": "11.19.0",
+  "host": "Linux x64",
+  "provider": "Privately extracted GNOME Keyring, dedicated disposable D-Bus/Secret Service per run",
+  "providerSha256": "29cb44793218cbda04694fc11d6cdd8bac6cc69f2347be03e5c356c5455f9c00",
+  "filesystem": "Actual local ext4 IO; no filesystem name/magic gate in production",
+  "btrfs": "Not executed; explicitly user-owned. No Btrfs qualification claimed.",
+  "backend": "Isolated synthetic HTTPS only; no live backend/credentials",
+  "targetHashCount": 569,
+  "compiledOutputCount": 176,
+  "checks": 808,
+  "files": 81,
+  "buildInstallRacedTests": false,
+  "R1Sha256": "ed5877dd16fc79043bc8773d3d15bb6fed2887dc891100ccebf8ddf2b3b22563"
+}

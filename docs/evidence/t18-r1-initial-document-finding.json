@@ -1,0 +1,10 @@
+{
+  "check": "independent shipped-document closure",
+  "passed": false,
+  "missing": [
+    {
+      "source": "package/docs/stdio-server.md",
+      "target": "pi.md"
+    }
+  ]
+}

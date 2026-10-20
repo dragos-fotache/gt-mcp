@@ -8,10 +8,14 @@ import { assertSignal, expiryToMs } from "../auth/validate.js";
 import { parseStrictMetadataJson } from "../runtime/files.js";
 import type { StorageBinding } from "../storage/index.js";
 import { LoginError, isLoginError } from "./errors.js";
-import { renderLoginPage } from "./page.js";
+import { renderLoginPage, renderAccountStatusPage } from "./page.js";
 import { exactRecord, isOpaqueGoogleToken, validateSettings } from "./records.js";
 import type { LoginSettings } from "./records.js";
 import type { LoginChallenge, LoginTransaction } from "./transaction.js";
+import type {
+  AccountStatusOutcome,
+  AccountStatusTransaction,
+} from "../lifecycle/account-status.js";
 
 export interface BrowserLoginOptions {
   readonly transaction: LoginTransaction;
@@ -23,6 +27,19 @@ export interface BrowserLoginOptions {
 export interface BrowserLoginHelper {
   readonly url: string;
   readonly completion: Promise<StorageBinding>;
+  cancel(): Promise<void>;
+  close(): Promise<void>;
+}
+
+export interface AccountStatusBrowserOptions {
+  readonly transaction: AccountStatusTransaction;
+  readonly settings: LoginSettings;
+  readonly maxRequestBytes: number;
+  readonly signal: AbortSignal;
+}
+export interface AccountStatusBrowserHelper {
+  readonly url: string;
+  readonly completion: Promise<AccountStatusOutcome>;
   cancel(): Promise<void>;
   close(): Promise<void>;
 }
@@ -55,6 +72,25 @@ function securityHeaders(response: ServerResponse, nonce: string): void {
 export async function startBrowserLoginHelper(
   options: BrowserLoginOptions,
 ): Promise<BrowserLoginHelper> {
+  return startHelper<StorageBinding>(options, false);
+}
+
+export async function startAccountStatusBrowserHelper(
+  options: AccountStatusBrowserOptions,
+): Promise<AccountStatusBrowserHelper> {
+  return startHelper<AccountStatusOutcome>(options, true);
+}
+
+/** One shared secured callback boundary, with two purpose-specific typed facades. */
+async function startHelper<Result extends object>(
+  options: unknown,
+  accountStatus: boolean,
+): Promise<{
+  readonly url: string;
+  readonly completion: Promise<Result>;
+  cancel(): Promise<void>;
+  close(): Promise<void>;
+}> {
   let fields: Record<string, unknown>;
   let signal: AbortSignal;
   let settings: LoginSettings;
@@ -74,7 +110,12 @@ export async function startBrowserLoginHelper(
     maxRequestBytes > 16777216
   )
     throw new LoginError("invalid_arguments");
-  const transaction = fields["transaction"] as LoginTransaction;
+  const transaction = fields["transaction"] as {
+    start(signal: AbortSignal): Promise<LoginChallenge>;
+    submit(attemptId: string, idToken: string, signal: AbortSignal): Promise<Result>;
+    cancel(): Promise<void>;
+    close(): Promise<void>;
+  };
   if (
     typeof transaction !== "object" ||
     transaction === null ||
@@ -106,9 +147,9 @@ export async function startBrowserLoginHelper(
   let active: Promise<unknown> | null = null;
   let cleanup: Promise<void> | null = null;
   let abortRequested = signal.aborted;
-  let resolveCompletion!: (binding: StorageBinding) => void;
+  let resolveCompletion!: (binding: Result) => void;
   let rejectCompletion!: (error: LoginError) => void;
-  const completion = new Promise<StorageBinding>((resolve, reject) => {
+  const completion = new Promise<Result>((resolve, reject) => {
     resolveCompletion = resolve;
     rejectCompletion = reject;
   });
@@ -142,7 +183,7 @@ export async function startBrowserLoginHelper(
         }),
     );
   const finish = (
-    outcome: StorageBinding | LoginError,
+    outcome: Result | LoginError,
     cancelAuth: boolean,
     terminal?: { res: ServerResponse; status: number; text: string },
   ): Promise<void> => {
@@ -302,7 +343,11 @@ export async function startBrowserLoginHelper(
       return;
     }
     if (!isLive()) {
-      reply(res, 503, "Login is unavailable.\n");
+      reply(
+        res,
+        503,
+        accountStatus ? "Account-status verification is unavailable.\n" : "Login is unavailable.\n",
+      );
       return;
     }
     if (req.url !== "/" && req.url !== "/credential" && req.url !== "/cancel") {
@@ -322,12 +367,23 @@ export async function startBrowserLoginHelper(
         return;
       }
       if (state !== "ready" || challenge === null) {
-        reply(res, 409, "Login already submitted.\n");
+        reply(
+          res,
+          409,
+          accountStatus ? "Proof already submitted.\n" : "Login already submitted.\n",
+        );
         return;
       }
       securityHeaders(res, scriptNonce);
       res.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
-      res.end(renderLoginPage({ settings, challenge, csrf, scriptNonce }));
+      res.end(
+        (accountStatus ? renderAccountStatusPage : renderLoginPage)({
+          settings,
+          challenge,
+          csrf,
+          scriptNonce,
+        }),
+      );
       return;
     }
     if (req.method !== "POST") {
@@ -369,19 +425,23 @@ export async function startBrowserLoginHelper(
       return;
     }
     if (!isLive()) {
-      reply(res, 409, "Login is no longer active.\n");
+      reply(
+        res,
+        409,
+        accountStatus ? "Proof is no longer active.\n" : "Login is no longer active.\n",
+      );
       return;
     }
     if (req.url === "/cancel") {
       await finish(new LoginError("operation_interrupted"), true, {
         res,
         status: 200,
-        text: "Login cancelled.\n",
+        text: accountStatus ? "Account-status verification cancelled.\n" : "Login cancelled.\n",
       });
       return;
     }
     if (state !== "ready" || challenge === null) {
-      reply(res, 409, "Login already submitted.\n");
+      reply(res, 409, accountStatus ? "Proof already submitted.\n" : "Login already submitted.\n");
       return;
     }
     if (!isOpaqueGoogleToken(body["idToken"])) {
@@ -398,15 +458,23 @@ export async function startBrowserLoginHelper(
     }
     body["idToken"] = null;
     try {
-      const binding = (await active) as StorageBinding;
+      const binding = (await active) as Result;
       if (state === "submitting")
-        await finish(binding, false, { res, status: 200, text: "Login complete.\n" });
+        await finish(binding, false, {
+          res,
+          status: 200,
+          text: accountStatus
+            ? "Account-status verification complete. Return to the trusted local application.\n"
+            : "Login complete.\n",
+        });
     } catch (error) {
       if (state === "submitting")
         await finish(safe(error), false, {
           res,
           status: 400,
-          text: "Login failed. Use the trusted local command.\n",
+          text: accountStatus
+            ? "Account-status verification failed. Start a fresh trusted attempt.\n"
+            : "Login failed. Use the trusted local command.\n",
         });
     }
   };

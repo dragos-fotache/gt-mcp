@@ -1,5 +1,9 @@
 # T04 implementation ADR — protected profile storage, repair c1
 
+> **T21-S1 successor authority (2026-10-17):** T21 replaces the ext4 gate, mutable anchor, operation-store format and their recovery/removal API requirements. This ADR records the prior accepted implementation.
+> See the [successor storage/interface spec](t21-single-record-storage-spec.md). Documentation only;
+> current runtime/package behavior is unchanged until T21 implementation acceptance.
+
 **Authority:** implements `docs/decisions/t04-approved-storage-spec.md` under
 the coordinator repair grant
 (`docs/evidence/t04-coordinator-production-source-review.md`, P1–P11).

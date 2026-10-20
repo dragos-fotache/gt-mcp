@@ -53,7 +53,6 @@ function errorDef(): Schema {
       message: { type: "string" },
       backendErrorCode: { type: "string", minLength: 1 },
       retryAfterSeconds: { type: "integer", minimum: 1 },
-      operationId: uuidDef(),
       routineId: uuidDef(),
       lastConfirmedStep: { type: "string", enum: ["none", "draft", "populate", "save"] },
       outcomeUnknown: { type: "boolean" },
@@ -65,9 +64,8 @@ function receiptDef(): Schema {
   return {
     type: "object",
     additionalProperties: false,
-    required: ["operationId", "routineId", "status"],
+    required: ["routineId", "status"],
     properties: {
-      operationId: uuidDef(),
       routineId: uuidDef(),
       status: { const: "saved" },
     },
@@ -320,7 +318,23 @@ function envelopeDef(dataRef: string): Schema {
 function outputSchema(defs: Schema, dataRef: string): Schema {
   return {
     $schema: SCHEMA_ID,
-    $defs: { ...defs, error: errorDef(), revisionString: revisionDef() },
+    $defs: {
+      ...defs,
+      error: {
+        ...errorDef(),
+        ...(dataRef === "#/$defs/receipt"
+          ? {
+              properties: { ...(errorDef()["properties"] as Schema), retryable: { const: false } },
+              dependentRequired: {
+                routineId: ["lastConfirmedStep", "outcomeUnknown"],
+                lastConfirmedStep: ["routineId", "outcomeUnknown"],
+                outcomeUnknown: ["routineId", "lastConfirmedStep"],
+              },
+            }
+          : {}),
+      },
+      revisionString: revisionDef(),
+    },
     ...envelopeDef(dataRef),
   };
 }

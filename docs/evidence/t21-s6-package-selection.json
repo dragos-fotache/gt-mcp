@@ -1,0 +1,6 @@
+[
+  "test/packaging/artifact-install.test.mjs",
+  "test/packaging/documents.test.mjs",
+  "test/packaging/holder.test.mjs",
+  "test/packaging/replacement-recovery.test.mjs"
+]

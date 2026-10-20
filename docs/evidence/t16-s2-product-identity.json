@@ -1,0 +1,7 @@
+{
+  "reference": "t16-s1-artifact-inventory.json",
+  "productInputs": 298,
+  "emittedOutputs": 194,
+  "allProductInputsMatchS1": true,
+  "rebuildPreservedAllBytes": true
+}

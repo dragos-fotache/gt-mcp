@@ -21,15 +21,7 @@ export const FLOCK_CONFLICT_EXIT: number = 73;
 export const FLOCK_BINARY: string = "flock";
 
 export type WorkerOp =
-  | "provision"
-  | "open"
-  | "readVault"
-  | "readOps"
-  | "commit"
-  | "bind"
-  | "advance"
-  | "digest"
-  | "close";
+  "provision" | "removeProfile" | "open" | "readVault" | "commit" | "bind" | "advance" | "close";
 
 export interface WorkerRequest {
   id: number;
@@ -40,13 +32,12 @@ export interface WorkerRequest {
 export function isWorkerOp(value: unknown): value is WorkerOp {
   return (
     value === "provision" ||
+    value === "removeProfile" ||
     value === "open" ||
     value === "readVault" ||
-    value === "readOps" ||
     value === "commit" ||
     value === "bind" ||
     value === "advance" ||
-    value === "digest" ||
     value === "close"
   );
 }

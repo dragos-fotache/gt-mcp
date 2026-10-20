@@ -1,48 +1,102 @@
-# Running the read-only stdio server
+# Local stdio MCP server
 
-Use the pinned Node 24.21.0 / npm 11.19.0 disposable toolchain, install with
-`npm ci --ignore-scripts`, and build with `npm run build`. The advertised
-`gymtracka-mcp-server` bin targets `dist/protocol/server.js`.
+This guide accompanies the separately identified installer-update candidate with S2 runtime,
+using version-2 config and one encrypted credential record. Select its archive
+checksum/inventory; version0.0.0 alone is insufficient. The unchanged T18-R1
+archive and laptop installation retain their old behavior and bundled instructions.
+Package/guide availability does not authorize deployment or real write enablement.
+
+Run the absolute installed server with Node24 or later and an absolute normalized config
+selection, with the intended Node selected on PATH. Missing selection/config provides an unavailable seven-tool catalogue;
+invalid selected config fails configuration_required. A selected credential/key/
+ownership failure is recovery_unavailable. A null-account or signed-out profile
+requires trusted local login. Logs/errors never print the config path or credentials.
 
 ```sh
-node dist/protocol/server.js
-node dist/protocol/server.js --config /absolute/path/config.json
+node "<absolute application directory>/dist/protocol/server.js" --config "<CONFIG>"
 ```
 
-The server accepts no other arguments or environment-based config selector. The
-selected path must be absolute and normalized. No selection or a safely absent
-config still starts MCP: initialization and the seven-tool catalogue work, while
-valid reads return `configuration_required`. Unsafe/malformed selected metadata
-or an unsafe private-state opening fails startup. Configured signed-out profiles
-return `authentication_required` on valid reads.
+See [setup/login](login.md) for the strict version-2 config and separate version-1
+login settings. No anchorRoot, binding descriptor, operation journal, migration,
+provider override, per-routine permission prompt or CLI write-enable flag exists.
+The trusted startup snapshot is fixed; editing config does not enable writes in a
+running process. Restart deliberately after an operator configuration change.
 
-The version-1 config and binding descriptor use the settled
-[T08-S1 format](decisions/t08-s1-runtime-spec.md) with the additive
-[S2 result budget](decisions/t08-s2-protocol-spec.md). This server opens existing
-protected profiles; browser login, descriptor writing and trusted lifecycle CLI
-commands are separate work. Operator config and secret-provider locations stay
-local. Never put credentials into tool arguments, config examples, argv or chat.
+Six read tools expose canonical domain results: search_exercises, get_exercise,
+list_workouts, get_workout, list_routines and get_routine. create_routine accepts
+name/exercises, rejects obsolete operationId, and returns routineId/status:saved
+only after validated backend confirmation. Only strict operator writesEnabled:true
+permits creation; omitted/false defaults to disabled before mutations. Any connected
+local client shares that operator trust. Authentication, complete validation,
+visibility, origin and current account/session fences still apply.
 
-Clients must complete the SDK initialize/initialized sequence before listing or
-calling tools. The six reads return complete canonical results. `create_routine`
-is a validated unavailable placeholder, including with `writesEnabled: true`;
-this build cannot enable routine creation.
+Each creation is independent and non-idempotent. Repeating identical content can
+create another routine. Eligible bounded transport/auth retry within a call retains exact
+resource method/route/bytes/key, but tool-level creation failures are retryable:false. After
+interruption, unsent steps stop; available authorized context reports routineId,
+lastConfirmedStep and outcomeUnknown. A canceled/disconnected host may receive no
+reply. No routine bodies, identities or final receipts are persisted for replay.
+Hosts must not automatically repeat creation after a lost reply or reconnect.
+Startup performs no autonomous creation. Use [manual recovery guidance](recovery.md)
+before deliberately trying again.
 
-Stdio uses official SDK newline-delimited JSON, with protocol messages alone on
-stdout and fixed diagnostics on stderr. Malformed framing/UTF-8, partial EOF and
-an accumulated input buffer above 10 MiB close the connection with exit 65.
-The whole serialized `CallToolResult` UTF-8 budget defaults to 4 MiB and can be
-configured from 4096 through 67108864 bytes. Overflow replaces the result with
-`result_too_large`; records are never truncated. These limits do not bound the
-whole wire, catalogue, process memory, client display or client transcript.
+The restricted profile holds credentials.enc and owner.lock, plus possible private
+replacement temporary files. No temporary file is promoted on startup. Pending
+refresh token/body/key remain encrypted and retain their exact auth recovery
+identity; they are independent of creation.
 
-Complete-boundary EOF exits 0 after cleanup. SIGINT/SIGTERM exit 130/143 after
-cleanup; usage exits 64, unsafe startup exits 78, and internal/transport/cleanup
-failure exits 70. Shutdown aborts reads and awaits begun owned persistence and
-profile release. There is no forced shutdown deadline; a client must not kill
-the process while persistence is unresolved.
+Active calls hold exclusive profile ownership. Trusted CLI lifecycle/login/removal
+requires no active owner. Signal/EOF cancellation fences results and
+settles begun auth persistence. Never send login/logout through model tools.
+Only MCP frames go to stdout; trusted CLI diagnostics use fixed safe stderr text.
+Fitness data may remain in host/model transcripts; local removal cannot erase them.
+The credential store does not gate on filesystem type; required permissions, safe
+paths, atomic replacement/fsync and actual IO must work. No independent snapshot
+rollback detection or power-loss certification is claimed.
 
-Requested fitness data is delivered to the selected host/model and may remain in
-its transcripts. Backend retention does not control those copies. Local SDK
-stdio checks do not certify a named host, real Google/browser login, live backend,
-Android synchronization, packaging or release readiness.
+## Multiple clients sharing one profile
+
+This private S2 candidate awaits S3 parent acceptance and independent review.
+It validates credentials at startup and releases the owner; connected
+idle servers hold no lock. Calls sharing one profile wait cancellably and serialize
+under exclusive ownership through result delivery. Each call reloads credentials
+and captures its current session generation. Idle servers permit trusted local
+sign-out/login; active calls still exclude those actions. Same-account session
+changes are observed by later calls; profile/account replacement requires restart.
+Operator config and writesEnabled remain a fixed startup snapshot. The acquisition
+limit is60 seconds, separate from per-worker storage.timeoutMs. Cancellation of a
+pending result write closes the connection before releasing ownership. Use the
+[compatible update procedure](installation.md#updating-a-compatible-installation)
+to replace an older lifetime-owner server. A surviving old process can still hold
+the lock; changing files alone does not replace running processes. No laptop
+deployment is represented by this package.
+
+## Operator budgets
+
+Optional transportBudgets fields are safe integers with these defaults and inclusive
+ranges. Byte budgets apply to serialized request/response/metadata/result bytes;
+maxHeaderCount and maxAttempts are counts, and names ending in Ms are milliseconds.
+Omitted fields retain their defaults. Invalid or unknown configuration fields fail
+closed; baseRetryDelayMs must not exceed maxRetryDelayMs.
+
+| Field                       | Default | Inclusive range |
+| --------------------------- | ------- | --------------- |
+| maxRequestBytes             | 262144  | 64..16777216    |
+| maxRequestTargetBytes       | 4096    | 64..65536       |
+| maxResponseBytes            | 1048576 | 64..16777216    |
+| maxProjectedResultBytes     | 1048576 | 64..16777216    |
+| maxHeadBytes                | 32768   | 4096..131072    |
+| maxHeaderCount              | 100     | 10..1000        |
+| perAttemptTimeoutMs         | 10000   | 50..120000      |
+| totalDeadlineMs             | 60000   | 100..600000     |
+| maxAttempts                 | 3       | 1..5            |
+| baseRetryDelayMs            | 500     | 0..10000        |
+| maxRetryDelayMs             | 5000    | 0..60000        |
+| storage.timeoutMs           | 5000    | 1..15000        |
+| protocol.maxToolResultBytes | 4194304 | 4096..67108864  |
+
+storage.timeoutMs bounds the local worker request; protocol.maxToolResultBytes
+bounds the complete canonical MCP tool result, including serialized text and
+structured content. A result exceeding its allowance returns result_too_large,
+never truncated successful data. Transport per-attempt/deadline/attempt budgets
+bound eligible within-call HTTP retry; they do not authorize host/tool repetition.

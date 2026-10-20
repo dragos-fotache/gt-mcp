@@ -7,7 +7,6 @@ import {
   CREATE_ARGS,
   DESCRIPTIONS,
   ID,
-  OPERATION_ID,
   ROUTINE_ID,
   TOOL_NAMES,
   runtimeFixture,
@@ -43,7 +42,7 @@ describe("S2 official SDK catalogue and dispatch", () => {
             : {
                 readOnlyHint: false,
                 destructiveHint: false,
-                idempotentHint: true,
+                idempotentHint: false,
                 openWorldHint: true,
               },
         );
@@ -56,10 +55,7 @@ describe("S2 official SDK catalogue and dispatch", () => {
           expect(collectRefs(schema).every(({ ref }) => ref.startsWith("#"))).toBe(true);
           validator.getValidator(schema);
         }
-        const data =
-          index < 6
-            ? CASES[index].data
-            : { operationId: OPERATION_ID, routineId: ROUTINE_ID, status: "saved" };
+        const data = index < 6 ? CASES[index].data : { routineId: ROUTINE_ID, status: "saved" };
         const validate = validator.getValidator(tool.outputSchema);
         expect(validate({ ok: true, data }).valid).toBe(true);
         expect(

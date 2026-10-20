@@ -1,0 +1,334 @@
+{
+  "task": "T10-S2",
+  "date": "2026-10-15",
+  "acceptedSelectionPassed": true,
+  "versions": {
+    "node": "24.21.0",
+    "npm": "11.19.0",
+    "typescript": "5.9.3",
+    "vitest": "4.1.11"
+  },
+  "command": "node node_modules/vitest/vitest.mjs run --no-file-parallelism test/unit/t10/s1-confirmation.test.mjs test/unit/t10/s1-failure.test.mjs test/unit/t10/s2-executor.test.mjs test/fault/t10/s2-execution.test.mjs test/unit/t09/s1-format.test.mjs test/unit/t09/s2-admission.test.mjs test/unit/t09/s3-transitions.test.mjs test/fault/t09/s3-persistence.test.mjs test/unit/t05/10-replay-identity.test.mjs test/fault/t06/s4-refresh-retry.test.mjs test/fault/t06/s4-concurrency-fences.test.mjs --reporter=json --outputFile=<private-result-file>",
+  "exitCode": 0,
+  "total": 171,
+  "passed": 171,
+  "failed": 0,
+  "pending": 0,
+  "perFile": [
+    {
+      "path": "test/fault/t06/s4-concurrency-fences.test.mjs",
+      "status": "passed",
+      "total": 9,
+      "passed": 9,
+      "failed": 0,
+      "other": 0
+    },
+    {
+      "path": "test/fault/t06/s4-refresh-retry.test.mjs",
+      "status": "passed",
+      "total": 12,
+      "passed": 12,
+      "failed": 0,
+      "other": 0
+    },
+    {
+      "path": "test/fault/t10/s2-execution.test.mjs",
+      "status": "passed",
+      "total": 12,
+      "passed": 12,
+      "failed": 0,
+      "other": 0
+    },
+    {
+      "path": "test/fault/t09/s3-persistence.test.mjs",
+      "status": "passed",
+      "total": 6,
+      "passed": 6,
+      "failed": 0,
+      "other": 0
+    },
+    {
+      "path": "test/unit/t09/s1-format.test.mjs",
+      "status": "passed",
+      "total": 27,
+      "passed": 27,
+      "failed": 0,
+      "other": 0
+    },
+    {
+      "path": "test/unit/t09/s2-admission.test.mjs",
+      "status": "passed",
+      "total": 19,
+      "passed": 19,
+      "failed": 0,
+      "other": 0
+    },
+    {
+      "path": "test/unit/t09/s3-transitions.test.mjs",
+      "status": "passed",
+      "total": 9,
+      "passed": 9,
+      "failed": 0,
+      "other": 0
+    },
+    {
+      "path": "test/unit/t10/s1-confirmation.test.mjs",
+      "status": "passed",
+      "total": 28,
+      "passed": 28,
+      "failed": 0,
+      "other": 0
+    },
+    {
+      "path": "test/unit/t10/s1-failure.test.mjs",
+      "status": "passed",
+      "total": 28,
+      "passed": 28,
+      "failed": 0,
+      "other": 0
+    },
+    {
+      "path": "test/unit/t10/s2-executor.test.mjs",
+      "status": "passed",
+      "total": 15,
+      "passed": 15,
+      "failed": 0,
+      "other": 0
+    },
+    {
+      "path": "test/unit/t05/10-replay-identity.test.mjs",
+      "status": "passed",
+      "total": 6,
+      "passed": 6,
+      "failed": 0,
+      "other": 0
+    }
+  ],
+  "selectedFileHashes": [
+    {
+      "path": "dist/creation/confirmation.d.ts",
+      "sha256": "a18224d554eda03230859a7ae27053b3c41d627b27fd0a7b180df7823a05fbe7"
+    },
+    {
+      "path": "dist/creation/confirmation.js",
+      "sha256": "08d53e50ac23438dbdb5b6105309ab0dc27dc4f9c357a149ef521bf062262d1e"
+    },
+    {
+      "path": "dist/creation/executor.d.ts",
+      "sha256": "e16b02dab8e1f65c469c20eac3da8e295085d0669fd429441220f27b34ba8bd4"
+    },
+    {
+      "path": "dist/creation/executor.js",
+      "sha256": "27b0712daf57908c7f598dc30b85c88dd9a744639c04e3a53d9b0cc782801678"
+    },
+    {
+      "path": "dist/creation/failure.d.ts",
+      "sha256": "4b7beb32e245b636a1979f97d4040367b83b5f7e3acaf0d0dab90659ccfe2f01"
+    },
+    {
+      "path": "dist/creation/failure.js",
+      "sha256": "18dfb726ba7798c78f3df58deecb6d089ecf552b50f4fc270cd6bf489a33715c"
+    },
+    {
+      "path": "dist/creation/history.d.ts",
+      "sha256": "0fcaef64514f3482a721237d6b1d4ea0928547734e6b5df2f19602519668d7dc"
+    },
+    {
+      "path": "dist/creation/history.js",
+      "sha256": "c6d1611c0ff7a9af2d3f3e12617cfc572555684360da9cdbc7c0cc3680ac03bf"
+    },
+    {
+      "path": "dist/creation/index.d.ts",
+      "sha256": "b703720a07dd554ab6f0eda7c098f24e92ec31f7f74152fb2183eb4ad341c2dc"
+    },
+    {
+      "path": "dist/creation/index.js",
+      "sha256": "20b9824dbb334e69cd71bb8d8ff5495e3e907fc4bbdb80e31ce89dc7760645a6"
+    },
+    {
+      "path": "dist/creation/types.d.ts",
+      "sha256": "0d84664567de600dbe12300c633265782c16df916da4e37b98411e32181e8b98"
+    },
+    {
+      "path": "dist/creation/types.js",
+      "sha256": "8e609bb71c20b858c77f0e9f90bb1319db8477b13f9f965f1a1e18524bf50881"
+    },
+    {
+      "path": "eslint.config.mjs",
+      "sha256": "0780df80a6d56222ba1286d873c0fda6dd321b6fa4dc3163898e3bbd9703c644"
+    },
+    {
+      "path": "package-lock.json",
+      "sha256": "d1e340762075496d17bb8c46de0b98956e6a257d8ae5bc27efa7a1b28542512d"
+    },
+    {
+      "path": "package.json",
+      "sha256": "d79e251a3fb7eb8f10ea21586b8c82e41b3732d7cba88ac6180d3e37b78c70a0"
+    },
+    {
+      "path": "src/creation/confirmation.ts",
+      "sha256": "b30504fcd525a9c0c47c03965ea426418b52e46c2dc9945dc5db8a7d09a161f3"
+    },
+    {
+      "path": "src/creation/executor.ts",
+      "sha256": "25e81e3ff63760da854b330ed56ad9fdccc339cb9865469a7b575b30d0538160"
+    },
+    {
+      "path": "src/creation/failure.ts",
+      "sha256": "e1ba3344ab98582cc4c5cb1a09adeb7000ade5364cd93a2f0c93261ec22089b0"
+    },
+    {
+      "path": "src/creation/history.ts",
+      "sha256": "f37d5f52d62521fbbc84d8536af476b77d4fbbd03fbf8f153bae239977e391ca"
+    },
+    {
+      "path": "src/creation/index.ts",
+      "sha256": "bd99826b622f556109a8e0ed10d43fdec1a03459a8e72aebcba69d21b5809961"
+    },
+    {
+      "path": "src/creation/types.ts",
+      "sha256": "26cd0b004f78dc669cb155026a0f16ef9a104d438a7fb635b8d1a59a4afa55d0"
+    },
+    {
+      "path": "test/fault/t06/s4-concurrency-fences.test.mjs",
+      "sha256": "caca685f9fec8d99d6b4578e15456bf53de73aec4c0b4c3bb7bbbe83aefbfe82"
+    },
+    {
+      "path": "test/fault/t06/s4-refresh-retry.test.mjs",
+      "sha256": "45833a731fbc700ccee5a6d9e4657fa901d8aabbc7645b3395fa66fd292334cb"
+    },
+    {
+      "path": "test/fault/t09/s3-persistence.test.mjs",
+      "sha256": "c6a492210b66a334c3d870397b954be04c24ab34c68f8b4e461603248184aff1"
+    },
+    {
+      "path": "test/fault/t10/s2-execution.test.mjs",
+      "sha256": "c045bc8bab6694b3f09cb45c89c0ebaffe2a9a79b653b0dcfa3f56ef666f1a8d"
+    },
+    {
+      "path": "test/fault/t10/s2-fixture.mjs",
+      "sha256": "0d5f0478fcb9230885fe5f5a9abf1ead8a543c46d4e70f4d79a33731ce1d240f"
+    },
+    {
+      "path": "test/unit/t05/10-replay-identity.test.mjs",
+      "sha256": "c2c1684a07aebd758db1fe40191e4ca365f18a89736d7ac9d3a1785a437e143d"
+    },
+    {
+      "path": "test/unit/t09/s1-format.test.mjs",
+      "sha256": "901a54686849b50199e3ca809c0d814b48103da0e0252a730e203569880b2d6f"
+    },
+    {
+      "path": "test/unit/t09/s2-admission.test.mjs",
+      "sha256": "b9a614e1708e7ea9f817f8c3139d275e443672e214245ee3cbc89c7b049992b0"
+    },
+    {
+      "path": "test/unit/t09/s3-transitions.test.mjs",
+      "sha256": "f163d8178f177512f74214c11e63edff6cbe8d5ced6f57a6226803c1fbe7ebdc"
+    },
+    {
+      "path": "test/unit/t10/helpers.mjs",
+      "sha256": "aaf37fee4fd754810ae3d0947d3d3f1860c2c182feb0130deef8f10717be1206"
+    },
+    {
+      "path": "test/unit/t10/s1-confirmation.test.mjs",
+      "sha256": "3f49e99ee09f682ab16414a013106821cf8bbd4f63f3f6e4320408b6802b9321"
+    },
+    {
+      "path": "test/unit/t10/s1-failure.test.mjs",
+      "sha256": "cab83a9a0f6bf6dcaaef62ccac9743eb141ce3a13f50be802338e2b24a782d9d"
+    },
+    {
+      "path": "test/unit/t10/s2-executor.test.mjs",
+      "sha256": "8833fd015d0ad822a9a0b66b0860d8865f1525adaea6ffa51ef28504bdf1573f"
+    },
+    {
+      "path": "test/unit/t10/s2-helpers.mjs",
+      "sha256": "0c6b90418b34efbcaf4cfca195e8873e54594d0ace28b9a37d88f4e15bfe3fec"
+    },
+    {
+      "path": "tsconfig.json",
+      "sha256": "f215c56241cf84395053ad7e4e42f59f945d5cb701b8ac085dc114063c720a71"
+    },
+    {
+      "path": "vitest.config.ts",
+      "sha256": "73b76717ce2f288f4c96670cb8dc473cf3b3904cda052633b1ff1ee126adfc4c"
+    }
+  ],
+  "treeHashes": [
+    {
+      "tree": "src",
+      "files": 88,
+      "manifestSha256": "a70430209e3a6451b24bb736c8c420a8606d65de056ea9c9c4dac3f3dc33ab99"
+    },
+    {
+      "tree": "dist",
+      "files": 176,
+      "manifestSha256": "3e1da9a31830dfccc457de917e7ae1d514df56e4f3d5af61f65c6ff1ca1d1172"
+    },
+    {
+      "tree": "companion/src",
+      "files": 1,
+      "manifestSha256": "caa63294e7bc8721d9d1f96d0c7854d8cb482fa51828fda6d4a3517529a19b51"
+    },
+    {
+      "tree": "companion/dist",
+      "files": 2,
+      "manifestSha256": "b50518b6e5c4b3fc6ff3ee4035c43d90be5e158f4d0ddbb952bed243f85eeaa3"
+    },
+    {
+      "tree": "test/unit/t05",
+      "files": 61,
+      "manifestSha256": "f92dac7f218816e399494a138e89a36c190d953fb88c09f91c2259986f778375"
+    },
+    {
+      "tree": "test/unit/t06",
+      "files": 10,
+      "manifestSha256": "8d963ebd534998f5d42c3a7a7de6260be18355e8b013c686d70835f410762deb"
+    },
+    {
+      "tree": "test/unit/t09",
+      "files": 4,
+      "manifestSha256": "8e69d69b2153c2ca13572f86df856a7d9b8c9751b3b9c6145de85af7ccb178b3"
+    },
+    {
+      "tree": "test/unit/t10",
+      "files": 5,
+      "manifestSha256": "951a48fa45b17a62cc8be59a8354e756f474771b5e384f58dcf5eecf3a7d5614"
+    },
+    {
+      "tree": "test/fault/t04",
+      "files": 11,
+      "manifestSha256": "a12e13be5059eaf98255f4fdad7294efbc038a07cc4e3be9b733e6cd7cf7d705"
+    },
+    {
+      "tree": "test/fault/t05",
+      "files": 18,
+      "manifestSha256": "5e0a67659a6e5bfb2ba4ec8ee9d8eaa6f251c2cc169809c2c9f0e5ba0414fb74"
+    },
+    {
+      "tree": "test/fault/t06",
+      "files": 8,
+      "manifestSha256": "ad8b913c30ece4716e49d0f03512bd4d87c9cfeb0f59d29578996b733afa3a3d"
+    },
+    {
+      "tree": "test/fault/t09",
+      "files": 3,
+      "manifestSha256": "f2e04143a63402d96639ab75af79327827beeab49fc2d8dec1e497641b035c23"
+    },
+    {
+      "tree": "test/fault/t10",
+      "files": 2,
+      "manifestSha256": "fbc69a216772e0e07cdcb83c36328c23fe5a3e974947637e6480e9017394e02d"
+    }
+  ],
+  "selectedHashesStableAfterRun": true,
+  "importConstructionSmoke": {
+    "timeoutMs": 5000,
+    "exitCode": 0,
+    "stdoutBytes": 0,
+    "stderrBytes": 0,
+    "passed": true,
+    "scope": "Fresh child import plus factory construction with synthetic capabilities that throw if invoked; no general interception/sandbox claim."
+  },
+  "limits": "Actual T04 encrypted diagnostic engine and T06/T05 loopback HTTPS, using public disposable test TLS material and synthetic credentials. No production Secret Service/ext4 qualification, real backend/DB/Android/Google/MCP/recovery/release claim. Clean locked reproduction and parent T10 acceptance remain S3."
+}

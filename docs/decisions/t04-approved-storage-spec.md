@@ -1,5 +1,9 @@
 # T04 approved public storage specification — Linux Secret Service
 
+> **T21-S1 successor authority (2026-10-17):** T21 replaces the ext4-only two-store/anchor/rollback-detection and storage API requirements. Retained encryption, key custody, path safety and ownership still apply.
+> See the [successor storage/interface spec](t21-single-record-storage-spec.md). Documentation only;
+> current runtime/package behavior is unchanged until T21 implementation acceptance.
+
 **Authority:** user-authorized T04, Linux x64 Secret Service, fresh Developer/QA.
 Coordinator settles the public design below. This supersedes conflicting T04
 proposal/brief candidates, not the shared contracts. **Bounded T04 is accepted

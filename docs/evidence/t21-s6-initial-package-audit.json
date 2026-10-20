@@ -1,0 +1,25 @@
+{
+  "status": "FAIL",
+  "finding": "S4 removed legacy runtime modules; old allowlist and hardcoded holder closure do not describe current runtime. Audit only, no pack/runtime execution.",
+  "missingAllowlistedFiles": [
+    "dist/creation/history.js",
+    "dist/login/metadata.js",
+    "dist/operations/candidate.js",
+    "dist/operations/context.js",
+    "dist/operations/errors.js",
+    "dist/operations/format.js",
+    "dist/operations/index.js",
+    "dist/operations/json.js",
+    "dist/operations/repository.js",
+    "dist/operations/schema.js",
+    "dist/operations/transitions.js",
+    "dist/storage/client.js",
+    "dist/storage/engine.js",
+    "dist/storage/format.js",
+    "dist/storage/holder.js",
+    "dist/storage/lifecycle.js",
+    "dist/storage/removal.js"
+  ],
+  "newCredentialWorkerRequired": "dist/storage/credential/worker.js",
+  "originalRuntimeAllowlistCount": 86
+}

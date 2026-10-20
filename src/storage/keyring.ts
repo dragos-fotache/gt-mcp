@@ -16,6 +16,7 @@ import { Buffer } from "node:buffer";
 import crypto from "node:crypto";
 import {
   closeDhSession,
+  deleteMasterItem,
   connectBus,
   createMasterItem,
   DbusCallError,
@@ -52,6 +53,7 @@ export function masterAttributes(profileGenerationId: string): Record<string, st
 export interface MasterKeyAccess {
   loadMaster(deadlineMs: number): Promise<Uint8Array>;
   createMaster(key: Uint8Array, deadlineMs: number): Promise<void>;
+  deleteMaster?(expectedDigest: string, deadlineMs: number): Promise<void>;
 }
 
 function isLoginItem(itemPath: string): boolean {
@@ -165,6 +167,62 @@ export class SecretMasterKey implements MasterKeyAccess {
         } finally {
           plain.fill(0);
         }
+      } finally {
+        await this.closeSessionQuiet(client, checked.session, deadlineMs);
+      }
+    });
+  }
+
+  async deleteMaster(expectedDigest: string, deadlineMs: number): Promise<void> {
+    return this.withClient(deadlineMs, async (client) => {
+      const checked = await this.checkedCollection(client, deadlineMs);
+      try {
+        const reserved = await searchMasterItems(
+          client,
+          { [KEY_ATTR_PROFILE]: this.profileGenerationId },
+          deadlineMs,
+        );
+        const all = [...reserved.unlocked, ...reserved.locked];
+        if (all.length === 0) return; // Allowed only after durable removal intent.
+        if (all.some((item) => !isLoginItem(item))) throw new StorageError("key_unavailable");
+        if (all.length !== 1) throw new StorageError("key_ambiguous");
+        if (reserved.locked.length !== 0) throw new StorageError("key_locked");
+        const exact = await searchMasterItems(
+          client,
+          masterAttributes(this.profileGenerationId),
+          deadlineMs,
+        );
+        const item = reserved.unlocked[0];
+        if (
+          item === undefined ||
+          exact.locked.length !== 0 ||
+          exact.unlocked.length !== 1 ||
+          exact.unlocked[0] !== item
+        )
+          throw new StorageError("key_unavailable");
+        const secret = await getItemSecret(client, item, checked.session.sessionPath, deadlineMs);
+        if (secret.session !== checked.session.sessionPath)
+          throw new StorageError("provider_failure");
+        const plain = dhDecrypt(checked.session.aesKey, secret.params, secret.value);
+        secret.params.fill(0);
+        secret.value.fill(0);
+        try {
+          if (
+            plain.byteLength !== MASTER_KEY_LEN ||
+            crypto.createHash("sha256").update(plain).digest("hex") !== expectedDigest
+          )
+            throw new StorageError("provider_failure");
+        } finally {
+          plain.fill(0);
+        }
+        await deleteMasterItem(client, item, deadlineMs);
+        const remaining = await searchMasterItems(
+          client,
+          { [KEY_ATTR_PROFILE]: this.profileGenerationId },
+          deadlineMs,
+        );
+        if (remaining.unlocked.length + remaining.locked.length !== 0)
+          throw new StorageError("provider_failure");
       } finally {
         await this.closeSessionQuiet(client, checked.session, deadlineMs);
       }

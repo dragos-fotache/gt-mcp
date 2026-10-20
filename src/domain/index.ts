@@ -39,7 +39,7 @@ export type {
 export type {
   ProjectedData,
   DecodedReadData,
-  SavedReceipt,
+  SavedRoutineResult,
   ExerciseRecord,
   MuscleRef,
   EquipmentRef,

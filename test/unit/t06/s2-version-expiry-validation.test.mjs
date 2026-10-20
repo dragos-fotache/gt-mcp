@@ -493,11 +493,9 @@ describe("T06-S2 exact expiry and config guards", () => {
           }
           return profile.readVaultBytes(...args);
         },
-        readOperationStoreBytes: (...args) => profile.readOperationStoreBytes(...args),
         commit: (...args) => profile.commit(...args),
         bindAccount: (...args) => profile.bindAccount(...args),
         advanceSessionGeneration: (...args) => profile.advanceSessionGeneration(...args),
-        keyedIntentDigest: (...args) => profile.keyedIntentDigest(...args),
         close: (...args) => profile.close(...args),
       };
       const before = await profile.readVaultBytes();

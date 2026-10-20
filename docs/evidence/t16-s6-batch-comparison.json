@@ -1,0 +1,8 @@
+{
+  "localRegressionsToFinalOwningChangedPaths": [
+    "test/backend-interoperability/account-proof-server.py",
+    "test/backend-interoperability/run-isolated.py"
+  ],
+  "changesConsumedByLocalRegressionRunner": false,
+  "localRegressionAndProductionPathsUnchanged": true
+}

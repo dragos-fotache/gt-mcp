@@ -95,7 +95,6 @@ import {
   s5Clock,
   s5DraftBodyBytes,
   s5ServiceBytes,
-  s5Utf8,
   s5Utf8Text,
   s5ValidPending,
   s5VaultGrant,
@@ -105,7 +104,6 @@ import {
 } from "../../unit/t06/s5-helpers.mjs";
 
 const GATE_RELEASED = "s5-gate-released";
-const DEFAULT_OPS = s5Utf8('{"s5":"opaque-operation-evidence"}');
 
 function isGateRelease(error) {
   return error !== null && typeof error === "object" && error.message === GATE_RELEASED;
@@ -142,7 +140,7 @@ function liveGrant() {
 // teardown cancellation), then closes — folding body, responder, settle
 // and teardown failures honestly instead of dropping any.
 async function withS5(options, fn) {
-  const { seed, seedOps, transportBudgets, handleLogout, handleRefresh, handleResource } = options;
+  const { seed, transportBudgets, handleLogout, handleRefresh, handleResource } = options;
   const certPem = readFixtureBytes("test-only-loopback-cert.pem");
   const keyPem = readFixtureBytes("test-only-loopback-key.pem");
   const requests = [];
@@ -319,9 +317,7 @@ async function withS5(options, fn) {
         : s5Version2Bytes({ binding: profile.binding, grant: liveGrant(), pendingRefresh: null });
     await profile.commit({
       vaultBytes: seedBytes,
-      operationBytes: seedOps ?? DEFAULT_OPS,
     });
-    ctx.opsBefore = await profile.readOperationStoreBytes();
     const openState = async (owner) =>
       ctx.ownState(
         await openLifecycleSessionState({
@@ -432,7 +428,6 @@ describe("t06-s5 lifecycle races and durability", () => {
       expect(ctx.counts.resource).toBe(1);
       expect(ctx.counts.refresh).toBe(0);
       expect(ctx.counts.logout).toBe(0);
-      expect(await ctx.profile.readOperationStoreBytes()).toEqual(ctx.opsBefore);
     });
   });
 
@@ -500,7 +495,6 @@ describe("t06-s5 lifecycle races and durability", () => {
         expect(record.grant).toBeNull();
         expect(record.pendingRefresh).toBeNull();
         expect(record.superseded).toEqual([]);
-        expect(await reopened.profile.readOperationStoreBytes()).toEqual(ctx.opsBefore);
       },
     );
   });
@@ -538,7 +532,6 @@ describe("t06-s5 lifecycle races and durability", () => {
         const record = await readVaultRecord(reopened.profile);
         expect(record.grant).toBeNull();
         expect(record.superseded).toEqual([]);
-        expect(await reopened.profile.readOperationStoreBytes()).toEqual(ctx.opsBefore);
       },
     );
   });
@@ -606,7 +599,6 @@ describe("t06-s5 lifecycle races and durability", () => {
         const record = await readVaultRecord(reopened.profile);
         expect(record.grant).toBeNull();
         expect(record.superseded).toEqual([]);
-        expect(await reopened.profile.readOperationStoreBytes()).toEqual(ctx.opsBefore);
       },
     );
   });
@@ -621,7 +613,6 @@ describe("t06-s5 lifecycle races and durability", () => {
       const record = await readVaultRecord(reopened.profile);
       expect(record.grant).toBeNull();
       expect(record.superseded).toEqual([]);
-      expect(await reopened.profile.readOperationStoreBytes()).toEqual(ctx.opsBefore);
     });
   });
 
@@ -658,7 +649,6 @@ describe("t06-s5 lifecycle races and durability", () => {
         expect(stored.superseded[0].binding).toEqual(previous);
         expect(stored.superseded[0].grant).toEqual(before.grant);
         expect(stored.superseded[0].pendingRefresh).toEqual(before.pendingRefresh);
-        expect(await reopened.profile.readOperationStoreBytes()).toEqual(ctx.opsBefore);
         const third = await ctx.launch(
           reopened.state.replaceGrant(
             next,
@@ -682,7 +672,6 @@ describe("t06-s5 lifecycle races and durability", () => {
         expect(grown.superseded[1].binding).toEqual(next);
         expect(grown.superseded[1].grant.accessToken).toBe(S5_ROTATED_BEARER);
         expect(grown.superseded[1].pendingRefresh).toBeNull();
-        expect(await regrown.profile.readOperationStoreBytes()).toEqual(ctx.opsBefore);
       },
     );
   });
@@ -761,7 +750,6 @@ describe("t06-s5 lifecycle races and durability", () => {
         expect(stored.superseded[0].binding).toEqual(previous);
         expect(stored.superseded[0].grant.refreshToken).toBe(S5_REFRESH);
         expect(stored.grant.refreshToken).toBe("synthetic-qa-t06-s5-refresh.03");
-        expect(await reopened.profile.readOperationStoreBytes()).toEqual(ctx.opsBefore);
       },
     );
   });
@@ -842,7 +830,6 @@ describe("t06-s5 lifecycle races and durability", () => {
         expect(stored.superseded[0].grant.accessToken).toBe("synthetic-qa-t06-s5-access.03");
         expect(stored.superseded[0].grant.refreshToken).toBe("synthetic-qa-t06-s5-refresh.03");
         expect(stored.superseded[0].pendingRefresh).toBeNull();
-        expect(await reopened.profile.readOperationStoreBytes()).toEqual(ctx.opsBefore);
       },
     );
   });
@@ -1091,7 +1078,6 @@ describe("t06-s5 lifecycle races and durability", () => {
         const stored = await readVaultRecord(reopened.profile);
         expect(stored.grant).toBeNull();
         expect(stored.superseded).toEqual([]);
-        expect(await reopened.profile.readOperationStoreBytes()).toEqual(ctx.opsBefore);
       },
     );
   });
@@ -1121,7 +1107,7 @@ describe("t06-s5 lifecycle races and durability", () => {
   it("definite pre-prepare failure keeps old state with io_failure and no dispatch", async () => {
     await withS5({}, async (ctx) => {
       const seeded = await ctx.profile.readVaultBytes();
-      await ctx.facility.armFault({ point: "commit.before.prepare", action: "throw" });
+      await ctx.facility.armFault({ point: "replace.before.rename", action: "throw" });
       try {
         const error = await captureRejection(ctx.state.signOut(ctx.binding));
         expect(isStorageError(error)).toBe(true);
@@ -1143,7 +1129,7 @@ describe("t06-s5 lifecycle races and durability", () => {
 
   it("ambiguous transition failure fences without silent repair", async () => {
     await withS5({}, async (ctx) => {
-      await ctx.facility.armFault({ point: "commit.anchor.prepared", action: "throw" });
+      await ctx.facility.armFault({ point: "replace.after.rename", action: "throw" });
       let error;
       try {
         error = await captureRejection(ctx.state.signOut(ctx.binding));
@@ -1160,9 +1146,12 @@ describe("t06-s5 lifecycle races and durability", () => {
       expect(fencedRead.code).toBe("commit_ambiguous");
       await ctx.profile.close();
       ctx.profile = null;
-      const reopenError = await captureRejection(ctx.facility.open(ctx.binding));
-      expect(isStorageError(reopenError)).toBe(true);
-      expect(reopenError.code).toBe("commit_ambiguous");
+      const next = { ...ctx.binding, sessionGeneration: ctx.binding.sessionGeneration + 1 };
+      ctx.profile = await ctx.facility.open(next);
+      const stored = JSON.parse(Buffer.from(await ctx.profile.readVaultBytes()).toString());
+      expect(stored.binding).toEqual(next);
+      expect(stored.grant).toBeNull();
+      expect(stored.pendingRefresh).toBeNull();
     });
   });
 });

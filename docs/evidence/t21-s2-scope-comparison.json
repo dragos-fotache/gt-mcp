@@ -1,0 +1,105 @@
+{
+  "task": "T21-S2",
+  "baselineFiles": 1147,
+  "protectedUnchangedFiles": 670,
+  "changedExistingPaths": [
+    "src/protocol/adapter.ts",
+    "src/protocol/catalogue.ts",
+    "src/protocol/results.ts",
+    "src/runtime/read.ts",
+    "src/domain/inputs.ts",
+    "src/domain/projected.ts",
+    "src/domain/result.ts",
+    "src/domain/index.ts",
+    "src/domain/schemas.ts",
+    "src/operations/candidate.ts",
+    "src/operations/format.ts",
+    "src/operations/repository.ts",
+    "src/creation/boundary.ts",
+    "src/creation/failure.ts",
+    "src/creation/types.ts",
+    "src/creation/confirmation.ts",
+    "src/creation/service.ts",
+    "src/creation/executor.ts",
+    "src/creation/index.ts",
+    "test/create-protocol/dispatch.test.mjs",
+    "test/create-protocol/configured.test.mjs",
+    "test/read-protocol/lifecycle.test.mjs",
+    "test/read-protocol/catalogue-dispatch.test.mjs",
+    "test/read-protocol/fixtures.mjs",
+    "test/stdio-server/sdk-startup.test.mjs",
+    "test/create-stdio/lifecycle.test.mjs",
+    "test/create-stdio/policy-identity.test.mjs",
+    "test/create-stdio/recovery-stop.test.mjs",
+    "test/fault/t10/s3-workflow.test.mjs",
+    "test/fault/t10/s2-fixture.mjs",
+    "test/fault/t10/s3-provider-fixture.mjs",
+    "test/fault/t10/s2-execution.test.mjs",
+    "test/fault/t15/s1-helpers.mjs",
+    "test/fault/t15/s1-runtime.test.mjs",
+    "test/fault/t11/s2-service.test.mjs",
+    "test/fault/t11/s3-failures.test.mjs",
+    "test/unit/t10/helpers.mjs",
+    "test/unit/t10/s1-failure.test.mjs",
+    "test/unit/t10/s3-fresh.test.mjs",
+    "test/unit/t10/s1-confirmation.test.mjs",
+    "test/unit/t10/s2-executor.test.mjs",
+    "test/unit/t03/write-projection-result.test.mjs",
+    "test/unit/t03/fixtures.mjs",
+    "test/unit/t03/parse-normalize-identity.test.mjs",
+    "test/unit/t03/tool-schemas.test.mjs",
+    "test/unit/t15/s1-boundaries.test.mjs",
+    "test/unit/t05/09-inert-import.test.mjs",
+    "test/unit/t11/s2-service.test.mjs",
+    "docs/implementation-plan.md",
+    "docs/verification.md",
+    "docs/tasks/t21-remove-durable-creation-recovery.md",
+    "docs/tasks/README.md",
+    "docs/decisions/t21-single-record-storage-spec.md"
+  ],
+  "removedPaths": [
+    {
+      "path": "src/creation/history.ts",
+      "sha256": "f37d5f52d62521fbbc84d8536af476b77d4fbbd03fbf8f153bae239977e391ca",
+      "originalArchiveVerified": true
+    },
+    {
+      "path": "test/fault/t11/s3-crash-matrix.test.mjs",
+      "sha256": "c0512065893a4f9f3a594ff6491782418c18ff0373a70fc0a3aef87cba19cbca",
+      "originalArchiveVerified": true
+    },
+    {
+      "path": "test/fault/t11/s1-recovery.test.mjs",
+      "sha256": "e244bc3acd24ce251913bd9e652b952719bc5581342b722aa3e49513ade8a722",
+      "originalArchiveVerified": true
+    },
+    {
+      "path": "test/fault/t11/s3-child-helper.mjs",
+      "sha256": "a0f5b2f75bdba82dbda6a39996dc8b59e465aa6c1238dcf86116bb46d5d5f53a",
+      "originalArchiveVerified": true
+    },
+    {
+      "path": "test/fault/t11/s3-recovery-child.mjs",
+      "sha256": "821811a68075e391411649d0d86f92851aac33b8c74276d6714b7fc632a06bc1",
+      "originalArchiveVerified": true
+    },
+    {
+      "path": "test/unit/t10/s2-helpers.mjs",
+      "sha256": "b8cf59b603b45a4c0cb06168d04a8bbf6000a4df30c07c2313a92db500c925e8",
+      "originalArchiveVerified": true
+    },
+    {
+      "path": "test/unit/t11/s1-recovery.test.mjs",
+      "sha256": "caa869c1560cba79542d8b87a34c7dabb63891cfd98017ab33c65b86b9246d5c",
+      "originalArchiveVerified": true
+    }
+  ],
+  "retiredSourcesArchivedBeforeReplacement": true,
+  "archivePolicy": "original source/test files retained in owned temporary task archive; no historical evidence deleted",
+  "retainedR1Sha256": "ed5877dd16fc79043bc8773d3d15bb6fed2887dc891100ccebf8ddf2b3b22563",
+  "productionSourceFiles": 95,
+  "emittedFiles": 192,
+  "parentAcceptance": false,
+  "noLaptopOrLiveBackendAccess": true,
+  "finalRuntimeHashesRechecked": 617
+}

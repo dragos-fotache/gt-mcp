@@ -5,7 +5,8 @@ import path from "node:path";
 import { fstatSync } from "node:fs";
 import { Socket } from "node:net";
 import { setImmediate } from "node:timers/promises";
-import { adapterOutcome, openConfiguredReadToolServer } from "./adapter.js";
+import { adapterOutcome, openProcessToolServer } from "./adapter.js";
+import { ProfileAcquisitionError } from "../storage/credential/acquire.js";
 import type { ReadToolServer } from "./adapter.js";
 import { isReadToolServerError } from "./errors.js";
 import { ProcessStdioTransport } from "./stdio.js";
@@ -75,6 +76,7 @@ export async function main(args: readonly string[]): Promise<number> {
   let signalCode: number | undefined;
   let stopping = false;
   let opening = true;
+  const startup = new AbortController();
   let finish!: () => void;
   const stopped = new Promise<void>((resolve) => {
     finish = resolve;
@@ -86,6 +88,7 @@ export async function main(args: readonly string[]): Promise<number> {
     if (reason !== "eof") fail(reason);
     if (server !== undefined && adapterOutcome(server)?.sdkFailed === true) fail("server");
     stopping = true;
+    startup.abort();
     void transport.close();
     finish();
   };
@@ -110,14 +113,19 @@ export async function main(args: readonly string[]): Promise<number> {
   try {
     try {
       const configPath = args[1];
-      server = await openConfiguredReadToolServer(configPath === undefined ? {} : { configPath });
+      server = await openProcessToolServer(
+        configPath === undefined ? {} : { configPath },
+        startup.signal,
+      );
       opening = false;
       // A signal/stream fault during acquisition still owns and closes the acquired runtime.
       if (!stopping) await server.connect(transport);
     } catch (error: unknown) {
       // Acquisition failures are fatal even if a signal requested orderly shutdown first.
       // A connect interrupted by that same close is expected and preserves its stop reason.
-      if (opening || !stopping) {
+      const cancelledOpening =
+        stopping && error instanceof ProfileAcquisitionError && error.code === "interrupted";
+      if (!cancelledOpening && (opening || !stopping)) {
         if (isReadToolServerError(error) && error.code === "configuration_required") {
           fail("configuration");
         } else if (isReadToolServerError(error) && error.code === "recovery_unavailable") {

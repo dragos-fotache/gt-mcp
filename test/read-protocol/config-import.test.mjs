@@ -9,12 +9,14 @@ const EXPORTS = [
   "DEFAULT_MAX_TOOL_RESULT_BYTES",
   "ReadToolServerError",
   "createReadToolServer",
+  "createToolServer",
   "isReadToolServerError",
   "openConfiguredReadToolServer",
+  "openConfiguredToolServer",
 ].sort();
 
 describe("S2 public factory shape and import boundary", () => {
-  it("has exactly five exports and import emits no extra output or new handlers/selected persistent handles", () => {
+  it("has exactly seven exports and import emits no extra output or new handlers/selected persistent handles", () => {
     const result = spawnSync(
       process.execPath,
       [fileURLToPath(new URL("./import-observation.mjs", import.meta.url))],

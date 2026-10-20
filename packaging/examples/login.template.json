@@ -1,0 +1,5 @@
+{
+  "version": 1,
+  "googleWebClientId": "<registered public Google web client ID>",
+  "browserOrigin": "http://localhost:<registered fixed port>"
+}

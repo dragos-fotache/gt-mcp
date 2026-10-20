@@ -1,0 +1,15 @@
+{
+  "task": "T21-S3",
+  "node": "24.21.0",
+  "npm": "11.19.0",
+  "provider": "GNOME Keyring51.1, reused verified disposable extraction from S2",
+  "providerBinarySha256": "29cb44793218cbda04694fc11d6cdd8bac6cc69f2347be03e5c356c5455f9c00",
+  "fixture": "Private owned bus/unlocked persistent login collection; disposable0700 ext4 roots; synthetic credential bytes only",
+  "filesystemPolicy": "Successor path uses no filesystem-name or magic gate; required real file IO must succeed safely. Btrfs testing assigned to user, not executed.",
+  "compiledFiles": 208,
+  "build": "Explicit npm run build; no install/build raced tests",
+  "packageDependenciesChanged": false,
+  "systemPackagesInstalled": false,
+  "retainedR1Sha256": "ed5877dd16fc79043bc8773d3d15bb6fed2887dc891100ccebf8ddf2b3b22563",
+  "cleanLockedReproduction": "Deferred to T21-S6 integrated/package acceptance; not claimed in S3"
+}

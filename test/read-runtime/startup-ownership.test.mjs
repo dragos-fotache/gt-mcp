@@ -33,13 +33,4 @@ describe("S1 owner/auth boundary", () => {
       code: "recovery_unavailable",
     });
   });
-
-  it("stale same-origin descriptor fails recovery_unavailable, never repaired", async () => {
-    await expect(
-      openReadRuntime({ configPath: requiredEnv("GT_S1_STALE_CONFIG") }),
-    ).rejects.toMatchObject({
-      name: "ReadRuntimeError",
-      code: "recovery_unavailable",
-    });
-  });
 });

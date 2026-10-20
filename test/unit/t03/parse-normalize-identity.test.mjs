@@ -134,7 +134,6 @@ describe("T03 parseArguments read defaults and strictness (M03)", () => {
 
   it("create arguments return without default expansion", () => {
     const minimal = {
-      operationId: SYNTHETIC_UUIDS.operation,
       name: "Upper Body A",
       exercises: [{ exerciseId: SYNTHETIC_UUIDS.exerciseA, sets: [{}] }],
     };
@@ -158,7 +157,6 @@ describe("T03 parseArguments read defaults and strictness (M03)", () => {
 describe("T03 normalizeIntent defaults and exact shape (C02)", () => {
   it("expands rest=30 and null set values with exact key order", () => {
     const intent = normalizeIntent({
-      operationId: SYNTHETIC_UUIDS.operation,
       name: "Upper Body A",
       exercises: [{ exerciseId: SYNTHETIC_UUIDS.exerciseA, sets: [{}] }],
     });
@@ -172,7 +170,6 @@ describe("T03 normalizeIntent defaults and exact shape (C02)", () => {
 
   it("preserves zero, empty sets and repeated references", () => {
     const intent = normalizeIntent({
-      operationId: SYNTHETIC_UUIDS.operation,
       name: "Z",
       exercises: [
         { exerciseId: SYNTHETIC_UUIDS.exerciseA, restDurationSeconds: 0, sets: [] },
@@ -200,7 +197,6 @@ describe("T03 normalizeIntent defaults and exact shape (C02)", () => {
 
   it("canonicalizes accepted -0 to +0 (spec clarification)", () => {
     const negZero = {
-      operationId: SYNTHETIC_UUIDS.operation,
       name: "Z",
       exercises: [
         {
@@ -215,7 +211,6 @@ describe("T03 normalizeIntent defaults and exact shape (C02)", () => {
     expect(Object.is(intent.exercises[0].sets[0].repetitions, -0)).toBe(false);
     const materialNeg = intentIdentityMaterial(negZero);
     const materialPos = intentIdentityMaterial({
-      operationId: SYNTHETIC_UUIDS.operationOther,
       name: "Z",
       exercises: [
         {
@@ -240,7 +235,7 @@ describe("T03 normalizeIntent defaults and exact shape (C02)", () => {
     const freeId = "aaaaaaaa-aaaa-0aaa-caaa-aaaaaaaaaaaa";
     expect(UUID_RE.test(freeId)).toBe(true);
     const input = clone(validCreateInput());
-    input.operationId = freeId;
+    input.exercises[0].exerciseId = freeId;
     expect(normalizeIntent(input).exercises).toHaveLength(1);
     expect(parseArguments("get_exercise", { exerciseId: freeId }).exerciseId).toBe(freeId);
   });
@@ -285,7 +280,6 @@ describe("T03 normalizeIntent defaults and exact shape (C02)", () => {
       sets: Array.from({ length: 4 }, () => ({ repetitions: 8, weightKg: 40 })),
     }));
     const intent = normalizeIntent({
-      operationId: SYNTHETIC_UUIDS.operation,
       name: longName,
       exercises: manyEntries,
     });
@@ -294,7 +288,6 @@ describe("T03 normalizeIntent defaults and exact shape (C02)", () => {
     expect(intent.exercises).toHaveLength(50);
     expect(intent.exercises[49].sets).toHaveLength(4);
     const manySets = {
-      operationId: SYNTHETIC_UUIDS.operation,
       name: "Upper Body A",
       exercises: [
         {
@@ -335,18 +328,15 @@ describe("T03 intentIdentityMaterial equivalence (C06 schema aspect)", () => {
         },
       ],
       name: "Upper Body A",
-      operationId: SYNTHETIC_UUIDS.operationOther,
     };
     expect(intentIdentityMaterial(base).canonicalJson).toBe(
       intentIdentityMaterial(reordered).canonicalJson,
     );
     const omitted = {
-      operationId: SYNTHETIC_UUIDS.operation,
       name: "Upper Body A",
       exercises: [{ exerciseId: SYNTHETIC_UUIDS.exerciseA, sets: [{ repetitions: 8 }] }],
     };
     const explicit = {
-      operationId: SYNTHETIC_UUIDS.operation,
       name: "Upper Body A",
       exercises: [
         {
@@ -360,7 +350,6 @@ describe("T03 intentIdentityMaterial equivalence (C06 schema aspect)", () => {
       intentIdentityMaterial(explicit).canonicalJson,
     );
     const forty = {
-      operationId: SYNTHETIC_UUIDS.operation,
       name: "Upper Body A",
       exercises: [
         {
@@ -370,7 +359,6 @@ describe("T03 intentIdentityMaterial equivalence (C06 schema aspect)", () => {
       ],
     };
     const fortyPoint = {
-      operationId: SYNTHETIC_UUIDS.operation,
       name: "Upper Body A",
       exercises: [
         {
@@ -398,24 +386,20 @@ describe("T03 intentIdentityMaterial equivalence (C06 schema aspect)", () => {
     };
     const entryB = { exerciseId: SYNTHETIC_UUIDS.exerciseB, sets: [] };
     const orderAB = intentIdentityMaterial({
-      operationId: SYNTHETIC_UUIDS.operation,
       name: "Upper Body A",
       exercises: [clone(entryA), clone(entryB)],
     }).canonicalJson;
     const orderBA = intentIdentityMaterial({
-      operationId: SYNTHETIC_UUIDS.operation,
       name: "Upper Body A",
       exercises: [clone(entryB), clone(entryA)],
     }).canonicalJson;
     expect(orderBA).not.toBe(orderAB);
     // Same-length set arrays with swapped content: set order is significant.
     const setsForward = intentIdentityMaterial({
-      operationId: SYNTHETIC_UUIDS.operation,
       name: "Upper Body A",
       exercises: [{ exerciseId: SYNTHETIC_UUIDS.exerciseA, sets: clone(entryA.sets) }],
     }).canonicalJson;
     const setsSwapped = intentIdentityMaterial({
-      operationId: SYNTHETIC_UUIDS.operation,
       name: "Upper Body A",
       exercises: [
         { exerciseId: SYNTHETIC_UUIDS.exerciseA, sets: [...clone(entryA.sets)].reverse() },

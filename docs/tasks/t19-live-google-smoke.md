@@ -1,7 +1,15 @@
 # T19 — Verify real Google browser bootstrap in an isolated deployment
 
-**Status:** planned · **Owner:** unassigned · **Requires:** T07, T16, T18
+**Status:** blocked on external setup · **Owner:** primary Codex agent · **Requires:** T07, T16, T18
 **Size:** 1 session plus owner/provider configuration
+
+Assigned by the user on2026-10-18. The owner confirmed that the isolated
+deployment/Google inputs are not ready and requested the
+[local setup checklist](../handoffs/t19-local-setup.md). Preparation is complete;
+the real Google/browser gate remains unpassed. See the
+[bounded work order](t19-work-order.md). No live login, installation or session
+was executed; accepted T21-S6 supplies the current candidate, with historical
+T07/T16/T18 evidence retaining its original scope.
 
 ## Outcome
 

@@ -1,0 +1,35 @@
+{
+  "owning": [
+    "test/fault/t21/credential-store.test.mjs",
+    "test/unit/t21/credential-entry.test.mjs",
+    "test/unit/t21/credential-format.test.mjs"
+  ],
+  "regressions": [
+    "test/fault/t04/commit-crash.test.mjs",
+    "test/fault/t04/diagnostic-separation.test.mjs",
+    "test/fault/t04/filesystem.test.mjs",
+    "test/fault/t04/key-facility.test.mjs",
+    "test/fault/t04/lease.test.mjs",
+    "test/fault/t04/privacy.test.mjs",
+    "test/fault/t04/provider.test.mjs",
+    "test/fault/t04/provision-crash.test.mjs",
+    "test/fault/t04/stale-anchor.test.mjs",
+    "test/foundation/cli-inert.test.mjs",
+    "test/foundation/companion-inert.test.mjs",
+    "test/foundation/inert-imports.test.mjs",
+    "test/foundation/intercept-calibration.test.mjs",
+    "test/foundation/package-contract.test.mjs",
+    "test/foundation/server-inert.test.mjs",
+    "test/foundation/symlink-argv-regression.test.mjs",
+    "test/unit/t04/arguments.test.mjs",
+    "test/unit/t04/binding.test.mjs",
+    "test/unit/t04/bytes.test.mjs",
+    "test/unit/t04/contract.test.mjs",
+    "test/unit/t04/crypto-format.test.mjs",
+    "test/unit/t04/crypto-oracle.test.mjs",
+    "test/unit/t04/errors.test.mjs",
+    "test/unit/t04/imports.test.mjs"
+  ],
+  "scope": "Full new S3 owning suite + all active legacy T04 storage and foundation regressions; no tests retired/excluded/skipped",
+  "userVerificationOverride": "Do not run Btrfs tests; user owns Btrfs testing. Successor production path must have no filesystem type allowlist."
+}

@@ -1,31 +1,192 @@
 # Compatibility matrix
 
-Every product compatibility row remains **unverified**. Selection, foundation
-build results and parked synthetic experiments are not product/release passes.
+Product/release certification rows remain **unverified** while named Pi, live
+Google/browser and independent release gates are open. Task-level isolated T16
+backend/Android evidence is recorded below; it does not certify those other gates.
+Selection, foundation results and parked synthetic experiments are not release passes.
 Current [user-approved config-only policy](decisions/routine-creation-config-policy.md)
-is aligned in shared MCP draft0.2 (uncommitted working-tree revision based on9a96dcb).
+is aligned in shared MCP draft0.3 (uncommitted working-tree revision based on9a96dcb).
 Only config-file writesEnabled:true enables routine creation, without a custom or
 external permission extension or per-routine prompt. Backend v1/OpenAPI1.0.0 unchanged.
 
-| Component                                  | Selected / candidate version                                                 | Owning task / evidence boundary                   | Status                  | Limitations                                                                                                                                          |
-| ------------------------------------------ | ---------------------------------------------------------------------------- | ------------------------------------------------- | ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Node.js                                    | 24.21.0 (LTS Krypton), engines >=24.21.0 <25                                 | T01 foundation; T08/T15/T17 product tests         | unverified              | import.meta.main Stability1.0/early development, accepted only for pinned inert foundation; retest upgrades                                          |
-| npm                                        | 11.19.0                                                                      | T01 lock/packageManager; later clean install      | unverified              | --ignore-scripts; no lifecycle-hook requirement                                                                                                      |
-| TypeScript                                 | 5.9.3                                                                        | T01 typecheck/build                               | unverified              | Strict flags; legacy inert companion skipLibCheck exception documented in T01 ADR; no new relaxation                                                 |
-| Official MCP SDK                           | 1.32.1                                                                       | T08 stdio and T15 integration                     | unverified              | v1 maintenance horizon recorded in T01 ADR; no general protocol claim                                                                                |
-| MCP protocol                               | candidate2025-11-25                                                          | T08/T17 actual product negotiation                | unverified              | Parked synthetic fixture negotiation is not product/host certification                                                                               |
-| Zod                                        | 4.5.4                                                                        | T03 schema/lossless codec                         | unverified              | No domain implementation in T01; exact Int64 proof still required                                                                                    |
-| Vitest                                     | 4.1.11                                                                       | Independent task suites                           | unverified              | Discovery test/**/*.test.mjs; no pass-with-no-tests or silent parked/failing suite exclusion                                                         |
-| Node types                                 | 24.19.2                                                                      | T01 declarations                                  | unverified              | Dev-only                                                                                                                                             |
-| ESLint / JS / TS ESLint / Prettier         | 10.12.0 /10.0.1 /8.71.1 /3.9.10                                              | T01 tooling                                       | unverified              | Dev-only; exact package versions/integrities in lockfile                                                                                             |
-| Pi runtime                                 | coding-agent1.1.0 locked development pin                                     | T17 ordinary portable-server interoperability     | unverified              | No required permission companion; supported paths/modes need actual evidence                                                                         |
-| Config-file routine-creation guard         | writesEnabled strict boolean, default false                                  | T09/T15/T17                                       | unverified              | True allows valid authenticated explicit calls without confirmation; no extension/UI/client metadata enablement; normal auth/recovery still required |
-| Pi companion / approval ordering           | Retired product scope; T02 parked                                            | Historical T01 inert scaffold/T02 experiment only | not in current delivery | Preserve four accepted slices/six synthetic SDK profiles and unaccepted R3 candidate; no PTY/overall T02 or product approval certification           |
-| OS / secret facility                       | Linux x64 Secret Service key + ext4 anchor; dbus-native0.7.8 locked          | T04                                               | unverified              | Production interop, lease contention, PREPARED-kill fencing, power loss pending QA relay/review                                                      |
-| Backend / OpenAPI / shared docs            | Backend v1/OpenAPI1.0.0; committed9a96dcb plus MCP draft0.2 working revision | T16                                               | unverified              | Shared policy aligned; no backend/domain/schema change or live service touched                                                                       |
-| Google / helper origin                     | Unselected placeholders                                                      | T07/T19                                           | unverified              | No audience/client ID/registered port invented                                                                                                       |
-| Android sync observation                   | Unselected                                                                   | T16                                               | unverified              | Ordinary sync observation, not immediate/offline delivery guarantee                                                                                  |
-| Artifact / journal / intent / key upgrades | T04 GTMS2 v1 envelopes, anchor v1, digest v1 built                           | T04 built; T11/T18 own upgrades                   | unverified              | Exact-byte migration/ownership/recovery fences need proof; T04 interop pending QA relay                                                              |
+| Component                            | Selected / candidate version                                                         | Owning task / evidence boundary                                          | Status                  | Limitations                                                                                                                                            |
+| ------------------------------------ | ------------------------------------------------------------------------------------ | ------------------------------------------------------------------------ | ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Node.js                              | Runtime >=24.0.0; development/build pin24.21.0                                       | User's minimum-only policy; historical evidence keeps its tested runtime | unverified              | No upper-version guard; newer-Node compatibility testing explicitly not performed for this change                                                      |
+| npm                                  | 11.19.0                                                                              | T01 lock/packageManager; later clean install                             | unverified              | --ignore-scripts; no lifecycle-hook requirement                                                                                                        |
+| TypeScript                           | 5.9.3                                                                                | T01 typecheck/build                                                      | unverified              | Strict flags; legacy inert companion skipLibCheck exception documented in T01 ADR; no new relaxation                                                   |
+| Official MCP SDK                     | 1.32.1                                                                               | T08 stdio and T15 integration                                            | unverified              | v1 maintenance horizon recorded in T01 ADR; no general protocol claim                                                                                  |
+| MCP protocol                         | candidate2025-11-25                                                                  | T08/T17 actual product negotiation                                       | unverified              | Parked synthetic fixture negotiation is not product/host certification                                                                                 |
+| Zod                                  | 4.5.4                                                                                | T03 schema/lossless codec                                                | unverified              | No domain implementation in T01; exact Int64 proof still required                                                                                      |
+| Vitest                               | 4.1.11                                                                               | Independent task suites                                                  | unverified              | Discovery test/**/*.test.mjs; no pass-with-no-tests or silent parked/failing suite exclusion                                                           |
+| Node types                           | 24.19.2                                                                              | T01 declarations                                                         | unverified              | Dev-only                                                                                                                                               |
+| ESLint / JS / TS ESLint / Prettier   | 10.12.0 /10.0.1 /8.71.1 /3.9.10                                                      | T01 tooling                                                              | unverified              | Dev-only; exact package versions/integrities in lockfile                                                                                               |
+| Pi runtime                           | coding-agent1.1.0 locked development pin                                             | T17 ordinary portable-server interoperability                            | unverified              | No required permission companion; supported paths/modes need actual evidence                                                                           |
+| Config-file routine-creation guard   | writesEnabled strict boolean, default false                                          | T09/T15/T17                                                              | unverified              | True allows valid authenticated explicit calls without confirmation; no extension/UI/client metadata enablement; normal auth/recovery still required   |
+| Pi companion / approval ordering     | Retired product scope; T02 parked                                                    | Historical T01 inert scaffold/T02 experiment only                        | not in current delivery | Preserve four accepted slices/six synthetic SDK profiles and unaccepted R3 candidate; no PTY/overall T02 or product approval certification             |
+| OS / secret facility                 | Linux x64 Secret Service key + single encrypted record; dbus-native0.7.8 locked      | T21-S3/S4/S6 isolated evidence; release separate                         | unverified              | Isolated ext4 IO/ownership verified; no filesystem-name gate; user owns Btrfs; power loss and release gates remain open                                |
+| Backend / OpenAPI / shared docs      | Backend v1/OpenAPI1.0.0; committed9a96dcb plus MCP draft0.3 working revision         | T16 isolated actual-service evidence; T20 certification separate         | unverified              | Full T16 source candidate verified in isolation, including S6 timestamp repair; deployed service, host/Google and release certification remain open    |
+| Google / helper origin               | Unselected placeholders                                                              | T07/T19                                                                  | unverified              | No audience/client ID/registered port invented                                                                                                         |
+| Android sync observation             | API37 x86_64; emulator37.1.11; Android source72bf70db with isolated S7 test addition | T16 ordinary HTTP/Room/engine observation; T20 certification separate    | unverified              | Exact saved MCP graph and stable repeated ordinary sync verified on owned emulator; no live phone, account UI/Google or instant/offline delivery claim |
+| Credential/config format transitions | T21 config2/single-record v1; fresh profile only                                     | T21 exact installed refusal/guide evidence; release separate             | unverified              | No automatic old/future-format migration; old config/profile refused unchanged; historical R1 preserved                                                |
+
+### T21-S6 current private package and completed parent evidence
+
+[S6 review](evidence/t21-s6-review.md):1,076/1,076 checks across105 exact files
+pass in workspace and clean locked replay, zero failures/skips/pending/todo and
+successful owned cleanup. The exact private archive has86 files,76 JS and111
+locked runtime dependencies; source/build/archive bytes/content/modes/lock match.
+Installed CLI setup, synthetic configured login, restart/reads/fresh creation,
+auth recovery, ownership/lifecycle and old/future/corrupt-state refusal pass.
+[Package identity](evidence/t21-s6-package-inventory.json),
+[clean reproduction](evidence/t21-s6-clean-reproduction.json),
+[handoff](handoffs/t21-s6.md). S1–S6 and parent T21 are accepted/closed.
+
+This supersedes earlier creation/storage/package expectations only for this exact
+candidate. Version0.0.0 alone is insufficient identity; R1/laptop retain their old
+installed behavior. Current Android delivery, actual Pi CLI/modes/lifecycle/session/
+output, T19 live Google/browser and independent T20 remain unverified release gates.
+Btrfs testing is user-owned. No publication, deployment or real write enablement;
+matrix release rows remain unverified. Synthetic installed API login is not real
+Google/browser evidence; same-format S5 replacement is not R1 migration.
+
+### T21-S5 prior source boundary evidence
+
+[S5 review](evidence/t21-s5-review.md):545/545 checks in58 exact files, zero
+failures/skips;569 stable hashes,176 unchanged compiled outputs and owned cleanup
+PASS. Current config2/single-record/invocation-local source passes actual isolated
+backend/PostgreSQL and Pi1.1.0 SDK print/direct/deferred/codemode boundaries with
+MCP2025-11-25. Repeated/concurrent creation is independent; no persisted receipt or
+startup creation. Real pending-refresh and in-call auth retry identity remain.
+[Scenario mapping](evidence/t21-s5-scenario-reconciliation.md),
+[current package identities](evidence/t21-s5-environment.json).
+
+This supersedes historical T16/T17 creation-recovery expectations only for current
+source. Historical package/Android/host evidence below retains its original artifact
+scope. Current Android delivery and actual Pi CLI/modes/lifecycle/session/output,
+T19 and independent T20 remain unverified. S6 exact installed package/clean parent
+acceptance is ready/unassigned; R1/laptop unchanged. Matrix rows remain unverified
+for release. Btrfs testing is user-owned.
+
+### T18-R1 historical private package evidence
+
+[R1 review](evidence/t18-r1-review.md):40/40 in12 files on workspace and clean,
+zero failures/skips.430 source inputs and194 emitted files match; archive bytes,
+content/modes and runtime lock reproduce identically.96 files/86 JS/111 locked
+runtime dependencies. Exact delivery installation, bins/SDK/holder, current-source
+pending/receipt recovery and incompatible-state refusal pass; owned cleanup PASS.
+Versus historical T18 inventory, only the accepted catalogue decoder and standalone
+server-guide wording changed. [Package identity](evidence/t18-r1-package-inventory.json).
+No new old-release migration/host/backend/Google/Android or release certification.
+T17-S2–S5, T19 and independent T20 remain separate; matrix rows stay unverified.
+
+### T17-S1 named Pi SDK print evidence
+
+[S1 review](evidence/t17-s1-review.md):25/25 in five files (8 actual Pi host +17
+unchanged SDK/config checks), zero failures/skips;623 stable hashes and owned
+cleanup PASS. Pi1.1.0 SDK print/hasUI:false negotiates MCP2025-11-25 through its
+default native stdio transport. Direct, deferred-search-loaded and nested codemode
+paths preserve config-only creation, read availability, receipt identity and small
+complete envelopes. The model is scripted; backend replies use isolated synthetic
+HTTPS, with real private provider/ext4 storage.327 original inputs unchanged,
+including194 emitted files. [Pi notes](pi.md),
+[package identities](evidence/t17-s1-environment.json).
+
+Parent T17 remains incomplete: actual CLI/interactive mode, lifecycle/reconnect,
+concurrency/cancellation, uncertain replay, restart/fork, effective disablement,
+large output/untrusted text and clean integrated acceptance remain open. Matrix
+rows stay unverified pending complete host/browser/independent release gates.
+
+### T16-S7 integrated backend and Android evidence
+
+[S7 review](evidence/t16-s7-review.md), [scenario reconciliation](evidence/t16-s7-scenario-reconciliation.md)
+and [native result](evidence/t16-s7-native-results.json) record the actual isolated
+candidate. Full active T16 replay passes **46/46 in nine files**, zero failures or
+skips; exact source/APK/input/output and owned cleanup checks pass. Android starts
+from an empty baseline, consumes the three real MCP-created batches through normal
+HTTP/Room/engine delivery, and observes exact saved IDs/relationships/order/values.
+Repeated sync is stable; PostgreSQL independently verifies no duplicate effects.
+
+The source candidate includes S3's accepted catalogue codec repair and S6's accepted
+backend timestamp repair. Original Android/backend inputs remain unchanged during
+S7. Fixed expiry cases retain the declared test-only backend Clock overlay;
+Android uses ordinary wall time. Authentication setup uses synthetic independent
+same-account service sessions; external Google is not exercised. Final clean
+reconstruction and parent disposition are recorded in the review. The earlier
+T18 archive remains historical; no newly released package is claimed. Product/
+release matrix rows above stay pending the remaining T17/T19/T20 gates.
+
+### T16-S5 interruption/recovery observations (bounded evidence, not a completed row)
+
+[S5 review](evidence/t16-s5-review.md): **54/54 in eight files**, all 36 active
+T16 checks (33 service compositions, three codec) plus 18 unchanged T11/T15
+regressions; zero failed/skipped/pending/todo and 611 stable hashes. Per-step durable
+process interruption, committed-response cancellation, lost final MCP receipt,
+bounded injected429 recovery, actual save rejection/key reuse and corrupted-success
+replay pass. Scoped syntax/AST/lint/format/import checks and owned cleanup PASS;
+312 product/config inputs/outputs match S4 and 116 original backend inputs stay
+stable. Existing production checks/build from S4 apply to the same compiled
+candidate; no S5 rebuild/clean-install or independent certification claim. Process
+exits occur between acknowledged commits after owner drain; 429/corruption are
+explicit relay faults. [Handoff](handoffs/t16-s5.md).
+[Remaining plan](decisions/t16-remaining-slices.md): S1–S5 closed; S6 races/lifecycle
+and S7 Android/integrated parent acceptance planned/unassigned. Parent T16 incomplete.
+Historical T18 archive still needs S3 codec repair in a verified candidate;
+compatibility/release gates and T17/T19/independent T20 remain open.
+
+### T16-S4 auth/creation observations (bounded evidence, not a completed row)
+
+[S4 review](evidence/t16-s4-review.md): **42/42 in eight files**, all 21 active
+T16 checks (18 actual-service, three codec) plus 21 unchanged T06/T11/T15
+regressions; zero failed/skipped/pending/todo and 608 stable hashes. Authentic A05
+expired-access replay/install-before-rotation, reference rejection, terminal repeat,
+concurrent normalized identity/distinct creation and real root collision pass.
+Production/scoped checks and owned cleanup PASS; 312 checked product/config
+inputs/outputs and 116 original backend inputs unchanged. A05 uses the existing
+trusted-clock production auth facade with real storage/backend, followed by MCP
+reopen; no elapsed-wall-clock stdio claim. [Handoff](handoffs/t16-s4.md).
+[Remaining plan](decisions/t16-remaining-slices.md): S1–S4 closed; S5 separately
+authorized while S4 finished, S6/S7 planned/unassigned. Parent T16 incomplete.
+Crash/cancellation/uncertainty, remaining save rejection/key-reuse/malformed success,
+other-client races/lifecycle, Android and integrated acceptance remain. Historical
+T18 archive still needs S3 codec repair. T17/T19/T20 and release gates unchanged.
+
+### T16-S3 read-boundary observations (bounded evidence, not a completed row)
+
+[S3 review](evidence/t16-s3-review.md) records 147/147 in 11 files: all 16 active
+T16 checks (13 actual-backend, three codec) plus 131 unchanged regressions; 607 hashes
+stable. Real filters/visibility/saved-only lists, context-bound paging and refresh,
+lossless raw numeric Int64 projection, live membership and fixed authentic expiry
+pass. Valid bundled cross-role muscle membership exposed and received a narrow
+codec repair; custom restrictions remain. Five Java restarts and owned cleanup
+verified; original backend inputs unchanged. Fixed Clock is backend-owned test code
+in a disposable artifact only. No Android/live/Google or full-parent claim.
+S1–S3 closed; later slices unassigned. A05, remaining creation/domain/race/crash/
+lifecycle/Android and parent acceptance stay open. Historical T18 archive needs this
+repair in a later verified candidate. All matrix/release gates remain unchanged.
+
+### T16-S2 auth/restart observations (bounded evidence, not a completed row)
+
+[Review](evidence/t16-s2-review.md): 90/90 in eight files (all nine active T16 + 81
+unchanged auth/lifecycle regressions), zero failed/skipped/pending/todo. Real refresh
+serialization/exact lost-response replay across MCP/backend restart, representative
+resource replay after service restart and real-lock logout/account-disable write
+fences pass. Two Java restarts and owned cleanup verified. All 298 checked product
+inputs/194 rebuilt outputs and 116 original backend inputs unchanged; no product or
+contract edit. A05 and remaining cursor/ownership/domain/race/recovery/Android gates
+stay open. Matrix rows remain unverified; no Google/live-phone/host/release claim.
+
+### T16-S1 actual backend observations (bounded evidence, not a completed row)
+
+[Review](evidence/t16-s1-review.md):4 actual-backend owning checks + 446 unchanged
+regressions =450/450 in 49 files, zero failed/skipped/pending/todo. Disposable Java27
+backend/PostgreSQL16, SDK1.32.1/Node24.21.0 and private provider/ext4/TLS verify
+representative reads, creation, DB child values/revisions/three batches, exact
+committed-response-loss replay at draft/populate/save after MCP restart, and ordinary
+draft/saved pull/snapshot. Original 116 backend inputs unchanged; owned cleanup PASS.
+Current contract/canonical catalogue match; historical build-prose hashes are
+reproduced only in a disposable copy. Full auth/race/recovery/backend-restart and
+Android gates remain unrun. Matrix rows above remain unverified; no Google/live
+phone/host/release certification or automatic successor is implied.
 
 ### T08-S2 SDK-factory observations (bounded evidence, not a matrix row)
 
@@ -121,7 +282,7 @@ The custom extension lives in experiments/t02/companion, with driver and fixture
 separate; production companion/src remains inert T01 scaffolding. Neither is
 required for the config-only server. Old package/compiler/Pi pins remain untouched
 by this documentation revision. Later removal/package/build reconciliation needs
-an explicit Developer-owned window and relevant independent regressions.
+an explicit bounded task scope and relevant specification-derived regressions.
 
 Historical T02 acceptance records preserve failures/repairs under the old experiment
 contract. R3 is candidate artifact-ready only; no independent QA artifact relay.
@@ -174,6 +335,14 @@ MCP, journal/creation, caching/cleanup, deletion, or successor behavior is
 supplied in S5.
 
 ### T08-S3 stdio implementation scope
+
+Current additive local evidence: [T15-S2](evidence/t15-s2-review.md) delivers
+official SDK guarded creation dispatch and compiled stdio wiring on the same
+Node24.21.0/npm11.19.0/SDK1.32.1/protocol2025-11-25 boundary.68/68 selected checks,
+four production checks and545 stable hashes passed with isolated provider/ext4/
+HTTPS, enabled saved receipt and disabled zero-mutation calls. Parent T15/S3
+process recovery/lifecycle/clean reproduction remain pending; no named-host,
+live-backend or release compatibility row changes are claimed.
 
 The actual server entry now composes the accepted runtime and SDK adapter over
 local stdio. Node 24.21.0 / npm 11.19.0 / SDK 1.32.1 remain pinned. Public SDK
@@ -235,3 +404,32 @@ browser interoperability are not runtime-certified by those fixtures. Named
 host/backend/Android/release gates remain separate; creation remains unavailable.
 The historical S2-only CLI boundary above is superseded by this delivery; the
 17 product compatibility rows remain unchanged.
+
+### T18-S2 standalone guide observations (bounded, not certification)
+
+[S2 acceptance](evidence/t18-s2-review.md) records10/10 focused document/install/
+disclosure checks,563 stable hashes and unchanged S1 runtime/dependency inputs.
+The96-file candidate ships complete installation/login/server/recovery guides and
+false templates, with local links/anchors and approved budget tables verified.
+Extract-and-npm-ci is the sole supported route. No runtime rebuild or format change.
+Installed replacement/recovery/clean parent proof remains S3; real external and
+independent release gates remain pending. Matrix rows above are not promoted by
+documentation or unconfigured install smoke.
+
+### T18-S3 installed package and replacement boundary
+
+The configured tool/server opener validates retained local operation evidence at
+startup, including versions, binding and step keys, even with writes disabled.
+Never-bound profiles require empty operation bytes. Validation sends no requests,
+writes no private bytes and resumes nothing; the separate read-only opener retains
+its prior behavior. This corrects the shared-contract startup gap under the
+[user-resolved S3 work order](tasks/t18-s3-work-order.md).
+
+The supported package route remains fresh extraction and pinned locked npm ci,
+with executables separate from protected state/anchors/keys. Qualification covers
+same-format replacement from a frozen pre-T18 target, explicit exact retry,
+retained receipts, incompatible-state refusal and clean locked reconstruction;
+exact disposition/results/limits are recorded in the [S3 review](evidence/t18-s3-review.md).
+No historical released-version migration, downgrade, other OS/provider/filesystem,
+real backend/Android/Google/named-host or independent release claim is introduced.
+The broad component/scenario matrix remains unverified pending its owning gates.

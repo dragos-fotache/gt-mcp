@@ -1,5 +1,11 @@
 # T01 approved foundation specification
 
+> **Runtime-policy revision, 2026-10-18:** the user explicitly replaced the
+> original Node24-only upper bound with Node major24 or later, without newer-Node
+> compatibility testing. See the [bounded change](../tasks/node-minimum-runtime-work-order.md).
+> This supersedes the runtime/engine restriction below; development/build pins
+> and historical acceptance evidence remain unchanged.
+
 **Authority:** User approved starting T01; coordinator authorizes this Stage 2 work
 contract. It supersedes conflicting candidates in t01-foundation-proposal.md without
 changing shared wire/domain policy.

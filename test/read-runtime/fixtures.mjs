@@ -311,32 +311,24 @@ function ensurePrivateDir(dir) {
 // The installed binding returned is authoritative; no local account guessing.
 export async function prepareIsolatedProfile({
   profileRoot,
-  anchorRoot,
   busAddress,
   origin,
-  profileGenerationId,
   grantBytes = null,
   timeoutMs = 5000,
 }) {
   for (const [name, value] of Object.entries({
     profileRoot,
-    anchorRoot,
     busAddress,
     origin,
-    profileGenerationId,
   })) {
     if (value === undefined || value === null || value === "") {
       throw new Error(`BLOCKED: prepareIsolatedProfile requires ${name}`);
     }
   }
-  ensurePrivateDir(profileRoot);
-  ensurePrivateDir(anchorRoot);
   const profile = await provisionProfile({
     origin,
     profileRoot,
-    anchorRoot,
     secretServiceBusAddress: busAddress,
-    profileGenerationId,
     timeoutMs,
   });
   try {
@@ -361,28 +353,16 @@ export async function prepareIsolatedProfile({
 
 // Startup pair writer for isolated startup (0600, separate files,
 // outside both storage roots). Returns { configPath, descriptorPath }.
-export function writeStartupPair({
-  dir,
-  origin,
-  profileRoot,
-  anchorRoot,
-  busAddress,
-  descriptorBinding,
-  writesEnabled = false,
-}) {
+export function writeStartupPair({ dir, origin, profileRoot, busAddress, writesEnabled = false }) {
   const configPath = path.join(dir, "synthetic-config.json");
-  const descriptorPath = path.join(dir, "synthetic-descriptor.json");
   const config = {
-    version: 1,
+    version: 2,
     serviceOrigin: origin,
-    storage: { profileRoot, anchorRoot, secretServiceBusAddress: busAddress },
-    bindingDescriptorPath: descriptorPath,
+    storage: { profileRoot, secretServiceBusAddress: busAddress },
     ...(writesEnabled ? { writesEnabled: true } : {}),
   };
-  const descriptor = { version: 1, binding: descriptorBinding };
   fs.writeFileSync(configPath, JSON.stringify(config), { mode: 0o600 });
-  fs.writeFileSync(descriptorPath, JSON.stringify(descriptor), { mode: 0o600 });
-  return { configPath, descriptorPath };
+  return { configPath };
 }
 
 export function makeIsolatedScratch() {
@@ -413,28 +393,21 @@ export async function prepareS1RelayFixtures({
       throw new Error(`BLOCKED: prepareS1RelayFixtures requires ${name}`);
     }
   }
-  const { randomUUID } = await import("node:crypto");
   async function buildCase(name, grantBytes, extra = {}) {
     const dir = path.join(base, name);
     ensurePrivateDir(dir);
     const profileRoot = path.join(dir, "profile");
-    const anchorRoot = path.join(dir, "anchor");
-    const profileGenerationId = randomUUID();
-    const binding = await prepareIsolatedProfile({
+    await prepareIsolatedProfile({
       profileRoot,
-      anchorRoot,
       busAddress,
       origin,
-      profileGenerationId,
       grantBytes,
     });
     return writeStartupPair({
       dir,
       origin,
       profileRoot,
-      anchorRoot,
       busAddress,
-      descriptorBinding: binding,
       ...extra,
     });
   }
@@ -445,52 +418,13 @@ export async function prepareS1RelayFixtures({
     await buildCase("writes", liveGrantBytes, { writesEnabled: true })
   ).configPath;
   manifest.GT_S1_EXPIRED_GRANT_CONFIG = (await buildCase("expired", expiredGrantBytes)).configPath;
-  // Conflict: descriptor carries a different valid profileGenerationId than
-  // the durable binding, so storage opening fails.
+  // Authenticated binding cannot conflict with a separate descriptor anymore.
+  // A foreign trusted origin is a retained opening failure before any auth send.
   const conflict = await buildCase("conflict", liveGrantBytes);
-  const conflictDescriptor = JSON.parse(fs.readFileSync(conflict.descriptorPath, "utf8"));
-  conflictDescriptor.binding.profileGenerationId = randomUUID();
-  fs.writeFileSync(conflict.descriptorPath, JSON.stringify(conflictDescriptor));
+  const config = JSON.parse(fs.readFileSync(conflict.configPath));
+  config.serviceOrigin = "https://foreign-storage.example.invalid";
+  fs.writeFileSync(conflict.configPath, JSON.stringify(config));
   manifest.GT_S1_CONFLICT_CONFIG = conflict.configPath;
-  // Stale: same-origin descriptor snapshotted before grant installation, so
-  // the durable binding has since advanced and opening fails.
-  const staleDir = path.join(base, "stale");
-  ensurePrivateDir(staleDir);
-  const staleProfileRoot = path.join(staleDir, "profile");
-  const staleAnchorRoot = path.join(staleDir, "anchor");
-  const staleGenerationId = randomUUID();
-  const staleProfile = await provisionProfile({
-    origin,
-    profileRoot: staleProfileRoot,
-    anchorRoot: staleAnchorRoot,
-    secretServiceBusAddress: busAddress,
-    profileGenerationId: staleGenerationId,
-    timeoutMs: 5000,
-  });
-  let stalePreAuth;
-  try {
-    const staleSession = await openSessionState({ profile: staleProfile });
-    try {
-      stalePreAuth = staleSession.binding;
-      await staleSession.installInitialGrant(
-        stalePreAuth,
-        liveGrantBytes,
-        new AbortController().signal,
-      );
-    } finally {
-      staleSession.invalidate();
-    }
-  } finally {
-    await staleProfile.close();
-  }
-  manifest.GT_S1_STALE_CONFIG = writeStartupPair({
-    dir: staleDir,
-    origin,
-    profileRoot: staleProfileRoot,
-    anchorRoot: staleAnchorRoot,
-    busAddress,
-    descriptorBinding: stalePreAuth,
-  }).configPath;
   return manifest;
 }
 

@@ -68,7 +68,6 @@ import { S3_ACCOUNT_OTHER } from "../../unit/t06/s3-helpers.mjs";
 
 const S3_MID_MS = Date.parse("2026-10-01T00:00:00.000Z");
 const S3_LATE_MS = Date.parse("2026-11-01T00:00:00.000Z");
-const OPERATIONS_S3 = '{"synthetic":"t06-s3-shared-cycle-operations"}';
 
 // Cancellation/invalidation must land on operation_interrupted in either the
 // Session or Transport family; no unrelated code satisfies cancellation.
@@ -157,7 +156,6 @@ async function withSharedCycleHarness(respond, fn, clockMs = S3_MID_MS, override
         grant: predecessor,
         pendingRefresh: seeded,
       }),
-      operationBytes: Buffer.from(OPERATIONS_S3, "utf8"),
     });
     const ownerForFacade =
       overrides.wrapOwner === undefined || overrides.wrapOwner === null
@@ -277,7 +275,6 @@ describe("T06-S3 concurrent recover callers share one entire cycle", () => {
       expect(stored.pendingRefresh).toBe(null);
       expect(stored.grant.refreshToken).toBe("synthetic-qa-t06-s3-refresh.03");
       expect(stored.binding).toEqual(h.installed);
-      expect(s3Utf8Text(await h.profile.readOperationStoreBytes())).toBe(OPERATIONS_S3);
     });
   });
 
@@ -371,7 +368,6 @@ describe("T06-S3 concurrent recover callers share one entire cycle", () => {
           return owner.binding;
         },
         readVaultBytes: (...args) => owner.readVaultBytes(...args),
-        readOperationStoreBytes: (...args) => owner.readOperationStoreBytes(...args),
         commit: (...args) => {
           const pending = track(owner.commit(...args));
           if (args[0] !== undefined && args[0].vaultBytes !== undefined) {
@@ -385,7 +381,6 @@ describe("T06-S3 concurrent recover callers share one entire cycle", () => {
         },
         bindAccount: (...args) => owner.bindAccount(...args),
         advanceSessionGeneration: (...args) => owner.advanceSessionGeneration(...args),
-        keyedIntentDigest: (...args) => owner.keyedIntentDigest(...args),
         close: (...args) => owner.close(...args),
       };
       return adapter;

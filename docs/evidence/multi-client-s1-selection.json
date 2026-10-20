@@ -1,0 +1,9 @@
+[
+  "test/unit/t21/acquisition.test.mjs",
+  "test/fault/t21/credential-store.test.mjs",
+  "test/unit/t21/credential-entry.test.mjs",
+  "test/unit/t21/credential-format.test.mjs",
+  "test/unit/t21/fixture-safety.test.mjs",
+  "test/unit/t04/errors.test.mjs",
+  "test/fault/t04/lease.test.mjs"
+]

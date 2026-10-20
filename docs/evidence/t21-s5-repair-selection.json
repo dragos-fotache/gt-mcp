@@ -1,0 +1,4 @@
+[
+  "test/backend-interoperability/races-lifecycle.test.mjs",
+  "test/backend-interoperability/auth-restart.test.mjs"
+]

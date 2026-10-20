@@ -26,7 +26,6 @@ import type { SessionHooks, TrustedTransportConfig } from "../http/index.js";
 import type { ProfileSession, StorageBinding } from "../storage/index.js";
 import { parseStrictMetadataJson } from "../runtime/files.js";
 import { LoginError, isLoginError } from "./errors.js";
-import type { LoginMetadata, LoginReceipt } from "./metadata.js";
 import {
   decodeLoginEnvelope,
   decodePriorVault,
@@ -45,7 +44,6 @@ export interface LoginChallenge {
 
 export interface LoginTransactionOptions {
   readonly profile: ProfileSession;
-  readonly metadata: LoginMetadata;
   readonly transportConfig: TrustedTransportConfig;
   readonly settings: LoginSettings;
   readonly clock?: { nowMs(): number };
@@ -91,20 +89,13 @@ async function open(options: LoginTransactionOptions): Promise<LoginTransaction>
   const fields = Object.fromEntries(captureEntries(options));
   if (
     Object.keys(fields).some(
-      (key) => !["profile", "metadata", "transportConfig", "settings", "clock"].includes(key),
+      (key) => !["profile", "transportConfig", "settings", "clock"].includes(key),
     )
   )
     throw new LoginError("invalid_arguments");
   const settings = validateSettings(fields["settings"]);
   const profile = fields["profile"] as ProfileSession;
-  const metadata = fields["metadata"] as LoginMetadata;
-  if (
-    typeof profile !== "object" ||
-    profile === null ||
-    typeof metadata !== "object" ||
-    metadata === null
-  )
-    throw new LoginError("invalid_arguments");
+  if (typeof profile !== "object" || profile === null) throw new LoginError("invalid_arguments");
   for (const key of [
     "readVaultBytes",
     "commit",
@@ -112,15 +103,6 @@ async function open(options: LoginTransactionOptions): Promise<LoginTransaction>
     "advanceSessionGeneration",
   ] as const) {
     if (typeof profile[key] !== "function") throw new LoginError("invalid_arguments");
-  }
-  for (const key of [
-    "readDescriptor",
-    "readReceipt",
-    "prepareReceipt",
-    "publishDescriptor",
-    "removeReceipt",
-  ] as const) {
-    if (typeof metadata[key] !== "function") throw new LoginError("invalid_arguments");
   }
   // These are explicitly trusted capabilities; methods retain their receivers.
   const readVault = profile.readVaultBytes.bind(profile);
@@ -159,7 +141,6 @@ async function open(options: LoginTransactionOptions): Promise<LoginTransaction>
   let expected: Uint8Array = new Uint8Array();
   let pending: LoginEnvelope | null = null;
   let challenge: LoginChallenge | null = null;
-  let receipt: LoginReceipt | null = null;
   let poisoned = false;
   let closed = false;
   let cancelled = false;
@@ -211,14 +192,6 @@ async function open(options: LoginTransactionOptions): Promise<LoginTransaction>
       await write(prior);
       pending = null;
     }
-    if (receipt !== null) {
-      try {
-        await metadata.removeReceipt(receipt);
-      } catch {
-        recovery();
-      }
-      receipt = null;
-    }
     challenge = null;
   };
   const hooks: SessionHooks = {
@@ -249,15 +222,8 @@ async function open(options: LoginTransactionOptions): Promise<LoginTransaction>
   };
   // T05 remains authoritative for config shape/budgets; construction performs no IO.
   const transport = createBackendTransport(config, { session: hooks });
-  if (
-    new URL(config.origin).origin !== source.origin ||
-    metadata.config.canonicalOrigin !== source.origin
-  )
+  if (new URL(config.origin).origin !== source.origin)
     throw new LoginError("configuration_required");
-  if ((await metadata.readReceipt()) !== null) throw new LoginError("recovery_required");
-  const descriptor = await metadata.readDescriptor();
-  if (descriptor === null || !bindingsEqual(descriptor, source))
-    throw new LoginError("recovery_required");
   expected = copyByteView(await readVault());
   pending = decodeLoginEnvelope(expected, source, maxRequestBytes);
   // Expired temporary credentials are cleared by the next trusted entry.
@@ -393,27 +359,6 @@ async function open(options: LoginTransactionOptions): Promise<LoginTransaction>
     if (!Number.isSafeInteger(target.sessionGeneration)) recovery();
     const targetBytes = encodeLifecycleVaultBytes(target, fresh, null, retained);
     await verify();
-    let liveDescriptor: StorageBinding | null = null;
-    try {
-      liveDescriptor = await metadata.readDescriptor();
-    } catch {
-      recovery();
-    }
-    if (liveDescriptor === null || !bindingsEqual(liveDescriptor, source)) recovery();
-    checkSignal(signal);
-    checkDeadline();
-    receipt = Object.freeze({
-      version: 1,
-      kind: "install",
-      transitionId: randomUUID(),
-      from: source,
-      to: target,
-    });
-    try {
-      await metadata.prepareReceipt(receipt);
-    } catch {
-      recovery();
-    }
     // No cancellation callback or storage await between the final gate and transition.
     checkSignal(signal);
     checkDeadline();
@@ -438,13 +383,6 @@ async function open(options: LoginTransactionOptions): Promise<LoginTransaction>
     challenge = null;
     expected.fill(0);
     expected = new Uint8Array();
-    try {
-      await metadata.publishDescriptor(source, target);
-      await metadata.removeReceipt(receipt);
-    } catch {
-      recovery();
-    }
-    receipt = null;
     checkSignal(signal);
     return target;
   };

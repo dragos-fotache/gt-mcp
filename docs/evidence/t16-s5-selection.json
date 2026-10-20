@@ -1,0 +1,10 @@
+[
+  "test/backend-interoperability/auth-restart.test.mjs",
+  "test/backend-interoperability/catalogue-roles.test.mjs",
+  "test/backend-interoperability/crash-cancellation.test.mjs",
+  "test/backend-interoperability/creation-decisions.test.mjs",
+  "test/backend-interoperability/creation-replay.test.mjs",
+  "test/backend-interoperability/read-boundaries.test.mjs",
+  "test/fault/t11/s3-crash-matrix.test.mjs",
+  "test/create-stdio/recovery-stop.test.mjs"
+]

@@ -1,0 +1,39 @@
+{
+  "status": "FAIL",
+  "actualAndroid": true,
+  "gradleExitCode": 1,
+  "nativeFailureTypes": [
+    "java.lang.IllegalStateException"
+  ],
+  "nativeSourceFrames": [
+    [
+      "T16McpSyncTest.kt",
+      "103"
+    ]
+  ],
+  "deliverySummary": [],
+  "syncDiagnostic": [
+    "T16Diagnostic kind=Transient http=-1 io=IOException decode=valid field=none site=none"
+  ],
+  "failureShape": {
+    "attributes": [],
+    "children": [],
+    "textLength": 1203
+  },
+  "fixtureFailure": "com.dragosfotache.",
+  "cases": [
+    {
+      "class": "com.dragosfotache.gymtracka.data.sync.roombackend.T16McpSyncTest",
+      "name": "savedMcpRoutineArrivesThroughOrdinarySync",
+      "failed": true,
+      "skipped": false
+    }
+  ],
+  "xmlSha256": [
+    "ba5111a3797657283910c79b083cc4535f3f43f9a1d03293c93128ea9fb23af9"
+  ],
+  "failureClass": "RuntimeError",
+  "crashTypes": [],
+  "crashProjectFrames": [],
+  "privateLogSha256": "b881641f8f918267d286216b58d97f1c50c29df6ba638b0a26cfaaeafa73ae90"
+}

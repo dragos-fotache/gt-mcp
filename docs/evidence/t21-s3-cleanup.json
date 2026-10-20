@@ -1,0 +1,14 @@
+{
+  "owning": {
+    "privateProviderQualified": true,
+    "ownedProviderExited": true,
+    "ownedBusExited": true,
+    "privateRootsRemoved": true
+  },
+  "regressions": {
+    "privateProviderQualified": true,
+    "ownedProviderExited": true,
+    "ownedBusExited": true,
+    "privateRootsRemoved": true
+  }
+}

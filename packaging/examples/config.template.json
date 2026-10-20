@@ -1,0 +1,9 @@
+{
+  "version": 2,
+  "serviceOrigin": "<canonical HTTPS service origin>",
+  "storage": {
+    "profileRoot": "<absolute normalized nonexistent private profile root>",
+    "secretServiceBusAddress": "unix:path=<absolute OS Secret Service socket>"
+  },
+  "writesEnabled": false
+}

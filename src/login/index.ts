@@ -12,6 +12,5 @@ export {
   recoverLoginProfile,
 } from "./configured.js";
 export type { ConfiguredLoginOptions, LoginProfileOptions } from "./configured.js";
-export type { LoginMetadata, LoginReceipt } from "./metadata.js";
 export { startBrowserLoginHelper } from "./browser.js";
 export type { BrowserLoginHelper, BrowserLoginOptions } from "./browser.js";

@@ -1,25 +1,31 @@
 // Actual compiled CLI process -> real owned loopback callback -> isolated
 // Secret Service/ext4/private-CA HTTPS. All accounts/credentials are synthetic.
-import fs from "node:fs";
-import { randomUUID } from "node:crypto";
 import { describe, it, expect } from "vitest";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
-import { openLoginMetadata } from "../../dist/login/metadata.js";
-import { fixture, ACCOUNT, bytes, parse } from "./configured-helpers.mjs";
+import { fixture, ACCOUNT } from "./configured-helpers.mjs";
 import { request, pageCsrf, assertPortReleased, deferred } from "./browser-helpers.mjs";
 import { ajvValidator } from "../read-protocol/helpers.mjs";
 import { SERVER } from "../stdio-server/helpers.mjs";
 import { startCli, runCli, command, browserSettings, expectSafe } from "./cli-helpers.mjs";
 
+async function currentBinding(f) {
+  const owner = await f.open();
+  try {
+    return owner.binding;
+  } finally {
+    await owner.close();
+  }
+}
+
 async function setup(f) {
   const result = await runCli(["setup", "--config", f.configPath]);
   expectSafe(result, f);
   expect(result.code).toBe(0);
-  expect(result.stderr).toMatch(/recovery evidence/i);
+  expect(result.stderr).toMatch(/repeating a call may create a duplicate/i);
   expect(result.stderr).toMatch(/host\/model/);
   expect(result.stderr).toMatch(/transcripts/);
-  return parse(fs.readFileSync(f.descriptorPath)).binding;
+  return await currentBinding(f);
 }
 
 async function login(f, { launcherMode = "complete", credential = "synthetic-cli-google" } = {}) {
@@ -79,14 +85,14 @@ describe("T07-S3 delivered CLI isolated workflow", () => {
       const first = await login(f);
       expect(first.result.code).toBe(0);
       expect(first.response.status).toBe(200);
-      expect(parse(fs.readFileSync(f.descriptorPath)).binding).toMatchObject({
+      expect(await currentBinding(f)).toMatchObject({
         accountUuid: ACCOUNT,
         sessionGeneration: 1,
       });
       await sdkRead(f);
       const second = await login(f);
       expect(second.result.code).toBe(0);
-      expect(parse(fs.readFileSync(f.descriptorPath)).binding).toMatchObject({
+      expect(await currentBinding(f)).toMatchObject({
         accountUuid: ACCOUNT,
         sessionGeneration: 2,
       });
@@ -104,7 +110,7 @@ describe("T07-S3 delivered CLI isolated workflow", () => {
       const { result, response } = await login(f, { launcherMode: "hold" });
       expect(result.code).toBe(0);
       expect(response.status).toBe(200);
-      const owner = await f.open(parse(fs.readFileSync(f.descriptorPath)).binding);
+      const owner = await f.open(await currentBinding(f));
       await owner.close();
     } finally {
       await f.close();
@@ -151,47 +157,7 @@ describe("T07-S3 delivered CLI isolated workflow", () => {
       } finally {
         await owner.close();
       }
-      expect(parse(fs.readFileSync(f.descriptorPath)).binding).toEqual(source);
-    } finally {
-      await f.close();
-    }
-  });
-
-  it("recover publishes a verified already-committed target without backend activity", async () => {
-    const f = await fixture();
-    try {
-      const source = await setup(f);
-      const target = { ...source, accountUuid: ACCOUNT, sessionGeneration: 1 };
-      const metadata = await openLoginMetadata(f.configPath);
-      const owner = await f.open(source);
-      try {
-        await metadata.prepareReceipt({
-          version: 1,
-          kind: "install",
-          transitionId: randomUUID(),
-          from: source,
-          to: target,
-        });
-        const { account, ...tokens } = f.grant;
-        await owner.bindAccount(
-          ACCOUNT,
-          bytes({
-            version: 3,
-            binding: target,
-            grant: { accountUuid: account.id, ...tokens },
-            pendingRefresh: null,
-            superseded: [],
-          }),
-        );
-      } finally {
-        await owner.close();
-      }
-      const result = await runCli(["recover", "--config", f.configPath]);
-      expectSafe(result, f);
-      expect(result.code).toBe(0);
-      expect(parse(fs.readFileSync(f.descriptorPath)).binding).toEqual(target);
-      expect(fs.existsSync(`${f.descriptorPath}.pending`)).toBe(false);
-      expect(f.requests).toHaveLength(0);
+      expect(await currentBinding(f)).toEqual(source);
     } finally {
       await f.close();
     }
@@ -282,7 +248,7 @@ describe("T07-S3 delivered CLI isolated workflow", () => {
       } finally {
         await owner.close();
       }
-      expect(parse(fs.readFileSync(f.descriptorPath)).binding).toEqual(source);
+      expect(await currentBinding(f)).toEqual(source);
     } finally {
       if (running) await running.close();
       await f.close();

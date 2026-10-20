@@ -7,6 +7,7 @@ export type LoginErrorCode =
   | "state_version_unsupported"
   | "login_required"
   | "sign_in_failed"
+  | "account_status_failed"
   | "retry_later"
   | "attempt_expired"
   | "operation_interrupted"
@@ -20,6 +21,7 @@ const CODES: ReadonlySet<string> = new Set([
   "state_version_unsupported",
   "login_required",
   "sign_in_failed",
+  "account_status_failed",
   "retry_later",
   "attempt_expired",
   "operation_interrupted",

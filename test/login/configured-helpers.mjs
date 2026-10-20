@@ -29,6 +29,10 @@ export async function fixture() {
   expect(fs.statfsSync(dir).type).toBe(0xef53); // Real ext4, matching T04 supported baseline.
   const requests = [];
   let exchangeReply = null;
+  let logoutReply = null;
+  let routinesReply = null;
+  let statusReply = null;
+  let challengeReply = null;
   const grant = {
     account: { id: ACCOUNT, displayName: null },
     accessToken: "synthetic-t07-access",
@@ -51,6 +55,22 @@ export async function fixture() {
           key: req.headers["idempotency-key"],
         };
         requests.push(request);
+        if (req.url === "/v1/account/status" && statusReply !== null) {
+          statusReply(req, res, request);
+          return;
+        }
+        if (req.url === "/v1/auth/google/challenge" && challengeReply !== null) {
+          challengeReply(req, res, request);
+          return;
+        }
+        if (req.url === "/v1/auth/logout" && logoutReply !== null) {
+          logoutReply(req, res, request);
+          return;
+        }
+        if (req.url?.startsWith("/v1/routines?") && routinesReply !== null) {
+          routinesReply(req, res, request);
+          return;
+        }
         if (req.url === "/v1/auth/google" && exchangeReply !== null) {
           exchangeReply(req, res, request);
           return;
@@ -75,23 +95,18 @@ export async function fixture() {
   const configPath = path.join(dir, "config.json"),
     loginConfigPath = path.join(dir, "login.json"),
     descriptorPath = path.join(dir, "binding.json");
-  const profileRoot = path.join(dir, "profile"),
-    anchorRoot = path.join(dir, "anchor");
-  fs.mkdirSync(profileRoot, { mode: 0o700 });
-  fs.mkdirSync(anchorRoot, { mode: 0o700 });
+  const profileRoot = path.join(dir, "profile");
   const storage = {
     profileRoot,
-    anchorRoot,
     secretServiceBusAddress: required("GT_S3_TEST_BUS"),
     timeoutMs: 5000,
   };
   fs.writeFileSync(
     configPath,
     bytes({
-      version: 1,
+      version: 2,
       serviceOrigin: origin,
       storage,
-      bindingDescriptorPath: descriptorPath,
       writesEnabled: false,
       transportBudgets: { perAttemptTimeoutMs: 1000, totalDeadlineMs: 2000 },
     }),
@@ -107,11 +122,23 @@ export async function fixture() {
     storage,
     requests,
     grant,
+    setStatus(fn) {
+      statusReply = fn;
+    },
+    setChallenge(fn) {
+      challengeReply = fn;
+    },
     setExchange(fn) {
       exchangeReply = fn;
     },
-    async open(binding) {
-      return openProfile({ ...storage, expectedBinding: binding });
+    setLogout(fn) {
+      logoutReply = fn;
+    },
+    setRoutines(fn) {
+      routinesReply = fn;
+    },
+    async open() {
+      return openProfile({ ...storage, origin });
     },
     async login() {
       return openConfiguredLoginTransaction({ configPath, loginConfigPath });

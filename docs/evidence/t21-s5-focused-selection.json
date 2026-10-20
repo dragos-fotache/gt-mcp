@@ -1,0 +1,4 @@
+[
+  "test/backend-interoperability/creation-replay.test.mjs",
+  "test/pi-integration/paths-policy.test.mjs"
+]

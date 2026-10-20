@@ -1,0 +1,14 @@
+{
+  "runtimeReplayed": false,
+  "freshLockedInstall": false,
+  "scopedFormatting": "PASS",
+  "compatibilityFormatting": "PASS",
+  "gitDiffCheck": "PASS",
+  "relativeLinksChecked": 22,
+  "relativeLinksValid": true,
+  "parentT16": "incomplete",
+  "S4": "complete",
+  "S5": "separately authorized; not yet started",
+  "S6S7": "planned/unassigned",
+  "releaseGatesUnchanged": true
+}

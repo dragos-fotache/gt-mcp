@@ -88,7 +88,6 @@ const createEntryParseSchema = z.strictObject({
 });
 
 const createRootParseSchema = z.strictObject({
-  operationId: uuidField,
   name: nonBlankNameField,
   exercises: z.array(createEntryParseSchema).min(1),
 });
@@ -105,7 +104,6 @@ const createEntryNormalizeSchema = z.strictObject({
 });
 
 const createRootNormalizeSchema = z.strictObject({
-  operationId: uuidField,
   name: nonBlankNameField,
   exercises: z.array(createEntryNormalizeSchema).min(1),
 });
@@ -177,7 +175,6 @@ export interface ParsedCreateEntry {
 }
 
 export interface ParsedCreateRoutineArgs {
-  readonly operationId: string;
   readonly name: string;
   readonly exercises: readonly ParsedCreateEntry[];
 }
@@ -295,7 +292,7 @@ function normalizeSet(
 /**
  * Validate complete create_routine arguments and return exactly
  * {name, exercises} with defaults expanded (rest 30, repetitions/weight null).
- * operationId is validated but excluded. Accepted -0 values canonicalize to
+ * Accepted -0 values canonicalize to
  * +0. Names, array order, repeated references, null and zero are preserved.
  */
 export function normalizeIntent(input: unknown): NormalizedIntent {

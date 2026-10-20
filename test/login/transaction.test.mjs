@@ -19,7 +19,6 @@ import {
   serviceGrant,
   preparedVault,
   memoryProfile,
-  memoryMetadata,
   backend,
   jsonResponse,
 } from "./helpers.mjs";
@@ -27,7 +26,6 @@ import {
 async function open(fixture, initial, options = {}) {
   const source = options.source ?? binding(fixture.origin);
   const profile = memoryProfile(source, initial);
-  const metadata = memoryMetadata(source, profile.state.events);
   const clock = options.clock ?? {
     now: NOW,
     nowMs() {
@@ -37,11 +35,11 @@ async function open(fixture, initial, options = {}) {
   const transaction = await openLoginTransaction({
     profile: profile.owner,
     transportConfig: fixture.config,
-    metadata: metadata.metadata,
+
     settings: SETTINGS,
     clock,
   });
-  return { transaction, profile, metadata, clock };
+  return { transaction, profile, clock };
 }
 
 async function safeFailure(promise, code) {
@@ -90,14 +88,8 @@ describe("T07-S1 protected foreground transaction", () => {
       expect(atDispatch.vault.exchange.authKey).toBe(atDispatch.request.headers["idempotency-key"]);
       expect(atDispatch.request.headers.authorization).toBeUndefined();
       expect(result).toEqual(binding(fixture.origin, ACCOUNT, 1));
-      expect(selected.metadata.state.descriptor).toEqual(result);
-      expect(selected.metadata.state.receipt).toBeNull();
-      expect(selected.profile.state.events.slice(-4)).toEqual([
-        "receipt",
-        "transition",
-        "descriptor",
-        "receipt-removed",
-      ]);
+      expect(selected.profile.owner.binding).toEqual(result);
+      expect(selected.profile.state.events.at(-1)).toBe("transition");
       const installed = record(selected.profile.state.vault);
       expect(installed).toEqual({
         version: 3,
@@ -238,7 +230,6 @@ describe("T07-S1 protected foreground transaction", () => {
       );
       expect(selected.profile.state.vault).toEqual(prior);
       expect(selected.profile.state.events).not.toContain("transition");
-      expect(selected.metadata.state.receipt).toBeNull();
       await selected.transaction.close();
     } finally {
       await fixture.close();
@@ -399,29 +390,6 @@ describe("T07-S1 protected foreground transaction", () => {
     }
   });
 
-  it("publication ambiguity preserves installed target and receipt through cancellation", async () => {
-    const fixture = await backend((req, res) => jsonResponse(res, 200, serviceGrant()));
-    try {
-      const selected = await open(fixture);
-      selected.metadata.state.failPublish = true;
-      const attempt = await selected.transaction.start(signal());
-      await safeFailure(
-        selected.transaction.submit(attempt.attemptId, "synthetic-qa-t07-google", signal()),
-        "recovery_required",
-      );
-      const installed = Buffer.from(selected.profile.state.vault);
-      expect(record(installed).version).toBe(3);
-      expect(selected.metadata.state.receipt.to).toEqual(selected.profile.state.binding);
-      await safeFailure(selected.transaction.cancel(), "recovery_required");
-      expect(selected.profile.state.vault).toEqual(installed);
-      expect(selected.metadata.state.receipt).not.toBeNull();
-      await safeFailure(selected.transaction.close(), "recovery_required");
-      expect(selected.metadata.state.receipt).not.toBeNull();
-    } finally {
-      await fixture.close();
-    }
-  });
-
   it("cancellation during begun install waits and cannot overwrite committed target", async () => {
     let entered;
     let release;
@@ -468,7 +436,13 @@ describe("T07-S1 protected foreground transaction", () => {
     let selected;
     const clock = {
       nowMs() {
-        if (selected?.metadata.state.receipt !== null && selected !== undefined) controller.abort();
+        if (
+          selected !== undefined &&
+          selected.profile.state.commits.some(
+            (v) => record(v).version === 4 && record(v).exchange.sendsReserved === 1,
+          )
+        )
+          controller.abort();
         return NOW;
       },
     };
@@ -485,7 +459,6 @@ describe("T07-S1 protected foreground transaction", () => {
       );
       expect(selected.profile.state.events).not.toContain("transition");
       expect(selected.profile.state.vault).toEqual(Buffer.alloc(0));
-      expect(selected.metadata.state.receipt).toBeNull();
       await selected.transaction.close();
     } finally {
       await fixture.close();

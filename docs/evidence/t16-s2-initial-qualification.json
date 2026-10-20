@@ -1,0 +1,47 @@
+{
+  "task": "T16-S2",
+  "status": "FAIL",
+  "stage": "public input snapshot",
+  "realGoogle": false,
+  "androidObservation": false,
+  "node": "24.21.0",
+  "npm": "11.19.0",
+  "historicalPinnedProse": {
+    "shared-docs/docs/backend-contract/android-client-protocol.md": {
+      "currentSha256": "9e37d6b6bce405a902af9a64cdcb5f521d4cf2d2177a6eaf4647e8c6019b2afd",
+      "pinnedSha256": "9a4953e03b76683e93f75e7dc6aa8c78860678e216abf7532ac15b6683bbb318",
+      "sourceCommit": "0bd414b6c1b819a26e2d5fca0bed6b6b5acf2cea"
+    },
+    "shared-docs/docs/backend-contract/authentication.md": {
+      "currentSha256": "e93ee358fb638e8f9ddd01574fcb7cd9dbe0605e354e60392b381a8489e27401",
+      "pinnedSha256": "2e915a67514d6b56fac8561ef083defbb4358af0e6be38375de064f05c633244",
+      "sourceCommit": "0bd414b6c1b819a26e2d5fca0bed6b6b5acf2cea"
+    },
+    "shared-docs/docs/backend-contract/open-decisions.md": {
+      "currentSha256": "14d3a53ac80825b0cce0055e7c6028019da496c3112234cc7b08fda2256ca04a",
+      "pinnedSha256": "686656a0612032b143e0a856da6825c20d944c2feada08e97696a1ecb7b3046c",
+      "sourceCommit": "0bd414b6c1b819a26e2d5fca0bed6b6b5acf2cea"
+    },
+    "shared-docs/docs/backend-contract/README.md": {
+      "currentSha256": "f525667ab52fd61501f0cc3ee915a06c82e668e61e11289c0e87bb394cb3516e",
+      "pinnedSha256": "0be6a2018359fa4a5c5133a5222e40cbf9bfe8b5e20ef14885fff04659643b19",
+      "sourceCommit": "0bd414b6c1b819a26e2d5fca0bed6b6b5acf2cea"
+    },
+    "shared-docs/docs/backend-contract/sync.md": {
+      "currentSha256": "676dfb70479ccdfdb78a6dd6bccf4b5628229a5ab4108582133b4e4c80be9b8f",
+      "pinnedSha256": "992aefe56f5957f92898b21412d01d1d129ce0f8fea2d76a1adfc58ac1294d16",
+      "sourceCommit": "0bd414b6c1b819a26e2d5fca0bed6b6b5acf2cea"
+    },
+    "shared-docs/README.md": {
+      "currentSha256": "5ad0a3fe9dad4730454354c4b74f985bc8591a14ecd2c63bdebab35cc425817a",
+      "pinnedSha256": "f9eb0420fa3a0665c58b649f644bb7458f14dcb7289626c302e00f3588974e4c",
+      "sourceCommit": "0bd414b6c1b819a26e2d5fca0bed6b6b5acf2cea"
+    }
+  },
+  "normativeContract": "MCP working draft0.2; backend v1 at current 9a96dcb",
+  "launcherSha256": "631180c5f573a9ad2e51772e1ac32d7729ca955b0d25817d27dab16ab51bc3c8",
+  "failureClass": "RuntimeError",
+  "ownedBackendExited": true,
+  "privateBackendConfigRemoved": true,
+  "privateSnapshotRemoved": true
+}

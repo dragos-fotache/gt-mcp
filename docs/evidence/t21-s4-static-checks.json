@@ -1,0 +1,48 @@
+{
+  "productionAndScopedTests": [
+    {
+      "check": "typecheck",
+      "command": "npm run typecheck",
+      "exitCode": 0
+    },
+    {
+      "check": "lint-production",
+      "command": "npm run lint:production",
+      "exitCode": 0
+    },
+    {
+      "check": "format-production",
+      "command": "npm run format:check:production",
+      "exitCode": 0
+    },
+    {
+      "check": "test-lint",
+      "command": "node node_modules/eslint/bin/eslint.js test/unit/t04 test/fault/t04 test/unit/t06 test/fault/t06 test/login test/unit/t12 test/fault/t12 test/read-runtime test/read-protocol test/stdio-server test/unit/t21 test/fault/t21 test/fault/t15 test/create-protocol test/create-stdio test/fault/t10/s2-execution.test.mjs",
+      "exitCode": 0
+    },
+    {
+      "check": "test-format",
+      "command": "node node_modules/prettier/bin/prettier.cjs --check test/unit/t04 test/fault/t04 test/unit/t06 test/fault/t06 test/login test/unit/t12 test/fault/t12 test/read-runtime test/read-protocol test/stdio-server test/unit/t21 test/fault/t21 test/fault/t15 test/create-protocol test/create-stdio test/fault/t10/s2-execution.test.mjs",
+      "exitCode": 0
+    },
+    {
+      "check": "build",
+      "command": "npm run build",
+      "exitCode": 0
+    }
+  ],
+  "finalTestAssertionRepairs": [
+    {
+      "command": "node node_modules/eslint/bin/eslint.js test/fault/t10/s2-execution.test.mjs test/fault/t11/s2-service.test.mjs",
+      "exitCode": 0
+    },
+    {
+      "command": "node node_modules/prettier/bin/prettier.cjs --check test/fault/t10/s2-execution.test.mjs test/fault/t11/s2-service.test.mjs",
+      "exitCode": 0
+    },
+    {
+      "command": "npm run format:check:production",
+      "exitCode": 0
+    }
+  ]
+}

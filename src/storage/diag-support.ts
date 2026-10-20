@@ -26,21 +26,10 @@ export const CONTROLS_JSON: string = "controls.json";
 export const SYNTHETIC_KEY_LEN: number = 32;
 
 export const FAULT_POINTS: readonly StorageFaultPoint[] = [
-  "lock.acquired",
-  "provision.marker.durable",
-  "provision.key.stored",
-  "provision.stores.durable",
-  "provision.anchor.committed",
-  "provision.marker.removed",
-  "commit.before.prepare",
-  "commit.anchor.prepared",
-  "commit.vault.renamed",
-  "commit.vault.synced",
-  "commit.operations.renamed",
-  "commit.operations.synced",
-  "commit.anchor.committed",
-  "commit.anchor.synced",
-  "commit.reply",
+  "replace.before.rename",
+  "replace.after.rename",
+  "replace.reply",
+  "remove.key.deleted",
   "fs.write",
   "fs.fsync.file",
   "fs.rename",
@@ -211,6 +200,7 @@ export class SyntheticMasterKey implements MasterKeyAccess {
       case "unavailable":
         throw new StorageError("key_unavailable");
     }
+    if (!controls.keyCreated) throw new StorageError("key_not_found");
     return new Uint8Array(this.readKeyFile());
   }
 
@@ -234,20 +224,30 @@ export class SyntheticMasterKey implements MasterKeyAccess {
     if (key.byteLength !== SYNTHETIC_KEY_LEN) {
       throw new StorageError("invalid_argument");
     }
-    const stored: Buffer = this.readKeyFile();
-    try {
-      if (stored.byteLength !== key.byteLength || !crypto.timingSafeEqual(stored, key)) {
-        throw new StorageError("provider_failure");
-      }
-    } finally {
-      stored.fill(0);
-    }
+    await durableInstallFile(this.facilityRoot, SYNTHETIC_KEY, key, null);
     await writeControls(this.facilityRoot, {
       fault: controls.fault,
       keyState: controls.keyState,
       keyCreated: true,
       seq: controls.seq,
     });
+  }
+  async deleteMaster(expectedDigest: string): Promise<void> {
+    let key: Uint8Array;
+    try {
+      key = await this.loadMaster();
+    } catch (error) {
+      if (error instanceof StorageError && error.code === "key_not_found") return;
+      throw error;
+    }
+    try {
+      if (crypto.createHash("sha256").update(key).digest("hex") !== expectedDigest)
+        throw new StorageError("provider_failure");
+    } finally {
+      key.fill(0);
+    }
+    const controls = readControls(this.facilityRoot);
+    await writeControls(this.facilityRoot, { ...controls, keyCreated: false });
   }
 }
 
@@ -287,5 +287,45 @@ export class FileFaultProbe implements FaultProbe {
       return;
     }
     throw new FaultArmed(point);
+  }
+}
+
+/** Issued isolated fixture only; no production module imports this validator. */
+export function validateTicket(root: string, capability: string): { profileGenerationId: string } {
+  try {
+    if (!path.isAbsolute(root) || root.includes("\0")) throw new StorageError("invalid_argument");
+    const st = fs.lstatSync(root, { bigint: true });
+    if (!st.isDirectory() || st.uid !== BigInt(process.geteuid!()) || (st.mode & 0o777n) !== 0o700n)
+      throw new StorageError("invalid_argument");
+    const record = readJsonFile(path.join(root, "facility.json")) as Record<string, unknown>;
+    if (
+      record["version"] !== 1 ||
+      record["dev"] !== String(st.dev) ||
+      record["ino"] !== String(st.ino) ||
+      record["capability"] !== capability ||
+      typeof capability !== "string" ||
+      !/^[0-9a-f]{64}$/.test(capability) ||
+      typeof record["profileGenerationId"] !== "string"
+    )
+      throw new StorageError("invalid_argument");
+    for (const name of fs.readdirSync(root)) {
+      if (name === "profile") {
+        const child = fs.lstatSync(path.join(root, name));
+        if (
+          !child.isDirectory() ||
+          child.isSymbolicLink() ||
+          (child.mode & 0o777) !== 0o700 ||
+          child.uid !== process.geteuid!()
+        )
+          throw new StorageError("invalid_argument");
+      } else {
+        if (!["facility.json", SYNTHETIC_KEY, CONTROLS_JSON].includes(name))
+          throw new StorageError("invalid_argument");
+        validateRegularFileStat(fs.lstatSync(path.join(root, name)));
+      }
+    }
+    return { profileGenerationId: record["profileGenerationId"] };
+  } catch {
+    throw new StorageError("invalid_argument");
   }
 }

@@ -7,29 +7,36 @@
  * provider, network, output, timer, process, or handler effects.
  *
  * Startup composes the accepted capabilities without new protocols: a
- * protected strict version-1 config/descriptor snapshot, one existing T04
- * profile owner opened once with the exact descriptor binding, and either
+ * protected strict version-2 config snapshot and a single-record credential
+ * owner supplying its authenticated binding, and either
  * the T06 bound lifecycle facade (nonnull account) or validated
  * null-account state via S1 openSessionState (authenticated-unavailable
  * reads). Missing config is a safe unavailable runtime; malformed/unsafe/
  * incompatible selected metadata is fatal (configuration_required);
  * storage/session opening failure is fatal (recovery_unavailable). The
- * factory performs no auth/resource request, refresh, migration, write, or
- * operation read, and the runtime exposes six canonical read envelopes plus
- * close: no mutation, login, provider injection, descriptor writes,
- * authority getters, or control escape hatch. Product writes stay disabled
- * even when the config snapshot contains writesEnabled:true.
+ * read-only factory performs no auth/resource request, refresh, migration, write,
+ * or operation read, and exposes six canonical read envelopes plus close.
+ * The read-only opener never composes mutation, even with true policy.
+ * T21's tool opener composes invocation-local creation without journal access,
+ * shares ownership and adds guarded explicit creation;
+ * neither opener exposes login, provider injection, configuration writes or authority.
+ * Multi-client S2 releases startup ownership and composes these capabilities
+ * afresh per invocation. A private protocol lease spans result transport handoff.
  */
 
 import type {
   ExerciseRecord,
   RoutineListPage,
   RoutineRecord,
+  SavedRoutineResult,
   SearchExercisesPage,
   ToolErrorObject,
   WorkoutListPage,
   WorkoutRecord,
+  ToolName,
 } from "../domain/index.js";
+import { createCreationService } from "../creation/index.js";
+import type { CreationService } from "../creation/index.js";
 import { makeToolResult, parseArguments } from "../domain/index.js";
 import type { AuthenticatedSessionState, LifecycleSessionState } from "../auth/index.js";
 import { isSessionError, openLifecycleSessionState, openSessionState } from "../auth/index.js";
@@ -38,14 +45,12 @@ import type { CallBinding } from "../http/index.js";
 import { isTransportError } from "../http/index.js";
 import type { TransportError } from "../http/index.js";
 import type { ProfileSession } from "../storage/index.js";
-import { isStorageError, openProfile } from "../storage/index.js";
-import {
-  assertFileSeparation,
-  combineStartup,
-  validateConfigRecord,
-  validateDescriptorRecord,
-} from "./config.js";
-import type { ValidatedBinding, ValidatedConfig, ValidatedStartup } from "./config.js";
+import { isStorageError } from "../storage/index.js";
+import { acquireProfile, ProfileAcquisitionError } from "../storage/credential/acquire.js";
+import { registerRuntimeDelivery, runtimeDelivery } from "./delivery.js";
+import type { RuntimeDelivery, RuntimeInvocation } from "./delivery.js";
+import { assertFileSeparation, validateConfigRecord } from "./config.js";
+import type { ValidatedConfig, ValidatedStartup } from "./config.js";
 import { isReadRuntimeError, ReadRuntimeError } from "./errors.js";
 import type { ReadRuntimeErrorCode } from "./errors.js";
 import { loadProtectedFile, parseStrictMetadataJson } from "./files.js";
@@ -71,8 +76,11 @@ export interface ReadRuntime {
   close(): Promise<void>;
 }
 
+export interface ToolRuntime extends ReadRuntime {
+  createRoutine(args: unknown, signal: AbortSignal): Promise<ReadEnvelope<SavedRoutineResult>>;
+}
+
 const CONFIG_MAX_BYTES = 65536;
-const DESCRIPTOR_MAX_BYTES = 4096;
 
 type ReadRoute =
   | "search_exercises"
@@ -149,7 +157,7 @@ function captureEntries(value: unknown): Array<[string, unknown]> {
  * Validate the factory caller shape. Invalid caller shape, unknown or
  * invalid fields, and configPath syntax/normalization failures are
  * invalid_arguments. Malformed/unsafe/incompatible selected config or
- * descriptor metadata found after selection is configuration_required.
+ * configuration found after selection is configuration_required.
  * A genuinely absent selected config file (like no selection) yields a
  * safe unconfigured runtime, not a failure.
  */
@@ -253,6 +261,8 @@ function transportEnvelope(error: TransportError): ReadEnvelope<never> {
 }
 
 interface OwnedState {
+  readonly writesEnabled: boolean;
+  readonly creation: CreationService | null;
   readonly owner: ProfileSession | null;
   readonly session: LifecycleSessionState | SessionState | null;
   readonly binding: CallBinding | null;
@@ -615,6 +625,118 @@ function makeReadMethod<T>(
   };
 }
 
+function creationBindingCurrent(state: OwnedState): boolean {
+  if (state.binding === null || state.owner === null || state.session === null) return false;
+  try {
+    for (const current of [state.owner.binding, state.session.binding]) {
+      if (
+        current.origin !== state.binding.origin ||
+        current.accountUuid !== state.binding.accountUuid ||
+        current.sessionGeneration !== state.binding.sessionGeneration ||
+        current.profileGenerationId !== state.binding.profileGenerationId
+      )
+        return false;
+    }
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/** Replace presentation status, retaining only already validated, authorized history. */
+function creationFailureWithContext(
+  outcome: ReadEnvelope<SavedRoutineResult>,
+  code: "operation_interrupted" | "recovery_unavailable",
+): ReadEnvelope<SavedRoutineResult> {
+  const context = outcome.ok
+    ? {
+        routineId: outcome.data.routineId,
+        lastConfirmedStep: "save" as const,
+        outcomeUnknown: false,
+      }
+    : outcome.error.routineId !== undefined &&
+        outcome.error.lastConfirmedStep !== undefined &&
+        outcome.error.outcomeUnknown !== undefined
+      ? {
+          routineId: outcome.error.routineId,
+          lastConfirmedStep: outcome.error.lastConfirmedStep,
+          outcomeUnknown: outcome.error.outcomeUnknown,
+        }
+      : {};
+  return { ok: false, error: { code, retryable: false, ...context } };
+}
+
+function makeCreateMethod(state: OwnedState): ToolRuntime["createRoutine"] {
+  const create: ToolRuntime["createRoutine"] = async (args, signal) => {
+    const branded = brandSignal(signal);
+    if (branded === null) return localEnvelope("invalid_arguments");
+    let effective: unknown;
+    try {
+      effective = parseArguments("create_routine", args);
+    } catch {
+      return localEnvelope("invalid_arguments");
+    }
+    let link: OwnedLink;
+    try {
+      link = linkOwnedSignal(state, branded.signal, branded.aborted);
+    } catch {
+      return localEnvelope("invalid_arguments");
+    }
+    try {
+      if (state.closing || state.closed || link.owned.signal.aborted)
+        return localEnvelope("operation_interrupted");
+      if (state.fenced) return localEnvelope("recovery_unavailable");
+      if (state.unconfigured || !state.writesEnabled)
+        return {
+          ok: false,
+          error: {
+            code: "configuration_required",
+            retryable: false,
+            message: "Routine creation is disabled in the operator configuration.",
+          },
+        };
+      if (state.nullAccount || state.creation === null || state.binding === null)
+        return localEnvelope("authentication_required");
+      const creation = state.creation;
+      const binding = state.binding;
+      const invocation = (async (): Promise<ReadEnvelope<SavedRoutineResult>> => {
+        try {
+          const result = await creation.create(binding, effective, link.owned.signal);
+          const envelope = result;
+          const validated = makeToolResult("create_routine", envelope).structuredContent;
+          // Validate the invocation-local saved result; no runtime diagnostics/presentation are copied.
+          return validated as ReadEnvelope<SavedRoutineResult>;
+        } catch (error) {
+          return mapInvocationFailure(state, error);
+        }
+      })();
+      const tracked = invocation.then(
+        () => undefined,
+        () => undefined,
+      );
+      state.pending.add(tracked);
+      void tracked.then(() => state.pending.delete(tracked));
+      const outcome = await invocation;
+      if (!creationBindingCurrent(state)) return localEnvelope("operation_interrupted");
+      if (state.closing || state.closed || link.callerAborted || link.owned.signal.aborted)
+        return creationFailureWithContext(
+          outcome,
+          state.fenced && !link.callerAborted && !state.closing
+            ? "recovery_unavailable"
+            : "operation_interrupted",
+        );
+      if (state.fenced) return creationFailureWithContext(outcome, "recovery_unavailable");
+      return outcome;
+    } finally {
+      detachOwnedLink(state, link);
+    }
+  };
+  return async (args, signal) => {
+    const result = await create(args, signal);
+    return result.ok ? result : { ok: false, error: { ...result.error, retryable: false } };
+  };
+}
+
 function toCallBinding(startup: ValidatedStartup): CallBinding {
   return Object.freeze({
     origin: startup.binding.origin,
@@ -665,7 +787,7 @@ async function closeState(state: OwnedState): Promise<void> {
   state.closed = true;
 }
 
-function createRuntime(state: OwnedState): ReadRuntime {
+function createRuntime(state: OwnedState): ToolRuntime {
   const searchExercises: ReadRuntime["searchExercises"] = makeReadMethod<SearchExercisesPage>(
     state,
     "search_exercises",
@@ -706,6 +828,7 @@ function createRuntime(state: OwnedState): ReadRuntime {
     return outcome;
   };
   return {
+    createRoutine: makeCreateMethod(state),
     searchExercises,
     getExercise,
     listWorkouts,
@@ -718,6 +841,8 @@ function createRuntime(state: OwnedState): ReadRuntime {
 
 function createUnconfiguredState(): OwnedState {
   return {
+    writesEnabled: false,
+    creation: null,
     owner: null,
     session: null,
     binding: null,
@@ -738,7 +863,7 @@ function createUnconfiguredState(): OwnedState {
  * ReadRuntimeError(invalid_arguments). A missing selection or genuinely
  * absent selected config file resolves to a safe unconfigured runtime whose
  * reads report configuration_required. Malformed/unsafe/incompatible
- * selected config/descriptor metadata rejects with
+ * selected configuration rejects with
  * ReadRuntimeError(configuration_required) with no fallback opening.
  * Storage opening failure rejects with
  * ReadRuntimeError(recovery_unavailable); auth-state corruption or an
@@ -756,6 +881,46 @@ export async function openReadRuntimeSnapshot(options: ReadRuntimeOptions): Prom
   readonly runtime: ReadRuntime;
   readonly maxToolResultBytes: number;
 }> {
+  const opened = await openOwnedRuntimeSnapshot(options, false);
+  const runtime = opened.runtime;
+  // Keep the six-read facade and its private delivery capability together.
+  const facade: ReadRuntime = {
+    searchExercises: runtime.searchExercises,
+    getExercise: runtime.getExercise,
+    listWorkouts: runtime.listWorkouts,
+    getWorkout: runtime.getWorkout,
+    listRoutines: runtime.listRoutines,
+    getRoutine: runtime.getRoutine,
+    close: runtime.close,
+  };
+  const delivery = runtimeDelivery(runtime);
+  if (delivery !== undefined) registerRuntimeDelivery(facade, delivery);
+  return { ...opened, runtime: facade };
+}
+
+export async function openToolRuntime(options: ReadRuntimeOptions): Promise<ToolRuntime> {
+  return (await openToolRuntimeSnapshot(options)).runtime;
+}
+
+/** Private protocol composition: policy and output budget from one protected snapshot. */
+export async function openToolRuntimeSnapshot(
+  options: ReadRuntimeOptions,
+  startupSignal?: AbortSignal,
+): Promise<{
+  readonly runtime: ToolRuntime;
+  readonly maxToolResultBytes: number;
+}> {
+  return openOwnedRuntimeSnapshot(options, true, startupSignal);
+}
+
+async function openOwnedRuntimeSnapshot(
+  options: ReadRuntimeOptions,
+  toolMode: boolean,
+  startupSignal?: AbortSignal,
+): Promise<{
+  readonly runtime: ToolRuntime;
+  readonly maxToolResultBytes: number;
+}> {
   const selected: string | undefined = captureFactorySelection(options);
   if (selected === undefined) {
     return {
@@ -770,53 +935,49 @@ export async function openReadRuntimeSnapshot(options: ReadRuntimeOptions): Prom
       maxToolResultBytes: DEFAULT_MAX_TOOL_RESULT_BYTES,
     };
   }
-  // Complete config schema and selector/separation validation happens
-  // before any descriptor file access, so an invalid metadata selector can
-  // never direct reads at operation evidence or other private files. Once
-  // a valid config exists, an absent descriptor is fatal.
-  let startup: ValidatedStartup;
+  // Refuse invalid/old config before opening any protected state.
+  let config: ValidatedConfig;
   try {
-    const configRecord: Record<string, unknown> = parseStrictMetadataJson(configLoad.bytes);
-    const config: ValidatedConfig = validateConfigRecord(configRecord);
+    config = validateConfigRecord(parseStrictMetadataJson(configLoad.bytes));
     assertFileSeparation(config, selected);
-    const descriptorLoad = await loadProtectedFile(config.descriptorPath, DESCRIPTOR_MAX_BYTES);
-    if (descriptorLoad.status === "missing") {
-      failConfiguration();
-    }
-    const descriptorRecord: Record<string, unknown> = parseStrictMetadataJson(
-      (descriptorLoad as { bytes: Uint8Array }).bytes,
-    );
-    const binding: ValidatedBinding = validateDescriptorRecord(
-      descriptorRecord,
-      config.canonicalOrigin,
-    );
-    startup = combineStartup(config, binding);
-  } catch (error: unknown) {
-    if (isReadRuntimeError(error)) {
-      throw error;
-    }
+  } catch (error) {
+    if (isReadRuntimeError(error)) throw error;
     failConfiguration();
   }
   let owner: ProfileSession;
   try {
-    owner = await openProfile({
-      profileRoot: startup.profileRoot,
-      anchorRoot: startup.anchorRoot,
-      secretServiceBusAddress: startup.secretServiceBusAddress,
-      ...(startup.timeoutMs === undefined ? {} : { timeoutMs: startup.timeoutMs }),
-      expectedBinding: {
-        origin: startup.binding.origin,
-        accountUuid: startup.binding.accountUuid,
-        sessionGeneration: startup.binding.sessionGeneration,
-        profileGenerationId: startup.binding.profileGenerationId,
+    owner = await acquireProfile(
+      {
+        profileRoot: config.profileRoot,
+        secretServiceBusAddress: config.secretServiceBusAddress,
+        ...(config.timeoutMs === undefined ? {} : { timeoutMs: config.timeoutMs }),
+        origin: config.canonicalOrigin,
       },
-    });
+      { signal: startupSignal ?? new AbortController().signal },
+    );
   } catch (error: unknown) {
+    if (error instanceof ProfileAcquisitionError && error.code === "interrupted") throw error;
     if (isReadRuntimeError(error)) {
       throw error;
     }
     failRecovery();
   }
+  const startup: ValidatedStartup = { ...config, binding: owner.binding };
+  const initial = await composeOwnedState(config, owner, toolMode);
+  await closeState(initial);
+  return {
+    runtime: createSharedRuntime(startup, toolMode),
+    maxToolResultBytes: startup.maxToolResultBytes,
+  };
+}
+
+/** Existing auth/creation composition, used only while an invocation owns the profile. */
+async function composeOwnedState(
+  config: ValidatedConfig,
+  owner: ProfileSession,
+  toolMode: boolean,
+): Promise<OwnedState> {
+  const startup: ValidatedStartup = { ...config, binding: owner.binding };
   const acquired: ProfileSession = owner;
   const releaseOwner = async (): Promise<void> => {
     try {
@@ -851,7 +1012,31 @@ export async function openReadRuntimeSnapshot(options: ReadRuntimeOptions): Prom
     failInternal();
   }
   const opened: LifecycleSessionState | SessionState = session;
+  let creation: CreationService | null = null;
+  try {
+    if (toolMode && startup.writesEnabled && !nullAccount && isBoundLifecycle(opened)) {
+      creation = createCreationService({
+        session: opened,
+        writesEnabled: startup.writesEnabled,
+        ...(startup.budgets?.maxRequestBytes === undefined
+          ? {}
+          : { maxRequestBytes: startup.budgets.maxRequestBytes }),
+      });
+    }
+  } catch {
+    let cleanupFailed = false;
+    try {
+      opened.invalidate();
+    } catch {
+      cleanupFailed = true;
+    }
+    await releaseOwner();
+    if (cleanupFailed) failInternal();
+    failRecovery();
+  }
   const state: OwnedState = {
+    writesEnabled: toolMode && startup.writesEnabled,
+    creation,
     owner: acquired,
     session: opened,
     binding: toCallBinding(startup),
@@ -864,5 +1049,186 @@ export async function openReadRuntimeSnapshot(options: ReadRuntimeOptions): Prom
     pending: new Set<Promise<void>>(),
     closeOutcome: null,
   };
-  return { runtime: createRuntime(state), maxToolResultBytes: startup.maxToolResultBytes };
+  return state;
+}
+
+/** No auth facade or owner survives an invocation's final delivery/release. */
+function createSharedRuntime(startup: ValidatedStartup, toolMode: boolean): ToolRuntime {
+  const control: OwnedState = { ...createUnconfiguredState(), unconfigured: false };
+  let cleanupFailed = false;
+  const forTool = (tool: ToolName, result: ReadEnvelope<unknown>): ReadEnvelope<unknown> =>
+    tool === "create_routine" && !result.ok
+      ? { ok: false, error: { ...result.error, retryable: false } }
+      : result;
+  const immediate = (tool: ToolName, result: ReadEnvelope<unknown>): RuntimeInvocation => ({
+    result: forTool(tool, result),
+    release: async () => {},
+  });
+  const methods = {
+    search_exercises: "searchExercises",
+    get_exercise: "getExercise",
+    list_workouts: "listWorkouts",
+    get_workout: "getWorkout",
+    list_routines: "listRoutines",
+    get_routine: "getRoutine",
+    create_routine: "createRoutine",
+  } as const;
+  const invoke: RuntimeDelivery = async (tool, args, signal) => {
+    const branded = brandSignal(signal);
+    if (branded === null) return immediate(tool, localEnvelope("invalid_arguments"));
+    let effective: unknown;
+    try {
+      effective = parseArguments(tool, args);
+    } catch {
+      return immediate(tool, localEnvelope("invalid_arguments"));
+    }
+    if (control.closing || control.closed || branded.aborted)
+      return immediate(tool, localEnvelope("operation_interrupted"));
+    if (control.fenced) return immediate(tool, localEnvelope("recovery_unavailable"));
+    if (tool === "create_routine" && (!toolMode || !startup.writesEnabled))
+      return immediate(tool, {
+        ok: false,
+        error: {
+          code: "configuration_required",
+          retryable: false,
+          message: "Routine creation is disabled in the operator configuration.",
+        },
+      });
+    let link: OwnedLink;
+    try {
+      link = linkOwnedSignal(control, branded.signal, branded.aborted);
+    } catch {
+      return immediate(tool, localEnvelope("invalid_arguments"));
+    }
+    let settled!: () => void;
+    const completion = new Promise<void>((resolve) => {
+      settled = resolve;
+    });
+    control.pending.add(completion);
+    let owner: ProfileSession | undefined;
+    let state: OwnedState | undefined;
+    let released: Promise<void> | undefined;
+    const release = (): Promise<void> => {
+      released ??= (async () => {
+        try {
+          if (state !== undefined) await closeState(state);
+          else await owner?.close();
+          state = undefined;
+          owner = undefined;
+        } catch {
+          cleanupFailed = true;
+          fenceState(control);
+          failInternal();
+        } finally {
+          detachOwnedLink(control, link);
+          control.pending.delete(completion);
+          settled();
+        }
+      })();
+      return released;
+    };
+    let result: ReadEnvelope<unknown>;
+    try {
+      owner = await acquireProfile(
+        {
+          profileRoot: startup.profileRoot,
+          secretServiceBusAddress: startup.secretServiceBusAddress,
+          ...(startup.timeoutMs === undefined ? {} : { timeoutMs: startup.timeoutMs }),
+          origin: startup.canonicalOrigin,
+        },
+        { signal: link.owned.signal },
+      );
+      const current = owner.binding;
+      if (
+        current.profileGenerationId !== startup.binding.profileGenerationId ||
+        current.origin !== startup.binding.origin ||
+        current.accountUuid !== startup.binding.accountUuid
+      )
+        failRecovery();
+      state = await composeOwnedState(startup, owner, toolMode);
+      const runtime = createRuntime(state);
+      result = await runtime[methods[tool]](effective, link.owned.signal);
+      if (state.fenced) fenceState(control);
+    } catch (error) {
+      if (error instanceof ProfileAcquisitionError)
+        result = localEnvelope(
+          error.code === "interrupted" ? "operation_interrupted" : "recovery_unavailable",
+        );
+      else result = mapInvocationFailure(control, error);
+    }
+    const cancelled = (): boolean => control.closing || control.closed || link.callerAborted;
+    if (cancelled()) {
+      result =
+        tool === "create_routine"
+          ? creationFailureWithContext(
+              result as ReadEnvelope<SavedRoutineResult>,
+              "operation_interrupted",
+            )
+          : localEnvelope("operation_interrupted");
+    } else if (control.fenced) {
+      result = localEnvelope("recovery_unavailable");
+    }
+    const deliverable = (): boolean =>
+      !control.fenced ||
+      (!result.ok &&
+        result.error.code === "recovery_unavailable" &&
+        result.error.routineId === undefined);
+    return {
+      result: forTool(tool, result),
+      signal: link.owned.signal,
+      cancelled,
+      deliverable,
+      release,
+    };
+  };
+  const call =
+    <T>(tool: ToolName) =>
+    async (args: unknown, signal: AbortSignal): Promise<ReadEnvelope<T>> => {
+      const held = await invoke(tool, args, signal);
+      try {
+        await held.release();
+      } catch {
+        return forTool(tool, localEnvelope("internal_error")) as ReadEnvelope<T>;
+      }
+      if (held.cancelled?.()) {
+        if (control.fenced)
+          return forTool(tool, localEnvelope("operation_interrupted")) as ReadEnvelope<T>;
+        const result = held.result as ReadEnvelope<SavedRoutineResult>;
+        return forTool(
+          tool,
+          tool === "create_routine"
+            ? creationFailureWithContext(result, "operation_interrupted")
+            : localEnvelope("operation_interrupted"),
+        ) as ReadEnvelope<T>;
+      }
+      if (control.fenced)
+        return forTool(tool, localEnvelope("recovery_unavailable")) as ReadEnvelope<T>;
+      return held.result as ReadEnvelope<T>;
+    };
+  const runtime: ToolRuntime = {
+    searchExercises: call<SearchExercisesPage>("search_exercises"),
+    getExercise: call<ExerciseRecord>("get_exercise"),
+    listWorkouts: call<WorkoutListPage>("list_workouts"),
+    getWorkout: call<WorkoutRecord>("get_workout"),
+    listRoutines: call<RoutineListPage>("list_routines"),
+    getRoutine: call<RoutineRecord>("get_routine"),
+    createRoutine: call<SavedRoutineResult>("create_routine"),
+    close: (): Promise<void> => {
+      if (control.closeOutcome !== null) return control.closeOutcome;
+      let resolve!: () => void;
+      let reject!: (error: unknown) => void;
+      control.closeOutcome = new Promise<void>((yes, no) => {
+        resolve = yes;
+        reject = no;
+      });
+      // Store before abort listeners can synchronously close the SDK transport.
+      void closeState(control).then(() => {
+        if (cleanupFailed) reject(new ReadRuntimeError("internal_error"));
+        else resolve();
+      }, reject);
+      return control.closeOutcome;
+    },
+  };
+  registerRuntimeDelivery(runtime, invoke);
+  return runtime;
 }

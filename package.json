@@ -6,30 +6,31 @@
   "description": "GymTracka MCP adapter foundation (T01 inert scaffolding; no domain behavior yet)",
   "packageManager": "npm@11.19.0",
   "engines": {
-    "node": ">=24.21.0 <25"
+    "node": ">=24.0.0"
   },
   "workspaces": [
     "companion"
   ],
   "bin": {
     "gymtracka-mcp-server": "./dist/protocol/server.js",
-    "gymtracka-mcp": "./dist/cli/index.js"
+    "gymtracka-mcp": "./dist/cli/main.js"
   },
   "scripts": {
     "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p companion/tsconfig.json && tsc --noEmit -p experiments/t02/tsconfig.json",
     "typecheck:t02": "tsc --noEmit -p experiments/t02/tsconfig.json",
     "t02:build": "tsc -p experiments/t02/tsconfig.json",
-    "lint:production": "eslint src companion/src experiments/t02/companion experiments/t02/driver experiments/t02/driver-files experiments/t02/fixture-server eslint.config.mjs vitest.config.ts",
+    "lint:production": "eslint scripts src companion/src experiments/t02/companion experiments/t02/driver experiments/t02/driver-files experiments/t02/fixture-server eslint.config.mjs vitest.config.ts",
     "lint:t02": "eslint experiments/t02/companion experiments/t02/driver experiments/t02/driver-files experiments/t02/fixture-server",
     "lint": "eslint .",
-    "format:check:production": "prettier --check --ignore-unknown src companion/src experiments/t02/companion experiments/t02/driver experiments/t02/driver-files experiments/t02/fixture-server experiments/t02/metadata.json experiments/t02/tsconfig.json package.json companion/package.json tsconfig.json companion/tsconfig.json eslint.config.mjs vitest.config.ts .prettierrc.json .prettierignore .node-version .nvmrc .github AGENTS.md docs/decisions/t01-implementation-adr.md docs/compatibility.md",
+    "format:check:production": "prettier --check --ignore-unknown scripts packaging src companion/src experiments/t02/companion experiments/t02/driver experiments/t02/driver-files experiments/t02/fixture-server experiments/t02/metadata.json experiments/t02/tsconfig.json package.json companion/package.json tsconfig.json companion/tsconfig.json eslint.config.mjs vitest.config.ts .prettierrc.json .prettierignore .node-version .nvmrc .github AGENTS.md docs/decisions/t01-implementation-adr.md docs/compatibility.md",
     "format:check:t02": "prettier --check --ignore-unknown experiments/t02/companion experiments/t02/driver experiments/t02/driver-files experiments/t02/fixture-server experiments/t02/metadata.json experiments/t02/tsconfig.json",
-    "format:check": "prettier --check --ignore-unknown src companion/src test experiments/t02/companion experiments/t02/driver experiments/t02/driver-files experiments/t02/fixture-server experiments/t02/metadata.json experiments/t02/tsconfig.json package.json companion/package.json tsconfig.json companion/tsconfig.json eslint.config.mjs vitest.config.ts .prettierrc.json .prettierignore .node-version .nvmrc .github AGENTS.md docs/decisions/t01-implementation-adr.md docs/compatibility.md",
-    "build": "rm -rf dist companion/dist && tsc -p tsconfig.json && tsc -p companion/tsconfig.json && chmod +x dist/protocol/server.js dist/cli/index.js",
+    "format:check": "prettier --check --ignore-unknown scripts packaging src companion/src test experiments/t02/companion experiments/t02/driver experiments/t02/driver-files experiments/t02/fixture-server experiments/t02/metadata.json experiments/t02/tsconfig.json package.json companion/package.json tsconfig.json companion/tsconfig.json eslint.config.mjs vitest.config.ts .prettierrc.json .prettierignore .node-version .nvmrc .github AGENTS.md docs/decisions/t01-implementation-adr.md docs/compatibility.md",
+    "build": "rm -rf dist companion/dist && tsc -p tsconfig.json && tsc -p companion/tsconfig.json && chmod +x dist/protocol/server.js dist/cli/index.js dist/cli/main.js",
     "test": "vitest run",
     "test:t02": "vitest run test/pi-feasibility",
     "smoke": "vitest run test/foundation",
-    "check": "npm run typecheck && npm run lint && npm run format:check && npm run build && npm run test"
+    "check": "npm run typecheck && npm run lint && npm run format:check && npm run build && npm run test",
+    "package:artifact": "node scripts/package-artifact.mjs"
   },
   "dependencies": {
     "@homebridge/dbus-native": "0.7.8",

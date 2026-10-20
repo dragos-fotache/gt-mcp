@@ -1,0 +1,24 @@
+{
+  "node": "24.21.0",
+  "npm": "11.19.0",
+  "typescript": "5.9.3",
+  "vitest": "4.1.11",
+  "sdk": "1.32.1",
+  "eslint": "10.12.0",
+  "prettier": "3.9.10",
+  "operatingSystem": "Arch Linux rolling, Linux x86_64",
+  "filesystem": "ext4",
+  "flock": "util-linux 2.42.4",
+  "openssl": "3.6.5",
+  "provider": {
+    "name": "gnome-keyring",
+    "version": "51.1",
+    "binarySha256": "29cb44793218cbda04694fc11d6cdd8bac6cc69f2347be03e5c356c5455f9c00",
+    "installation": "disposable extraction; no system installation"
+  },
+  "qualification": "fresh private bus and unlocked collection, actual libsecret store/read/clear, verified ext4, fresh private-CA HTTPS; synthetic grants only",
+  "runner": "test/create-stdio/run-isolated.py",
+  "fixturePreparation": "test/read-runtime/fixtures.mjs",
+  "baseline": "388-input pre-T18 sanitized source snapshot, independently locked-installed and built; no private state copied",
+  "externalBackendGoogleAndroidNamedHostEvidence": false
+}

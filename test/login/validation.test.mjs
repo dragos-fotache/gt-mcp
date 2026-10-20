@@ -11,7 +11,6 @@ import {
   record,
   preparedVault,
   memoryProfile,
-  memoryMetadata,
   backend,
   signal,
 } from "./helpers.mjs";
@@ -28,11 +27,11 @@ describe("T07-S1 strict private state and settings", () => {
   ])("rejects %s before network or storage mutation", async (name, settings) => {
     const source = binding("https://synthetic-qa-t07.example.invalid");
     const profile = memoryProfile(source);
-    const metadata = memoryMetadata(source);
+
     const result = await openLoginTransaction({
       profile: profile.owner,
       transportConfig: { origin: source.origin },
-      metadata: metadata.metadata,
+
       settings,
       clock: { nowMs: () => NOW },
     }).catch((error) => error);
@@ -108,11 +107,11 @@ describe("T07-S1 strict private state and settings", () => {
     mutate(value);
     const initial = bytes(value);
     const profile = memoryProfile(source, initial);
-    const metadata = memoryMetadata(source);
+
     const error = await openLoginTransaction({
       profile: profile.owner,
       transportConfig: { origin: source.origin },
-      metadata: metadata.metadata,
+
       settings: SETTINGS,
       clock: { nowMs: () => NOW },
     }).catch((value) => value);
@@ -132,11 +131,11 @@ describe("T07-S1 strict private state and settings", () => {
       Buffer.from([0xc3, 0x28]),
     ]) {
       const profile = memoryProfile(source, initial);
-      const metadata = memoryMetadata(source);
+
       const error = await openLoginTransaction({
         profile: profile.owner,
         transportConfig: { origin: source.origin },
-        metadata: metadata.metadata,
+
         settings: SETTINGS,
         clock: { nowMs: () => NOW },
       }).catch((value) => value);
@@ -170,11 +169,11 @@ describe("T07-S1 strict private state and settings", () => {
       try {
         const source = binding(fixture.origin);
         const profile = memoryProfile(source);
-        const metadata = memoryMetadata(source);
+
         const transaction = await openLoginTransaction({
           profile: profile.owner,
           transportConfig: fixture.config,
-          metadata: metadata.metadata,
+
           settings: SETTINGS,
           clock: { nowMs: () => NOW },
         });

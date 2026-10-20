@@ -1,0 +1,4 @@
+[
+  "test/read-runtime/multi-client.test.mjs",
+  "test/read-protocol/ownership-delivery.test.mjs"
+]

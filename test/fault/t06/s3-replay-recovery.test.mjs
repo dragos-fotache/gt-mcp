@@ -70,7 +70,6 @@ const ROTATED_ACCESS = "synthetic-qa-t06-s3-access.03";
 const ROTATED_REFRESH = "synthetic-qa-t06-s3-refresh.03";
 const ROTATED_ACCESS_EXPIRY = "2026-10-15T12:00:00.000Z";
 const ROTATED_REFRESH_EXPIRY = "2026-11-28T12:00:00.000Z";
-const OPERATIONS = '{"synthetic":"t06-s3-operation-evidence"}';
 
 // Clock positions (deterministic trusted epoch clocks, never wall clock):
 // MID expires any 09-27 access grant while keeping the .01 refresh (10-27)
@@ -202,7 +201,6 @@ async function withReplayCase(
           grant: predecessor,
           pendingRefresh: seeded,
         }),
-        operationBytes: Buffer.from(OPERATIONS, "utf8"),
       });
     } else if (seed === "gap") {
       const service = s3ServiceBody();
@@ -221,8 +219,6 @@ async function withReplayCase(
         }),
       });
     }
-    const operationsBefore =
-      seed === "pending" ? await box.profile.readOperationStoreBytes() : null;
     const ownerForFacade =
       wrapOwner === null ? box.profile : wrapOwner(box.profile, { track, registerRelease });
     const state = await openRecoverableRefreshSessionState({
@@ -253,7 +249,6 @@ async function withReplayCase(
       predecessor,
       seeded,
       gapGrant,
-      operationsBefore,
       track,
       owned,
       registerRelease,
@@ -301,7 +296,6 @@ function makeCommitSpyOwner(owner, commits) {
       return owner.binding;
     },
     readVaultBytes: (...args) => owner.readVaultBytes(...args),
-    readOperationStoreBytes: (...args) => owner.readOperationStoreBytes(...args),
     commit: (...args) => {
       if (args[0] !== undefined && args[0].vaultBytes !== undefined) {
         commits.push(Buffer.from(args[0].vaultBytes).toString("utf8"));
@@ -310,7 +304,6 @@ function makeCommitSpyOwner(owner, commits) {
     },
     bindAccount: (...args) => owner.bindAccount(...args),
     advanceSessionGeneration: (...args) => owner.advanceSessionGeneration(...args),
-    keyedIntentDigest: (...args) => owner.keyedIntentDigest(...args),
     close: (...args) => owner.close(...args),
   };
 }
@@ -367,7 +360,6 @@ describe("T06-S3 exact replay after lost response and reopen", () => {
       expect(stored.grant.refreshToken).toBe(liveGrant.refreshToken);
       expect(stored.grant.accessExpiresAt).toBe(liveGrant.accessExpiresAt);
       expect(stored.grant.refreshExpiresAt).toBe(liveGrant.refreshExpiresAt);
-      expect(await h.profile.readOperationStoreBytes()).toEqual(h.operationsBefore);
     });
   });
 });
@@ -431,7 +423,6 @@ describe("T06-S3 recovered install precedes one distinct rotation", () => {
         const stored = await readVaultRecord(h.profile);
         expect(stored.grant.refreshToken).toBe(ROTATED_REFRESH);
         expect(stored.pendingRefresh).toBe(null);
-        expect(await h.profile.readOperationStoreBytes()).toEqual(h.operationsBefore);
       },
     );
   });
@@ -465,7 +456,6 @@ describe("T06-S3 recovered install precedes one distinct rotation", () => {
           return owner.binding;
         },
         readVaultBytes: (...args) => owner.readVaultBytes(...args),
-        readOperationStoreBytes: (...args) => owner.readOperationStoreBytes(...args),
         commit: (...args) => {
           // The real owned commit is tracked immediately, independently of
           // the public acknowledgement, so its outcome is always observed.
@@ -481,7 +471,6 @@ describe("T06-S3 recovered install precedes one distinct rotation", () => {
         },
         bindAccount: (...args) => owner.bindAccount(...args),
         advanceSessionGeneration: (...args) => owner.advanceSessionGeneration(...args),
-        keyedIntentDigest: (...args) => owner.keyedIntentDigest(...args),
         close: (...args) => owner.close(...args),
       };
       return adapter;

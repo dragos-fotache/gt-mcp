@@ -1,0 +1,19 @@
+{
+  "status": "FAIL",
+  "actualAndroid": true,
+  "gradleExitCode": 1,
+  "fixtureFailure": "native failure; private details erased",
+  "cases": [
+    {
+      "class": "com.dragosfotache.gymtracka.data.sync.roombackend.T16McpSyncTest",
+      "name": "savedMcpRoutineArrivesThroughOrdinarySync",
+      "failed": true,
+      "skipped": false
+    }
+  ],
+  "xmlSha256": [
+    "f9bcf1d9ebc5d1c6d59b8c7aae70b94f9c7c495de86f4c0cc97e02fdff9ff234"
+  ],
+  "failureClass": "RuntimeError",
+  "privateLogSha256": "32e5695318d3c522aa139ed0a2f655a591977b616f86dd31954c20f7d1e3dbc2"
+}

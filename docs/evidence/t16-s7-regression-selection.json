@@ -1,0 +1,10 @@
+[
+  "test/create-stdio/policy-identity.test.mjs",
+  "test/create-stdio/recovery-stop.test.mjs",
+  "test/fault/t09/s3-persistence.test.mjs",
+  "test/fault/t12/s1-lifecycle.test.mjs",
+  "test/fault/t12/s3-status.test.mjs",
+  "test/foundation/package-contract.test.mjs",
+  "test/unit/t03/backend-response.test.mjs",
+  "test/unit/t03/lossless-revision.test.mjs"
+]

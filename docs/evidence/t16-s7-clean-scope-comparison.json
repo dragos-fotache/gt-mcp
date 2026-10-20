@@ -1,0 +1,24 @@
+{
+  "workspaceRuntimeHashes": 620,
+  "cleanRuntimeHashes": 618,
+  "sourceInputsCopied": 424,
+  "byteIdenticalMcpEmittedOutputs": 194,
+  "omittedInactiveGeneratedOutputs": {
+    "experiments/t02/dist/index.d.ts": "b15504bb77e6569f1cb272961878cca0689942c80dff59ab479f69f0275181e4",
+    "experiments/t02/dist/index.js": "ea3c9a351e7177f249117bd4d2544154da0b2c359f44b008f9b6a296e738fe55"
+  },
+  "originalInactiveOutputsStillExact": true,
+  "onlyChangedCommonPath": "docs/compatibility.md",
+  "declaredCompatibilityProse": {
+    "docs/compatibility.md": {
+      "runtimeSha256": "bc4511b63180785b961b862d7d0e7b8c2e2aff427b2c4f1227db547bca04596b",
+      "cleanSha256": "483dd7d74c9ee6d81f6a98c8ee40c4ad60a641e19bd55dcc3e40e7cb91d06631"
+    }
+  },
+  "androidOriginalSourcesEqualAcrossBatches": true,
+  "androidFixtureSourceEqualAcrossBatches": true,
+  "androidSourceAndApkStableWithinEachBatch": true,
+  "crossBatchAndroidApkByteIdentityClaim": false,
+  "reason": "Fresh private debug-signing environments; per-batch APK identity/stability recorded.",
+  "allActiveOwnAndRegressionTestsReplayed": true
+}

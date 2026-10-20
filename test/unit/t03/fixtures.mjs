@@ -139,7 +139,6 @@ export const INVALID_REVISION_TOKENS = Object.freeze([
 // Minimal valid creation arguments (synthetic IDs only).
 export function validCreateInput(overrides = {}) {
   return {
-    operationId: SYNTHETIC_UUIDS.operation,
     name: "Upper Body A",
     exercises: [
       {

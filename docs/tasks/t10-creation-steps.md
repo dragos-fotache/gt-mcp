@@ -1,7 +1,38 @@
 # T10 — Implement draft, populate and save with strict confirmations
 
-**Status:** planned · **Owner:** unassigned · **Requires:** T05, T06, T09
-**Size:** 1-2 sessions
+**Status:** done; S1/S2/S3 and parent accepted/closed · **Owner:** primary Codex agent (all T10 work closed) · **Requires:** T05, T06, T09
+**Size:** 3 bounded outcome slices; separate assignments, not time promises
+
+## Design and pickup
+
+The user requested design/planning on 2026-10-15. The
+[T10 design and slice plan](../decisions/t10-plan-and-slices.md) records the task
+contract, internal interfaces, confirmation/error decisions and proportional
+verification. Planning is complete. The user subsequently assigned S1;
+the [S1 work order](t10-s1-work-order.md) bounds its implementation and checks.
+S1 is now [accepted](../evidence/t10-s1-review.md):56/56 owning+183/183 unchanged
+regressions,239/239 total; four production/scoped checks and stable hashes PASS.
+[S1 handoff](../handoffs/t10-s1.md). All S1 work closed; no automatic S2.
+
+The user then assigned [S2](t10-s2-work-order.md), now
+[accepted/closed](../evidence/t10-s2-review.md):27/27 new S2+56/56 S1+88/88
+unchanged regressions,171/171 total. Four production/scoped checks,37 stable
+selected hashes and real encrypted diagnostic engine/authenticated HTTPS PASS.
+[S2 handoff](../handoffs/t10-s2.md). The user assigned [S3](t10-s3-work-order.md), now
+[accepted with integrated parent T10](../evidence/t10-s3-review.md):11/11 new S3+
+83/83 preserved S1/S2+88/88 regressions=182/182 in both workspace and clean locked
+replay. Four production/scoped checks,345 stable copied inputs,178 byte-identical
+outputs and492 identical stable selected hashes PASS.
+[Current handoff](../handoffs/t10-s3.md). All T10 work closed; no automatic T11.
+
+| Slice | Reviewable outcome | Disposition |
+| ----- | ------------------ | ----------- |
+| S1 | Pure confirmation and error decisions | Accepted/closed |
+| S2 | Durable single-step dispatch/confirmation with baseline guard | Accepted/closed |
+| S3 | Fresh three-step workflow and integrated parent acceptance | Accepted/closed |
+
+T11 retains explicit multi-step recovery/retry/terminal replay/minimization;
+T15 retains MCP/config composition. Product creation remains unavailable.
 
 ## Outcome
 
@@ -13,6 +44,8 @@ Implement the three-step creation engine with no misleading atomicity or rollbac
 - [openapi.yaml](../../shared-docs/docs/backend-contract/openapi.yaml)
 - [Agent pickup rules](../README.md)
 - [Verification matrix](../verification.md)
+- [T09 completion and delivered interfaces](../handoffs/t09-s3.md)
+- [Proportional testing policy](../decisions/proportional-testing-policy.md)
 
 ## Deliverables
 

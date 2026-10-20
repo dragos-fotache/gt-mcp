@@ -71,7 +71,12 @@ describe("T01 package identity and toolchain pins (approved spec §1)", () => {
     expect(pkg.version).toBe("0.0.0");
     expect(pkg.workspaces).toContain("companion");
     expect(pkg.packageManager).toBe("npm@11.19.0");
-    expect(pkg.engines?.node).toBe(">=24.21.0 <25");
+    // User's 2026-10-18 minimum-only policy supersedes the original Node24 upper bound.
+    expect(pkg.engines?.node).toBe(">=24.0.0");
+    expect(readJson("companion/package.json").engines?.node).toBe(">=24.0.0");
+    const lock = readJson("package-lock.json");
+    expect(lock.packages[""].engines?.node).toBe(">=24.0.0");
+    expect(lock.packages.companion.engines?.node).toBe(">=24.0.0");
   });
 
   it("runtime and development dependencies match the approved exact pins", () => {
@@ -372,7 +377,7 @@ describe("T01 artifact inventory and compatibility matrix (approved spec §§2, 
       "Backend / OpenAPI / shared docs",
       "Google / helper origin",
       "Android sync observation",
-      "Artifact / journal / intent / key upgrades",
+      "Credential/config format transitions",
     ];
     expect(exists("docs/compatibility.md")).toBe(true);
     const text = readText("docs/compatibility.md");

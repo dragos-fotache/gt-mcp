@@ -39,7 +39,8 @@ function deltaCounts(before, after) {
   return delta;
 }
 
-// Every committed violator control with its exact expected violation tag.
+// Every committed violator control with its effect violation tag. Harmless CJS
+// namespace lookup is allowed; the control's attempted write must be blocked.
 // The table below is the normative coverage list: each row must correspond
 // to an existing file under intercept-controls/, and the runner asserts the
 // tag, the nonzero exit and the empty stdout for each.
@@ -64,7 +65,7 @@ const VIOLATIONS = [
   ["stdout.mjs", "synthetic-qa-violation:stdout"],
   ["http2-control.mjs", "synthetic-qa-violation:http2"],
   ["tls-control.mjs", "synthetic-qa-violation:tls"],
-  ["cjs-require.mjs", "synthetic-qa-violation:cjs-require"],
+  ["cjs-require.mjs", "synthetic-qa-violation:fs-write"],
 ];
 
 describe("interception calibration controls (artifact-free, no target)", () => {
@@ -129,7 +130,10 @@ describe("collector byte boundaries (no target, shared helper)", () => {
     // own bytes with replacement for the orphan half.)
     const child = spawn(
       process.execPath,
-      ["-e", "const b=Buffer.from('é'.repeat(100),'utf8');process.stdout.write(b.subarray(0,151));process.stdout.write(b.subarray(151))"],
+      [
+        "-e",
+        "const b=Buffer.from('é'.repeat(100),'utf8');process.stdout.write(b.subarray(0,151));process.stdout.write(b.subarray(151))",
+      ],
       { stdio: ["ignore", "pipe", "pipe"] },
     );
     const result = await collectChild(child, { timeoutMs: 8000 });

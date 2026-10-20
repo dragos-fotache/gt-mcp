@@ -104,7 +104,7 @@ describe("S2 owned cancellation and close", () => {
       expectError(
         await rawCall(session.client, { name: "create_routine", arguments: CREATE_ARGS }),
         "operation_interrupted",
-        true,
+        false,
       );
       expect(fixture.calls).toEqual([]);
       persistence.resolve();

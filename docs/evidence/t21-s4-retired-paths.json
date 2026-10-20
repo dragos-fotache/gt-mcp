@@ -1,0 +1,176 @@
+[
+  {
+    "path": "test/unit/t04/arguments.test.mjs",
+    "disposition": "retired active source; original bytes archived",
+    "sha256": "2e9a2aa88c7d05b2dfce3871f83817428d9992ba26d50bc5185158028ea0bc6c",
+    "reasonAndReplacement": "Old anchor/expectedBinding/provision-generation API; successor argument boundaries in test/unit/t21/credential-entry.test.mjs and strict format boundaries."
+  },
+  {
+    "path": "test/unit/t04/binding.test.mjs",
+    "disposition": "retired active source; original bytes archived",
+    "sha256": "17663470242d2092a299646d8a11900c2ca6f2fe433d54c22c04e0a7f162e80f",
+    "reasonAndReplacement": "Old two-store rebinding/anchor fences; single-record atomic binding/vault checks in test/fault/t21/credential-store.test.mjs."
+  },
+  {
+    "path": "test/unit/t04/bytes.test.mjs",
+    "disposition": "retired active source; original bytes archived",
+    "sha256": "b4e70bf26e9fbfeaf3c3613bb797f3a13045b92101f3699bd49d23066b8d7ac0",
+    "reasonAndReplacement": "Old binary two-store envelopes/operation budget; new independent format oracle and vault capacity checks in T21 owning suites."
+  },
+  {
+    "path": "test/unit/t04/contract.test.mjs",
+    "disposition": "retired active source; original bytes archived",
+    "sha256": "656d40b156889f5a5c559fde4432bd6eea8330d0ea1ddfae3d4e52ff2673f5c2",
+    "reasonAndReplacement": "Retired six-export/digest/operation interface; successor six-export exact check in test/unit/t21/credential-format.test.mjs."
+  },
+  {
+    "path": "test/unit/t04/crypto-format.test.mjs",
+    "disposition": "retired active source; original bytes archived",
+    "sha256": "a9a67bbb8494da0b13247e728be44f721057bef7b73095926e0600cc8202c12f",
+    "reasonAndReplacement": "Retired GTMS2 family/anchor envelope; strict single-record tamper/format cases in T21 credential-format suite."
+  },
+  {
+    "path": "test/unit/t04/crypto-oracle.test.mjs",
+    "disposition": "retired active source; original bytes archived",
+    "sha256": "7f8c726b89eabb9b312e0419ae5283f0e3883ee402895a99b536c2d13fc281e8",
+    "reasonAndReplacement": "Retired family HKDF and intent HMAC; independent HKDF/AES-GCM info/AAD oracle in T21 credential-format suite."
+  },
+  {
+    "path": "test/unit/t04/imports.test.mjs",
+    "disposition": "retired active source; original bytes archived",
+    "sha256": "f33384a3a67303d333c2d57b9b3dfdf1903d7b55c99d59303a701fc0a446dbe3",
+    "reasonAndReplacement": "Deleted legacy worker/engine modules and obsolete surface; calibrated hook remains and T21 credential-entry tests assert inert import/direct worker refusal."
+  },
+  {
+    "path": "test/fault/t04/stale-anchor.test.mjs",
+    "disposition": "retired active source; original bytes archived",
+    "sha256": "0c6116022b5f99c29aa4bca21a526b978f5faf6c0704420dabfe766d2f135a36",
+    "reasonAndReplacement": "Independent anchor/rollback detection explicitly removed; no equivalent rollback-detection claim."
+  },
+  {
+    "path": "test/fault/t04/commit-crash.test.mjs",
+    "disposition": "retired active source; original bytes archived",
+    "sha256": "0197c85daeb96f37f17c6c8ee11e1a462481db138869a8808763436418497290",
+    "reasonAndReplacement": "PREPARED/COMMITTED multi-store crash matrix retired; representative actual old/new record throws/process death in T21 credential-store suite."
+  },
+  {
+    "path": "test/fault/t04/provision-crash.test.mjs",
+    "disposition": "retired active source; original bytes archived",
+    "sha256": "b3a7e92dc7b0963e6bdc5bf67bd43b13c75842b32ead9a9b053d082e681b3b1e",
+    "reasonAndReplacement": "Anchor-marker provisioning recovery retired; exclusive fresh-root/no-open-fallback checks retained in T21 store and S4 setup tests."
+  },
+  {
+    "path": "test/fault/t04/filesystem.test.mjs",
+    "disposition": "retired active source; original bytes archived",
+    "sha256": "13d4b66a6f7a547d75d426996245e5b38b60b43b42dcadd180cabc69d0cbc339",
+    "reasonAndReplacement": "Ext4-only rejection/legacy two-root API retired; no type gate. Retained unsafe file/path invariants covered by T21 store and S4 safety checks."
+  },
+  {
+    "path": "test/fault/t04/privacy.test.mjs",
+    "disposition": "retired active source; original bytes archived",
+    "sha256": "4aa3c574e18157fc592c15acf34561eef88273e1d383aa94f39e0806925c9303",
+    "reasonAndReplacement": "Legacy envelope/engine import targets retired; new independent encryption oracle, sanitized errors and configured CLI/privacy checks retain protection."
+  },
+  {
+    "path": "test/fault/t04/key-facility.test.mjs",
+    "disposition": "retired active source; original bytes archived",
+    "sha256": "3e44c96cd2b82468fcb55e40e7250bb190c478f865b59c7038fedac81cc2f6c5",
+    "reasonAndReplacement": "Legacy synthetic key/two-store snapshots retired; real provider missing/locked/duplicate/replaced checks remain in T21 store, diagnostic fidelity covered in S4."
+  },
+  {
+    "path": "test/fault/t04/diagnostic-separation.test.mjs",
+    "disposition": "retired active source; original bytes archived",
+    "sha256": "3f7505bca758506c23ea1e26ff048822c4d96ff032716c6737f2821664ecd1b9",
+    "reasonAndReplacement": "Legacy root/engine interfaces retired; production unknown-provider rejection and independent issued-ticket checks retained in T21 entry/S4 diagnostics."
+  },
+  {
+    "path": "test/fault/t04/provider.test.mjs",
+    "disposition": "retired active source; original bytes archived",
+    "sha256": "08767728bb3bacd3df824f3d7e1c5cf92271ef8cfbc6c1ef6f1c664588dc88d2",
+    "reasonAndReplacement": "Externally supplied generation/anchor relocation requirements retired; real provider states/roundtrips retained in T21 store; silent-provider bound added in S4."
+  },
+  {
+    "path": "test/login/metadata.test.mjs",
+    "disposition": "retired active source; original bytes archived",
+    "sha256": "4d635746e320df24c62937f636d30edc74f7bb619d724b7933276fc4e31ea833",
+    "reasonAndReplacement": "External descriptor/receipt publication removed atomically; protected config-file checks retained in runtime/login config tests."
+  },
+  {
+    "path": "test/unit/t12/s2-boundaries.test.mjs",
+    "disposition": "retired active source; original bytes archived",
+    "sha256": "523ea1b5bcaee4ef3f9f15a0fcca3be6a72044fd8247e38ac810a9613bb220fa",
+    "reasonAndReplacement": "Removal tombstone/reconciled-provision interfaces removed; explicit single-record cleanup retry retained in T21 store."
+  },
+  {
+    "path": "test/fault/t12/s2-crash.test.mjs",
+    "disposition": "retired active source; original bytes archived",
+    "sha256": "9b4acadb3da7aac76fa20c7effe4298b9fb1240b2c5edf450825f4b8892fae8d",
+    "reasonAndReplacement": "External removal-tombstone/metadata crash protocol retired; single-record key-first interruption/retry retained in T21 store."
+  },
+  {
+    "path": "test/fault/t12/s2-removal.test.mjs",
+    "disposition": "retired active source; original bytes archived",
+    "sha256": "6df0b195a692c59b68e01a39488e398a55b3927a10eaeccde15bbf0328208f5b",
+    "reasonAndReplacement": "Old removal/reconcile API and descriptor publication retired; explicit cleanup and unknown-content/key safety retained in T21 store/S4 lifecycle."
+  },
+  {
+    "path": "test/unit/t09/s2-helpers.mjs",
+    "disposition": "retired active source; original bytes archived",
+    "sha256": "c0cbfd5b6c23eb482559a18013e998b03f2f53d60a1a2035806a6bc41cd136ce",
+    "reasonAndReplacement": "Entire durable creation journal API/format/admission/transition removed; invocation-local creation tests are retained in T10/T11/T15/S2."
+  },
+  {
+    "path": "test/unit/t09/s2-admission.test.mjs",
+    "disposition": "retired active source; original bytes archived",
+    "sha256": "b9a614e1708e7ea9f817f8c3139d275e443672e214245ee3cbc89c7b049992b0",
+    "reasonAndReplacement": "Entire durable creation journal API/format/admission/transition removed; invocation-local creation tests are retained in T10/T11/T15/S2."
+  },
+  {
+    "path": "test/unit/t09/s3-transitions.test.mjs",
+    "disposition": "retired active source; original bytes archived",
+    "sha256": "f163d8178f177512f74214c11e63edff6cbe8d5ced6f57a6226803c1fbe7ebdc",
+    "reasonAndReplacement": "Entire durable creation journal API/format/admission/transition removed; invocation-local creation tests are retained in T10/T11/T15/S2."
+  },
+  {
+    "path": "test/unit/t09/s1-format.test.mjs",
+    "disposition": "retired active source; original bytes archived",
+    "sha256": "901a54686849b50199e3ca809c0d814b48103da0e0252a730e203569880b2d6f",
+    "reasonAndReplacement": "Entire durable creation journal API/format/admission/transition removed; invocation-local creation tests are retained in T10/T11/T15/S2."
+  },
+  {
+    "path": "test/fault/t09/s3-reopen-child.mjs",
+    "disposition": "retired active source; original bytes archived",
+    "sha256": "3245d0df298ef34e8603ec21e2e79ec10c0c77e361cb97928e482c36180b92a3",
+    "reasonAndReplacement": "Durable creation journal persistence/restart removed; S2 fresh-call/restart tests replace this requirement."
+  },
+  {
+    "path": "test/fault/t09/s3-persistence.test.mjs",
+    "disposition": "retired active source; original bytes archived",
+    "sha256": "c6a492210b66a334c3d870397b954be04c24ab34c68f8b4e461603248184aff1",
+    "reasonAndReplacement": "Durable creation journal persistence/restart removed; S2 fresh-call/restart tests replace this requirement."
+  },
+  {
+    "path": "test/fault/t09/s2-storage.test.mjs",
+    "disposition": "retired active source; original bytes archived",
+    "sha256": "2b755530503618e559a695609d6da3191d06d59c625133bf9c0afe9861b11d9e",
+    "reasonAndReplacement": "Durable creation journal persistence/restart removed; S2 fresh-call/restart tests replace this requirement."
+  },
+  {
+    "path": "test/fault/t12/s1-lifecycle.test.mjs",
+    "disposition": "retired active source; original bytes archived",
+    "sha256": "3cae8520aea7a2f1bf3bf9caa99bc33e66245621508a8b2739898316ae67f241",
+    "reasonAndReplacement": "Retired mixed descriptor-publication/operation-retirement campaign; retained configured sign-out, identity, ownership and same-account login in S4 config-lifecycle plus full T06 races."
+  },
+  {
+    "path": "test/fault/t12/s4-flow.test.mjs",
+    "disposition": "retired active source; original bytes archived",
+    "sha256": "ce62570413ab01feadcba294cc4efad5c42eedbb16833fea1610cbe37fb0088d",
+    "reasonAndReplacement": "Retired combined journal-retirement/reconciled-profile flow; retained setup/login/auth/lifecycle/disclosure and no-persisted-creation requirements in S4 owning and active create protocol tests."
+  },
+  {
+    "path": "test/fault/t12/s2-holder.mjs",
+    "disposition": "retired active source; original bytes archived",
+    "sha256": "f7f6bc1a80ff7347f91401571f02d1d239a2bc8e3c0d1cda9a5af7665cc4bb46",
+    "reasonAndReplacement": "Old diagnostic external removal/anchor holder removed; new key-first interruption uses S3 single-record test worker."
+  }
+]

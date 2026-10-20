@@ -821,8 +821,7 @@ describe("T06-S1 successful initial installation", () => {
     try {
       profile = await facility.provision(ORIGIN);
       const issued = profile.binding.profileGenerationId;
-      const operations = utf8('{"synthetic":"operation-evidence"}');
-      await profile.commit({ operationBytes: operations });
+
       const state = await openSessionState({
         profile,
         clock: liveClock(),
@@ -845,7 +844,6 @@ describe("T06-S1 successful initial installation", () => {
       state.invalidate();
       await profile.close();
       profile = await facility.open(installed);
-      expect(await profile.readOperationStoreBytes()).toEqual(operations);
       const vaultText = utf8Text(await profile.readVaultBytes());
       expect(vaultText).toContain(ACCESS_EXPIRY);
       expect(vaultText).toContain(REFRESH_EXPIRY);

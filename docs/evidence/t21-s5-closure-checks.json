@@ -1,0 +1,19 @@
+{
+  "status": "PASS",
+  "runtimeResult": "545/545 in58 exact files, zero failures/skips/pending/todo",
+  "runtimeHashCount": 569,
+  "executionSourceTestCompiledBytesStillMatch": true,
+  "compiledOutputs": 176,
+  "documentationOnlyClosureDeltas": [
+    "AGENTS.md",
+    "docs/compatibility.md"
+  ],
+  "localDocumentationLinkTargetsChecked": 584,
+  "localDocumentationFilesChecked": 15,
+  "localDocumentationLinksValid": true,
+  "archivedOriginalFilesVerified": 14,
+  "sharedContractSnapshotFilesUnchanged": 34,
+  "scopedDiffCheckExitCode": 0,
+  "btrfs": "Not run, user-owned",
+  "runtimeReplayedAfterProseClosure": false
+}

@@ -1,0 +1,10 @@
+{
+  "baseline": "docs/evidence/t16-s3-artifact-inventory.json",
+  "checkedProductInputsAndOutputs": 312,
+  "unchanged": 312,
+  "changed": [],
+  "productSourceChanges": false,
+  "dependencyChanges": false,
+  "contractChanges": false,
+  "documentationExcluded": "Compatibility/status prose is updated after runtime acceptance and checked separately."
+}

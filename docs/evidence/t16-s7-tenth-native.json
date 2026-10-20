@@ -1,0 +1,17 @@
+{
+  "status": "PASS",
+  "actualAndroid": true,
+  "gradleExitCode": 0,
+  "cases": [
+    {
+      "class": "com.dragosfotache.gymtracka.data.sync.roombackend.T16McpSyncTest",
+      "name": "savedMcpRoutineArrivesThroughOrdinarySync",
+      "failed": false,
+      "skipped": false
+    }
+  ],
+  "xmlSha256": [
+    "cba93682688d80ee5cfb1c87046ace0bfda61dc8801f41d9eaf5d8dcd72b6299"
+  ],
+  "privateLogSha256": "506d1c692dd280e14d419a22f579933fa9906fb437580a711b730d3f52efab60"
+}

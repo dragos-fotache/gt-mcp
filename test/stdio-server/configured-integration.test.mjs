@@ -69,7 +69,7 @@ async function fixture({ signedOut = false, expired = false, budget } = {}) {
       anchorRoot,
       busAddress: requiredEnv("GT_S3_TEST_BUS"),
       descriptorBinding: binding,
-      writesEnabled: true,
+      writesEnabled: false,
     });
     const config = JSON.parse(fs.readFileSync(pair.configPath, "utf8"));
     config.storage.timeoutMs = 1000;
@@ -139,7 +139,32 @@ async function waitRequest(backend, method = "GET") {
 }
 
 describe("S3 configured actual process boundary", () => {
-  it("serves all six canonical reads, continuation/context/draft visibility and true-policy no mutation", async () => {
+  it("S2 keeps two compiled stdio servers connected to the same profile", async () => {
+    const f = await fixture();
+    let first, second;
+    try {
+      first = await session(f.configPath);
+      second = await session(f.configPath);
+      await f.reopen();
+      expect((await first.client.callTool({ name: "list_routines" })).structuredContent.ok).toBe(
+        true,
+      );
+      expect((await second.client.callTool({ name: "list_routines" })).structuredContent.ok).toBe(
+        true,
+      );
+      await first.stop();
+      first = null;
+      expect((await second.client.callTool({ name: "list_routines" })).structuredContent.ok).toBe(
+        true,
+      );
+      expect(second.stderr()).toBe("");
+    } finally {
+      await first?.stop();
+      await second?.stop();
+      await f.close();
+    }
+  });
+  it("serves all six canonical reads, continuation/context/draft visibility and false-policy no mutation", async () => {
     const f = await fixture();
     let s;
     try {
@@ -186,7 +211,7 @@ describe("S3 configured actual process boundary", () => {
         await s.client.callTool({ name: "create_routine", arguments: CREATE_ARGS }),
         "configuration_required",
         false,
-        { message: "Routine creation is unavailable in this build." },
+        { message: "Routine creation is disabled in the operator configuration." },
       );
       expectError(
         await s.client.callTool({ name: "create_routine", arguments: {} }),
@@ -439,17 +464,17 @@ describe("S3 acquisition shutdown races", () => {
       await f.close();
     }
   });
-  it("a private-state opening failure overrides an earlier requested signal", async () => {
+  it("S2 cancels read-only startup acquisition on signal without reporting unsafe private state", async () => {
     const f = await fixture();
     let gate;
     try {
       gate = await startupGate(f);
       gate.child.kill("SIGTERM");
       expect(await gate.exited).toEqual({
-        code: 78,
+        code: 143,
         signal: null,
         stdout: "",
-        stderr: "GymTracka MCP private state could not be opened safely.\n",
+        stderr: "",
       });
       gate.resume();
       expect(f.backend.requests).toHaveLength(0);

@@ -1,5 +1,9 @@
 # T04 — Build protected profile storage and exclusive ownership
 
+> **T21-S1 successor authority (2026-10-17):** T21 replaces the ext4-only external-anchor storage contract; historical acceptance stays closed.
+> See the [successor storage/interface spec](../decisions/t21-single-record-storage-spec.md). Documentation only;
+> current runtime/package behavior is unchanged until T21 implementation acceptance.
+
 **Status:** done (bounded T04 accepted on t04-f4) · **Owner:** Coordinator; fresh Developer + QA · **Requires:** T01
 **Size:** 2-3 sessions
 

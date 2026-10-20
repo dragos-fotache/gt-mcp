@@ -15,19 +15,17 @@ import { openReadRuntime } from "../../dist/runtime/index.js";
 
 function validConfigText(
   dir,
-  descriptorPath,
+  _descriptorPath,
   origin,
   bus = "unix:path=/run/user/1000/synthetic-bus",
 ) {
   return JSON.stringify({
-    version: 1,
+    version: 2,
     serviceOrigin: origin,
     storage: {
       profileRoot: path.join(dir, "profile"),
-      anchorRoot: path.join(dir, "anchor"),
       secretServiceBusAddress: bus,
     },
-    bindingDescriptorPath: descriptorPath,
   });
 }
 
@@ -154,11 +152,7 @@ describe("S1 startup config selection", () => {
     const bus = requiredEnv("GT_S1_TEST_BUS");
     const cases = {
       "duplicate JSON keys": (dir, desc) => [
-        `{"version":1,"version":1,"serviceOrigin":${JSON.stringify(origin)},` +
-          `"storage":{"profileRoot":${JSON.stringify(path.join(dir, "profile"))},` +
-          `"anchorRoot":${JSON.stringify(path.join(dir, "anchor"))},` +
-          `"secretServiceBusAddress":${JSON.stringify(bus)},` +
-          `"bindingDescriptorPath":${JSON.stringify(desc)}}`,
+        validConfigText(dir, desc, origin, bus).replace('"version":2', '"version":2,"version":2'),
         validDescriptorText(origin),
       ],
       "unknown config field": (dir, desc) => [
@@ -166,16 +160,19 @@ describe("S1 startup config selection", () => {
         validDescriptorText(origin),
       ],
       "unsupported version": (dir, desc) => [
-        validConfigText(dir, desc, origin, bus).replace(`"version":1`, `"version":2`),
+        validConfigText(dir, desc, origin, bus).replace(`"version":2`, `"version":1`),
         validDescriptorText(origin),
       ],
       "oversize config": (dir, desc) => [
         validConfigText(dir, desc, origin, bus).padEnd(65537, " "),
         validDescriptorText(origin),
       ],
-      "descriptor origin mismatch": (dir, desc) => [
-        validConfigText(dir, desc, origin, bus),
-        validDescriptorText("https://other-synthetic.invalid"),
+      "obsolete descriptor selector": (dir, desc) => [
+        validConfigText(dir, desc, origin, bus).replace(
+          /}$/,
+          `,"bindingDescriptorPath":${JSON.stringify(desc)}}`,
+        ),
+        validDescriptorText(origin),
       ],
       "unsafe file permissions": (dir, desc) => [
         validConfigText(dir, desc, origin, bus),

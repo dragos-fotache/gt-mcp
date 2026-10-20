@@ -1,0 +1,9 @@
+{
+  "packaging/README.md": "README.md",
+  "docs/login.md": "docs/login.md",
+  "docs/stdio-server.md": "docs/stdio-server.md",
+  "packaging/examples/config.template.json": "examples/config.template.json",
+  "packaging/examples/login.template.json": "examples/login.template.json",
+  "docs/installation.md": "docs/installation.md",
+  "docs/recovery.md": "docs/recovery.md"
+}

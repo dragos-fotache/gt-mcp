@@ -152,14 +152,12 @@ export function makeBindGateOwner(owner) {
       return owner.binding;
     },
     readVaultBytes: (...args) => owner.readVaultBytes(...args),
-    readOperationStoreBytes: (...args) => owner.readOperationStoreBytes(...args),
     commit: (...args) => owner.commit(...args),
     bindAccount: (...args) => {
       bindSeen = true;
       return released.then(() => owner.bindAccount(...args));
     },
     advanceSessionGeneration: (...args) => owner.advanceSessionGeneration(...args),
-    keyedIntentDigest: (...args) => owner.keyedIntentDigest(...args),
     close: (...args) => owner.close(...args),
   };
   return {
@@ -192,11 +190,9 @@ export function makeValidationGateOwner(owner) {
       }
       return owner.readVaultBytes(...args);
     },
-    readOperationStoreBytes: (...args) => owner.readOperationStoreBytes(...args),
     commit: (...args) => owner.commit(...args),
     bindAccount: (...args) => owner.bindAccount(...args),
     advanceSessionGeneration: (...args) => owner.advanceSessionGeneration(...args),
-    keyedIntentDigest: (...args) => owner.keyedIntentDigest(...args),
     close: (...args) => owner.close(...args),
   };
   return {

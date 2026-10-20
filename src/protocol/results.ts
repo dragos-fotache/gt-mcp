@@ -3,6 +3,7 @@ import { CallToolResultSchema } from "@modelcontextprotocol/sdk/types.js";
 import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
 import { makeToolResult } from "../domain/index.js";
 import type { ToolName, ToolResultEnvelope } from "../domain/index.js";
+import type { ToolErrorObject } from "../domain/index.js";
 import { isReadRuntimeError } from "../runtime/index.js";
 
 const RETRYABLE: Readonly<Record<string, boolean>> = {
@@ -30,19 +31,77 @@ const RETRYABLE: Readonly<Record<string, boolean>> = {
   backend_error: false,
 };
 
-export function failure(code: string, message?: string): ToolResultEnvelope {
+const CREATION_CODES = new Set([...Object.keys(RETRYABLE), "concurrent_modification"]);
+const CONTEXT_KEYS = ["routineId", "lastConfirmedStep", "outcomeUnknown"] as const;
+const DISABLED_MESSAGE = "Routine creation is disabled in the operator configuration.";
+
+/** Validate before taking any history; malformed/private results cannot decorate fallbacks. */
+export function creationEnvelope(value: unknown): ToolResultEnvelope {
+  const envelope = makeToolResult("create_routine", value).structuredContent;
+  if (envelope.ok) return envelope;
+  const error = envelope.error;
+  if (
+    !CREATION_CODES.has(error.code) ||
+    error.retryable !== false ||
+    (error.retryAfterSeconds !== undefined && !Number.isSafeInteger(error.retryAfterSeconds)) ||
+    (error.backendErrorCode !== undefined && !/^[a-z][a-z0-9_]*$/.test(error.backendErrorCode)) ||
+    (CONTEXT_KEYS.some((key) => error[key] !== undefined) &&
+      CONTEXT_KEYS.some((key) => error[key] === undefined))
+  )
+    throw new Error("Invalid creation envelope.");
+  const safe = { ...error };
+  delete safe.message;
+  return {
+    ok: false,
+    error: {
+      ...safe,
+      ...(error.code === "configuration_required" ? { message: DISABLED_MESSAGE } : {}),
+    },
+  };
+}
+
+/** Only a fully validated runtime receipt/error establishes current-call context. */
+export function creationFailure(
+  envelope: ToolResultEnvelope,
+  code: "operation_interrupted" | "result_too_large" | "internal_error",
+): ToolResultEnvelope {
+  let history: Partial<ToolErrorObject> = {};
+  if (envelope.ok) {
+    // Callers pass the create_routine validator's receipt, never arbitrary tool data.
+    const receipt = makeToolResult("create_routine", envelope).structuredContent;
+    if (receipt.ok && "routineId" in receipt.data) {
+      history = {
+        routineId: receipt.data.routineId as string,
+        lastConfirmedStep: "save",
+        outcomeUnknown: false,
+      };
+    }
+  } else {
+    const { routineId, lastConfirmedStep, outcomeUnknown } = envelope.error;
+    if (
+      routineId !== undefined &&
+      lastConfirmedStep !== undefined &&
+      outcomeUnknown !== undefined
+    ) {
+      history = { routineId, lastConfirmedStep, outcomeUnknown };
+    }
+  }
+  return { ok: false, error: { code, retryable: false, ...history } };
+}
+
+export function failure(code: string, message?: string, tool?: ToolName): ToolResultEnvelope {
   return {
     ok: false,
     error: {
       code,
-      retryable: RETRYABLE[code] === true,
+      retryable: tool !== "create_routine" && RETRYABLE[code] === true,
       ...(message === undefined ? {} : { message }),
     },
   };
 }
 
-export function thrownReadFailure(error: unknown): ToolResultEnvelope {
-  return failure(isReadRuntimeError(error) ? error.code : "internal_error");
+export function thrownReadFailure(error: unknown, tool?: ToolName): ToolResultEnvelope {
+  return failure(isReadRuntimeError(error) ? error.code : "internal_error", undefined, tool);
 }
 
 export function readEnvelope(tool: ToolName, value: unknown): ToolResultEnvelope {
@@ -94,6 +153,22 @@ export function boundedResult(tool: ToolName, envelope: unknown, budget: number)
     return sdkResult(tool, failure("result_too_large"));
   } catch {
     // Fixed fallback is valid and fits the minimum; never recurse over a fault.
-    return sdkResult(tool, failure("internal_error"));
+    return sdkResult(tool, failure("internal_error", undefined, tool));
+  }
+}
+
+export function boundedCreationResult(value: unknown, budget: number): CallToolResult {
+  let envelope: ToolResultEnvelope;
+  try {
+    envelope = creationEnvelope(value);
+  } catch {
+    return sdkResult("create_routine", failure("internal_error", undefined, "create_routine"));
+  }
+  try {
+    const result = sdkResult("create_routine", envelope);
+    if (Buffer.byteLength(JSON.stringify(result), "utf8") <= budget) return result;
+    return sdkResult("create_routine", creationFailure(envelope, "result_too_large"));
+  } catch {
+    return sdkResult("create_routine", creationFailure(envelope, "internal_error"));
   }
 }

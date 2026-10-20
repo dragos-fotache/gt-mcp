@@ -1,185 +1,121 @@
-# Proposed architecture and safety boundaries
+# Architecture and safety boundaries
 
-Current local write policy is [configuration-only routine creation](decisions/routine-creation-config-policy.md):
-no custom or external permission extension. The user-approved shared MCP draft0.2
-is aligned in the working tree; no implementation/conformance pass is claimed. T02 is parked,
-T13/T14 retired. T03/T04 and portable MCP work own the remaining decisions.
+**Current target: shared MCP draft0.3/T21, 2026-10-17.** The user removed durable
+creation recovery. This describes the successor architecture; current runtime/R1
+package still implements draft0.2 storage/creation until T21-S2–S6 pass. Prior
+T04/T09/T12 evidence remains valid only for its named artifacts. See the
+[T21 plan](tasks/t21-remove-durable-creation-recovery.md) and normative
+[single-record storage/interfaces](decisions/t21-single-record-storage-spec.md).
 
 ## Components
 
 ```text
-Pi or another local MCP host (no permission extension required)
-  -> portable stdio MCP server: config writesEnabled guard + validation + seven tools
+Pi or another local MCP host
+  -> portable stdio MCP server: config writesEnabled guard + seven strict tools
   -> fixed-origin HTTP client + dedicated service session
   -> existing GymTracka REST API
 
-Operator-managed MCP configuration file
-  -> writesEnabled: false by default; true authorizes routine creation without prompts
-
 Trusted foreground CLI
-  -> local configuration / Google loopback helper / sign-out / retirement / profile removal
+  -> setup / Google loopback login / auth recovery / sign-out / profile removal
 
 Protected local storage
-  -> credential vault and pending refresh identity
-  -> creation journal and compact terminal receipts
-  -> external profile-generation/recovery fence
+  -> one encrypted authenticated binding + credential/auth-recovery record
+  -> OS Secret Service key and exclusive local profile owner
+
+Creation invocation (memory only)
+  -> fresh routine/entry/set UUIDs and three backend step keys/body byte arrays
+  -> draft -> populate -> save; no journal, receipt or cross-call retry identity
 ```
 
-Write permission belongs to the operator-managed server config, not the host.
-Only explicit boolean writesEnabled:true permits creation; no per-routine approval,
-companion, external extension, mode check or sidecar is required. Any client with
-access to an enabled local process can request creation without confirmation;
-disclose that trust boundary. clientInfo, annotations, model arguments and a
-confirmed flag never enable writes. This is not an OS sandbox. Normal backend
-auth, account/origin fences and creation recovery still apply.
+Write permission remains [config-only](decisions/routine-creation-config-policy.md):
+strict writesEnabled default false; only explicit true permits creation. No
+permission companion, per-call prompt, host metadata or model argument enables it.
+Connected local clients can request creation when enabled; disclose that boundary.
+Config is a startup snapshot, without a new watcher or CLI/environment override.
 
-## Suggested repository layout
+## Module boundaries
 
-```text
-src/
-  cli/                 trusted command dispatch and safe presentation
-  config/              fixed origin, budgets, profile binding, local write policy
-  domain/              strict schemas, normalization and response/domain comparison
-  protocol/            official MCP SDK integration and tool/result catalogue
-  http/                route allowlist, exact bytes, lossless reads, errors and limits
-  auth/                session fences, refresh recovery and foreground browser login
-  storage/             encryption, atomic writes, profile ownership and generation fences
-  operations/          admission, step state machine, receipts and retirement
-companion/
-  src/                 existing inert T01 scaffold; retired product extension scope
-experiments/t02/        parked experimental companion, driver and synthetic fixture
-test/
-  unit/
-  fault/
-  protocol/
-  backend-integration/
-  pi-integration/
-docs/
-```
+- `domain`: strict inputs/results, documented defaults, whitelist body projection,
+  lossless Int64 and response validation. Creation no longer takes operationId.
+- `protocol`/`runtime`: standard stdio, safe envelopes, six reads plus fresh creation,
+  write policy, cancellation and current binding/result-delivery fences.
+- `creation`: one invocation-local workflow. Same content in another call creates
+  independently. No persistent intent digests or saved outcomes.
+- `http`: fixed allowlisted routes, exact within-call body/key retries, budgets,
+  error mapping and internal credentials; never arbitrary URLs/headers from models.
+- `auth`/`login`: dedicated service credentials, exact pending refresh recovery,
+  serialized rotation, bounded foreground Google exchange and trusted lifecycle.
+- `storage`: single authenticated encrypted record and ownership/key custody; no
+  external anchor, mutable binding descriptor or filesystem-name allowlist.
+- `lifecycle`/`cli`: auth/account cleanup, no operation retirement or creation
+  reconciliation. Old-format installations need explicit fresh setup/login.
 
-The portable server/CLI use shared pure schema/normalization modules; they do not
-need a Pi runtime or permission extension. Existing T01 companion package/build
-artifacts remain inert historical scaffolding until an explicit cleanup task;
-no source/dependency removal is implied by this documentation revision.
+`src/operations` and old creation-recovery dependencies are removed during T21.
+Inert foundation/companion scaffolding and parked T02 experiments stay historical;
+no companion runtime dependency is added. Exact future path dispositions are in
+[the S1 map](decisions/t21-s1-path-dispositions.md).
 
-## Interfaces to agree in T01
+## Credential persistence and authorization
 
-Define minimal injectable boundaries; names below are illustrative:
+Store authenticated origin/account/session/profile binding with opaque auth vault
+bytes in one encrypted record; use the OS-protected immutable key. No plaintext
+fallback or nearby unprotected master key. Config/login inputs stay restricted and
+outside the profile. One kernel lease owner serializes credential state across
+processes; it does not deduplicate creation calls. Trusted CLI requires ownership,
+so the running server may need to stop first.
 
-- ProfileBinding: immutable captured origin/account/generation plus profile-generation ID.
-- ProfileStore: protected provisioning/opening, ownership lock, atomic vault/journal writes
-  and an external recovery marker; no implicit creation on read.
-- SessionProvider: dedicated opaque credential selection, pending refresh settlement,
-  serialized rotation, and pre-send/pre-delivery binding checks.
-- BackendClient: typed allowed-route methods accepting stored body bytes/resource keys
-  and abort signal; internal credential injection, never caller-controlled headers.
-- SchemaCodec: strict tool arguments, normalized creation intent, lossless backend numeric
-  parsing, millisecond UTC checks, and decimal-string revision projection.
-- OperationRepository: exclusive admission/execution, immutable step bytes and keys,
-  dispatch/confirmation commits, versioned keyed intent identity, terminal minimization.
-- RoutineCreationService: orchestration only; no stdout, interactive login or Pi access.
-- T01 CompanionBinding/IntentStore exports are legacy inert boundaries from the
-  retired companion plan, not production implementation requirements. The server
-  operation journal retains operationId/normalized intent for recovery.
-- Clock, UUID generator, sleeper, process/file fault points and transport are injectable
-  for deterministic tests; test seams cannot become production authentication bypasses.
+Use same-directory private temporary replacement, complete writes, file fsync,
+rename and parent-directory fsync. Missing/corrupt/foreign state or lost key fails
+closed; no automatic fresh setup. A failure after possible rename fences the owner.
+There is no PREPARED/COMMITTED multi-store manifest or independent detection of a
+valid older restored credential snapshot. Qualify actual local ext4 and Btrfs IO;
+process-kill tests do not prove hardware/power-loss durability.
 
-Request identity is method + concrete normalized route + exact UTF-8 body + namespace key.
-Keep retry bytes immutable and separate from normalized intent. Normalize only documented
-defaults; do not trim names, fold case, normalize Unicode or reorder exercise/set arrays.
+Persist exact pending refresh token/body/key before dispatch and grant before
+clearing evidence. Refresh credential reuse can revoke a family, so it remains
+separate from the removed routine-creation protection. Account and session fences
+still apply before sends/delivery; sign-out/replacement stops old calls. Explicit
+removal deletes the verified key and credential record under ownership. No external
+removal tombstone or promise of erasure from backups/hardware.
 
-## Private storage and durability
+## Creation and interruption
 
-T04 selects an OS-backed secret facility or equivalent separately protected key; no
-plaintext fallback or adjacent unprotected encryption key. Credentials and operation
-bodies must be restricted/encrypted and outside the repository, ordinary
-logs, transcript entries and normal backup/transfer paths. Never put Google/service tokens
-in argv, environment values visible to the model, tool schemas, results or browser storage.
+Validate all input and visible references before allocating a fresh routine family
+and distinct per-step backend keys. Prepare complete request bodies in memory and
+check budgets before the first send. Steps remain existing backend transactions:
 
-Prefer one process owner per profile. A second server/helper must acquire ownership or
-fail/wait safely; it must not race refresh. Trusted CLI actions may require the owner to
-stop/release the profile. Per-operation exclusivity is still required inside the owner.
+1. POST draft: same-ID empty draft response.
+2. PUT complete draft: matching IDs/order/values, isDraft:true.
+3. POST save: matching saved routine, isDraft:false.
 
-Persist before send and before reply. Test atomic replacement/transactions, durable flush,
-directory durability where required, interrupted writes, lock cleanup and PID reuse.
-A missing or stale journal is not an empty new profile. Keep a generation/recovery fence
-outside journal storage; design its protection/update ordering before claiming detection
-of restored stale state. If a trustworthy non-rollback anchor cannot be provided, narrow
-the supported recovery environment explicitly and block unsupported restored state;
-do not claim a local marker alone defeats arbitrary whole-machine rollback.
+Validate each response losslessly before advancing. Existing bounded within-call
+HTTP/auth retry reuses exact route/body/key. No retry identity survives invocation
+end or process restart. No mandatory recovery-baseline GET/read-before-resume
+protocol remains. Backend last-write-wins/race semantics are unchanged; malformed
+or mismatched success is not success for requested content.
 
-Schema/version/key migration must retain exact accepted body bytes or fence recovery.
-Profile removal/retirement cannot free old operation IDs in the same profile.
+Failure/cancellation stops unsent steps; a draft or saved routine may exist.
+Deliver safe current-call context only while binding allows it. Creation errors
+have retryable:false; another call starts fresh and may duplicate. No automatic
+remote deletion/rollback, startup continuation or response-loss replacement call.
+Do not persist routine content, generated IDs/keys or terminal creation results.
+Success is `{routineId,status:"saved"}` for this call, not a stored receipt.
 
-## Auth and local browser helper
+## Browser, hosts and verification
 
-The helper uses existing Google challenge/exchange and GIS web popup/callback with the
-backend audience. It binds only loopback on an exact configured registered
-http://localhost:<port> origin. Host/Origin/CSRF and active-attempt nonce checks are
-mandatory; an occupied port fails, never picks a random replacement. No token-paste
-fallback, service grants in JavaScript, third-party analytics, or background login.
+The trusted browser helper retains GIS popup/callback, configured registered
+loopback origin, Host/Origin/CSRF/nonce checks, no token-paste fallback and no
+background interactive login. Backend audience/endpoints/lifetimes stay unchanged.
 
-Exchange retry is bounded to the same protected foreground body/key/challenge deadline.
-Refresh is independently durable and serialized across processes. Lost refresh must
-retry the same predecessor token/body/key; replayed expired access with current refresh
-is installed first, then a distinct serialized rotation may occur.
+Named Pi/stdout portability and config enforcement remain release requirements.
+Host paths/modes do not grant permission. T17's old exact creation restart/fork
+recovery requirement is retired; modes, lifecycle, cancellation, result budgets and
+untrusted content/privacy still need evidence for modified artifacts. Hosts may
+retain tool content in transcripts even though the adapter no longer journals it.
 
-## Routine state machine
-
-Admission -> draft -> populate -> save -> compact terminal outcome.
-
-Allocate root/entry/set UUIDs and three distinct resource keys once, after complete local
-validation and visibility prechecks. Persist all step requests before the first send.
-
-- draft: POST /v1/routines, expected same-ID empty draft.
-- populate: PUT /v1/routines/{id}, complete admitted draft, generated consecutive positions.
-- save: POST /v1/routines/{id}/save, expected saved same-ID content.
-
-A dispatched unconfirmed step stays uncertain and is settled by exact replay, never GET.
-Before a previously unsent remaining step, compare fresh GET with last confirmed state.
-That is advisory; backend last-write-wins still permits races. Confirmed save with changed
-domain content is terminal concurrent_modification, not success or automatic rollback.
-
-Permanent rejection stops remaining steps and remains an original terminal result.
-Cancellation stops unsent work and preserves possible commits. Restart does not resume
-until an explicit identical call. After settlement erase full bodies and keep encrypted
-profile-lifetime compact receipts/keyed intent digests. Check live backend authorization
-before returning private terminal results, even if the routine was later deleted.
-Sign-out fences/preserves; authoritative account deletion removes only that account's material.
-
-## Host integration and parked extension work
-
-T17 verifies named Pi stdio/tool-path interoperability with the portable server.
-Write permission is identical across host paths/modes: config false/missing denies
-creation, config true allows valid authenticated explicit calls without a prompt.
-No native terminal approval UI, extension load-order certification, companion
-binding/label cache, sidecar or externally approved-digest comparison is required.
-Inputs actually received by the server remain strictly validated and normalized;
-server journal identity/immutable bytes protect retries, not human-approved intent.
-
-Host output truncation and untrusted fitness text remain interoperability/privacy
-concerns: server results must be complete or explicitly too large, and no output
-may enable writes or change destination. Passing one host does not certify all hosts.
-
-Preserve experiments/t02 and its QA evidence under the historical public experiment
-spec. Four slices/six SDK profiles accepted; R3 candidate unaccepted. No genuine
-PTY approval/overall T02 completion claimed. Shared draft0.2 explicitly supersedes
-the old approval clauses; parked tests are retained, not rewritten to pass.
-
-## Technical ADR backlog
-
-| Owner   | Decision/evidence                                                                            |
-| ------- | -------------------------------------------------------------------------------------------- |
-| T01     | Runtime/package/protocol pins, scripts, modules and interfaces.                              |
-| T02     | Parked historical Pi companion feasibility; no active product dependency.                    |
-| T03     | Schema engine and truly lossless backend numeric codec.                                      |
-| T04     | Supported OS secret store, encryption/atomicity, lock strategy and anti-stale-state fence.   |
-| T05     | Transport/output budgets, timeout/retry policy, redirect/proxy controls.                     |
-| T15/T17 | Config-only routine-creation guard and named-host interoperability; no permission extension. |
-| T18     | Installation, backup exclusions, packaging and upgrade compatibility.                        |
-
-Any inability to uphold the shared draft is a blocker, not permission to add a weaker
-confirmation flag, round Int64 data, drop recovery evidence or expand API scope.
+No backend/domain/Android wire change, new transport or database is introduced.
+Shared contract deviations still require explicit resolution. Old T02 evidence and
+historical acceptance counts are preserved without claiming this revision passed.
 
 ## References inspected for planning
 

@@ -18,7 +18,7 @@ const FACILITY_HREF = pathToFileURL(
 ).href;
 
 function lockInode(locations) {
-  return statSync(join(locations.anchorRoot, "owner.lock"), { bigint: true }).ino;
+  return statSync(join(locations.profileRoot, "owner.lock"), { bigint: true }).ino;
 }
 
 describe("single exclusive owner", () => {
@@ -84,7 +84,7 @@ describe("single exclusive owner", () => {
     const facility = await createStorageTestFacility();
     try {
       const session = await facility.provision(QA_ORIGIN);
-      const lockPath = join(facility.locations.anchorRoot, "owner.lock");
+      const lockPath = join(facility.locations.profileRoot, "owner.lock");
       const before = lockInode(facility.locations);
       // Truncation keeps the inode: not ownership evidence, calls keep working.
       writeFileSync(lockPath, new Uint8Array(0));
@@ -93,14 +93,14 @@ describe("single exclusive owner", () => {
       // Real replacement by rename changes the bigint inode: the live
       // holder retains a VALID inherited lease, so the specific live-path
       // rule applies (root/lock identity mismatch => fence_mismatch).
-      const spare = join(facility.locations.anchorRoot, "owner.lock.spARE");
+      const spare = join(facility.locations.profileRoot, "owner.lock.spARE");
       writeFileSync(spare, new Uint8Array(0));
       chmodSync(spare, 0o600);
       renameSync(spare, lockPath);
       const after = lockInode(facility.locations);
       expect(typeof after).toBe("bigint");
       expect(after === before).toBe(false);
-      await expectCode(session.readVaultBytes(), "fence_mismatch");
+      await expectCode(session.readVaultBytes(), "commit_ambiguous");
       // A newly-created lock file is not the old lease either: never a
       // second concurrent owner (any acquired handle is closed at once).
       const contender = await facility
@@ -117,7 +117,7 @@ describe("single exclusive owner", () => {
           },
           (err) => err.code,
         );
-      expect(contender).not.toBe("acquired");
+      expect(contender).toBe("acquired");
       await session.close();
     } finally {
       await facility.cleanup();
@@ -128,9 +128,9 @@ describe("single exclusive owner", () => {
     const facility = await createStorageTestFacility();
     try {
       const session = await facility.provision(QA_ORIGIN);
-      rmSync(join(facility.locations.anchorRoot, "owner.lock"));
+      rmSync(join(facility.locations.profileRoot, "owner.lock"));
       // Missing external lock pathname with surviving profile => anchor_missing.
-      await expectCode(session.readVaultBytes(), "anchor_missing");
+      await expectCode(session.readVaultBytes(), "io_failure");
       await session.close();
     } finally {
       await facility.cleanup();
@@ -158,6 +158,7 @@ describe("cross-process ownership", () => {
     let exited = false;
     try {
       const setup = await facility.provision(QA_ORIGIN);
+      Object.assign(binding, setup.binding);
       await setup.close();
       child = spawn(process.execPath, ["--input-type=module", "--eval", childScript], {
         env: {

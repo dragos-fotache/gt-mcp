@@ -1,11 +1,12 @@
 /**
- * Trusted read-runtime public entry. Private snapshot composition is shared
- * with the protocol factory; the S1 public exports and behavior are unchanged.
+ * Trusted runtime entry. The T15 tool opener adds guarded creation while retaining
+ * the read-only opener/capability and existing sanitized error boundary.
  */
-export { openReadRuntime, ReadRuntimeError, isReadRuntimeError } from "./read.js";
+export { openReadRuntime, openToolRuntime, ReadRuntimeError, isReadRuntimeError } from "./read.js";
 export type {
   ReadRuntimeOptions,
   ReadEnvelope,
   ReadRuntime,
+  ToolRuntime,
   ReadRuntimeErrorCode,
 } from "./read.js";

@@ -22,7 +22,7 @@ import {
   validateProjectedRoutine,
   validateProjectedWorkout,
   validateProjectedWorkoutSummary,
-  validateReceipt,
+  validateSavedRoutineResult,
   type ProjectedData,
 } from "./projected.js";
 
@@ -47,7 +47,6 @@ export interface ToolErrorObject {
   readonly message?: string;
   readonly backendErrorCode?: string;
   readonly retryAfterSeconds?: number;
-  readonly operationId?: string;
   readonly routineId?: string;
   readonly lastConfirmedStep?: "none" | "draft" | "populate" | "save";
   readonly outcomeUnknown?: boolean;
@@ -120,7 +119,7 @@ function validateData(toolName: ToolName, data: unknown): void {
       validateProjectedRoutine(data, RESULT);
       return;
     case "create_routine":
-      validateReceipt(data, RESULT);
+      validateSavedRoutineResult(data, RESULT);
       return;
   }
 }
@@ -146,7 +145,23 @@ export function makeToolResult(toolName: string, envelope: unknown): ToolResult 
     if (keys.length !== 2 || !hasOwn(record, "error")) {
       fail("Invalid tool envelope.");
     }
-    validateErrorObject(getOwn(record, "error"), RESULT);
+    const error = getOwn(record, "error");
+    validateErrorObject(error, RESULT);
+    if (toolName === "create_routine") {
+      const creationError = error as ToolErrorObject;
+      if (creationError.retryable !== false)
+        fail("Creation cannot resume through a new tool call.");
+      const context = [
+        creationError.routineId,
+        creationError.lastConfirmedStep,
+        creationError.outcomeUnknown,
+      ];
+      if (
+        context.some((value) => value !== undefined) &&
+        context.some((value) => value === undefined)
+      )
+        fail("Invalid creation context.");
+    }
   } else {
     fail("Invalid tool envelope.");
   }

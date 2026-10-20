@@ -184,7 +184,6 @@ export function makeAdvanceGateOwner(owner) {
       return owner.binding;
     },
     readVaultBytes: (...args) => owner.readVaultBytes(...args),
-    readOperationStoreBytes: (...args) => owner.readOperationStoreBytes(...args),
     commit: (...args) => owner.commit(...args),
     bindAccount: (...args) => owner.bindAccount(...args),
     advanceSessionGeneration: (...args) => {
@@ -194,7 +193,6 @@ export function makeAdvanceGateOwner(owner) {
       }
       return owner.advanceSessionGeneration(...args);
     },
-    keyedIntentDigest: (...args) => owner.keyedIntentDigest(...args),
     close: (...args) => owner.close(...args),
   };
   return {
@@ -225,7 +223,6 @@ export function makeInstallGateOwner(owner) {
       return owner.binding;
     },
     readVaultBytes: (...args) => owner.readVaultBytes(...args),
-    readOperationStoreBytes: (...args) => owner.readOperationStoreBytes(...args),
     commit: (...args) => {
       if (armed && !entered) {
         entered = true;
@@ -235,7 +232,6 @@ export function makeInstallGateOwner(owner) {
     },
     bindAccount: (...args) => owner.bindAccount(...args),
     advanceSessionGeneration: (...args) => owner.advanceSessionGeneration(...args),
-    keyedIntentDigest: (...args) => owner.keyedIntentDigest(...args),
     close: (...args) => owner.close(...args),
   };
   return {
@@ -261,7 +257,6 @@ export function makeAdvanceObserverOwner(owner) {
       return owner.binding;
     },
     readVaultBytes: (...args) => owner.readVaultBytes(...args),
-    readOperationStoreBytes: (...args) => owner.readOperationStoreBytes(...args),
     commit: (...args) => owner.commit(...args),
     bindAccount: (...args) => owner.bindAccount(...args),
     advanceSessionGeneration: (...args) => {
@@ -274,7 +269,6 @@ export function makeAdvanceObserverOwner(owner) {
       );
       return outcome;
     },
-    keyedIntentDigest: (...args) => owner.keyedIntentDigest(...args),
     close: (...args) => owner.close(...args),
   };
   return { adapter, observed };

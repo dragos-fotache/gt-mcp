@@ -61,7 +61,6 @@ export const ROUTINE = {
   syntheticConvenience: { revision: "not a revision clock", value: null },
 };
 export const CREATE_ARGS = {
-  operationId: OPERATION_ID,
   name: "Synthetic creation must remain inert",
   exercises: [{ exerciseId: ID, sets: [] }],
 };

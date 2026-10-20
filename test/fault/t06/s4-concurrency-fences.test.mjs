@@ -117,7 +117,6 @@ function makeCommitGateOwner(owner) {
       return owner.binding;
     },
     readVaultBytes: (...args) => owner.readVaultBytes(...args),
-    readOperationStoreBytes: (...args) => owner.readOperationStoreBytes(...args),
     commit: (...args) => {
       const real = owner.commit(...args);
       const tracked = real.then(
@@ -140,7 +139,6 @@ function makeCommitGateOwner(owner) {
     },
     bindAccount: (...args) => owner.bindAccount(...args),
     advanceSessionGeneration: (...args) => owner.advanceSessionGeneration(...args),
-    keyedIntentDigest: (...args) => owner.keyedIntentDigest(...args),
     close: (...args) => owner.close(...args),
   };
   return {

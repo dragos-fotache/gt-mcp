@@ -1,0 +1,12 @@
+{
+  "main": "t21-s6-main-selection.json",
+  "storage": "t21-s6-storage-selection.json",
+  "cleanup": "t21-s6-cleanup-selection.json",
+  "packageFocus": "t21-s6-package-selection.json",
+  "priorExplicitlyRetiredPaths": [
+    "test/unit/t09/s1-format.test.mjs",
+    "test/unit/t09/s2-admission.test.mjs",
+    "test/unit/t09/s3-transitions.test.mjs"
+  ],
+  "authority": "Full currently active S2\u2013S5 selections with S4 retirements applied + complete packaging owning; terminal provider suites separate. No current Android/remaining Pi CLI/lifecycle/output release claim."
+}

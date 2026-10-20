@@ -1,0 +1,253 @@
+{
+  "task": "T10-S1",
+  "date": "2026-10-15",
+  "acceptedSelectionPassed": true,
+  "versions": {
+    "node": "24.21.0",
+    "npm": "11.19.0",
+    "typescript": "5.9.3",
+    "vitest": "4.1.11"
+  },
+  "command": "node node_modules/vitest/vitest.mjs run --no-file-parallelism test/unit/t10/s1-confirmation.test.mjs test/unit/t10/s1-failure.test.mjs test/unit/t03/backend-response.test.mjs test/unit/t03/lossless-revision.test.mjs test/unit/t05/06-errors-uncertainty.test.mjs test/unit/t05/07-results-decode.test.mjs test/unit/t09/s1-format.test.mjs test/unit/t09/s3-transitions.test.mjs --reporter=json --outputFile=<private-result-file>",
+  "exitCode": 0,
+  "total": 239,
+  "passed": 239,
+  "failed": 0,
+  "pending": 0,
+  "perFile": [
+    {
+      "path": "test/unit/t05/06-errors-uncertainty.test.mjs",
+      "status": "passed",
+      "total": 38,
+      "passed": 38,
+      "failed": 0,
+      "other": 0
+    },
+    {
+      "path": "test/unit/t05/07-results-decode.test.mjs",
+      "status": "passed",
+      "total": 15,
+      "passed": 15,
+      "failed": 0,
+      "other": 0
+    },
+    {
+      "path": "test/unit/t10/s1-confirmation.test.mjs",
+      "status": "passed",
+      "total": 28,
+      "passed": 28,
+      "failed": 0,
+      "other": 0
+    },
+    {
+      "path": "test/unit/t10/s1-failure.test.mjs",
+      "status": "passed",
+      "total": 28,
+      "passed": 28,
+      "failed": 0,
+      "other": 0
+    },
+    {
+      "path": "test/unit/t09/s1-format.test.mjs",
+      "status": "passed",
+      "total": 27,
+      "passed": 27,
+      "failed": 0,
+      "other": 0
+    },
+    {
+      "path": "test/unit/t09/s3-transitions.test.mjs",
+      "status": "passed",
+      "total": 9,
+      "passed": 9,
+      "failed": 0,
+      "other": 0
+    },
+    {
+      "path": "test/unit/t03/backend-response.test.mjs",
+      "status": "passed",
+      "total": 39,
+      "passed": 39,
+      "failed": 0,
+      "other": 0
+    },
+    {
+      "path": "test/unit/t03/lossless-revision.test.mjs",
+      "status": "passed",
+      "total": 55,
+      "passed": 55,
+      "failed": 0,
+      "other": 0
+    }
+  ],
+  "selectedFileHashes": [
+    {
+      "path": "dist/creation/confirmation.d.ts",
+      "sha256": "62f91abbb402e62d7baaf79bed4c24d91a10416852fe867a3875ecf3235bd69d"
+    },
+    {
+      "path": "dist/creation/confirmation.js",
+      "sha256": "f8bec73c9033ce1c1cc383e873d9fb3235afef3c6eff689bd24af6a9498ffef7"
+    },
+    {
+      "path": "dist/creation/failure.d.ts",
+      "sha256": "4b7beb32e245b636a1979f97d4040367b83b5f7e3acaf0d0dab90659ccfe2f01"
+    },
+    {
+      "path": "dist/creation/failure.js",
+      "sha256": "18dfb726ba7798c78f3df58deecb6d089ecf552b50f4fc270cd6bf489a33715c"
+    },
+    {
+      "path": "dist/creation/history.d.ts",
+      "sha256": "0fcaef64514f3482a721237d6b1d4ea0928547734e6b5df2f19602519668d7dc"
+    },
+    {
+      "path": "dist/creation/history.js",
+      "sha256": "c6d1611c0ff7a9af2d3f3e12617cfc572555684360da9cdbc7c0cc3680ac03bf"
+    },
+    {
+      "path": "dist/creation/index.d.ts",
+      "sha256": "1e5df9d9c6dbf2b3b68205f500bab9546d5246c9a0229401e33b82e50a8ed42e"
+    },
+    {
+      "path": "dist/creation/index.js",
+      "sha256": "375c0898d9cc51d8a9680a2bfaa8a8c97e6e6d0aa4b10d07b14c6abf0ebce9b7"
+    },
+    {
+      "path": "dist/creation/types.d.ts",
+      "sha256": "30758b19798abc6928864f9c67c2a6fff8b0fd7e07002f86760396b97ee7a374"
+    },
+    {
+      "path": "dist/creation/types.js",
+      "sha256": "8e609bb71c20b858c77f0e9f90bb1319db8477b13f9f965f1a1e18524bf50881"
+    },
+    {
+      "path": "eslint.config.mjs",
+      "sha256": "0780df80a6d56222ba1286d873c0fda6dd321b6fa4dc3163898e3bbd9703c644"
+    },
+    {
+      "path": "package-lock.json",
+      "sha256": "d1e340762075496d17bb8c46de0b98956e6a257d8ae5bc27efa7a1b28542512d"
+    },
+    {
+      "path": "package.json",
+      "sha256": "d79e251a3fb7eb8f10ea21586b8c82e41b3732d7cba88ac6180d3e37b78c70a0"
+    },
+    {
+      "path": "src/creation/confirmation.ts",
+      "sha256": "be5ec8be562947ba32c182a37890492690a8c2660ddff3f967af0201d25fe4a5"
+    },
+    {
+      "path": "src/creation/failure.ts",
+      "sha256": "e1ba3344ab98582cc4c5cb1a09adeb7000ade5364cd93a2f0c93261ec22089b0"
+    },
+    {
+      "path": "src/creation/history.ts",
+      "sha256": "f37d5f52d62521fbbc84d8536af476b77d4fbbd03fbf8f153bae239977e391ca"
+    },
+    {
+      "path": "src/creation/index.ts",
+      "sha256": "27e25803a1e3d4ec7a4140a2db588d4c3d7afa59f99ef2fffc3f4b4f3b82e697"
+    },
+    {
+      "path": "src/creation/types.ts",
+      "sha256": "2a4242d2594dac1b810717486294a96f34b3263134248fe690c46a1db71c6ad8"
+    },
+    {
+      "path": "test/unit/t03/backend-response.test.mjs",
+      "sha256": "abde2acba5226f7b5addab3bbd07c2a31150846982f813584f4d09abc38cc256"
+    },
+    {
+      "path": "test/unit/t03/lossless-revision.test.mjs",
+      "sha256": "094d06c795461b12a0894151fe16b3113df686d882c8fe43167ca4514729492d"
+    },
+    {
+      "path": "test/unit/t05/06-errors-uncertainty.test.mjs",
+      "sha256": "44f402ea3586b06b91de8217f4c709facf862f5e682b650fca809628744e2d1f"
+    },
+    {
+      "path": "test/unit/t05/07-results-decode.test.mjs",
+      "sha256": "a202318d43715cb140f11ed00bea48419a8d8bbca20bdd7bfce195d8d5b00ec8"
+    },
+    {
+      "path": "test/unit/t09/s1-format.test.mjs",
+      "sha256": "901a54686849b50199e3ca809c0d814b48103da0e0252a730e203569880b2d6f"
+    },
+    {
+      "path": "test/unit/t09/s3-transitions.test.mjs",
+      "sha256": "f163d8178f177512f74214c11e63edff6cbe8d5ced6f57a6226803c1fbe7ebdc"
+    },
+    {
+      "path": "test/unit/t10/helpers.mjs",
+      "sha256": "aaf37fee4fd754810ae3d0947d3d3f1860c2c182feb0130deef8f10717be1206"
+    },
+    {
+      "path": "test/unit/t10/s1-confirmation.test.mjs",
+      "sha256": "9da9e11ade94125c553f48075c59a1b5b6240710f1ce7ed736e6c055fc1d1796"
+    },
+    {
+      "path": "test/unit/t10/s1-failure.test.mjs",
+      "sha256": "cab83a9a0f6bf6dcaaef62ccac9743eb141ce3a13f50be802338e2b24a782d9d"
+    },
+    {
+      "path": "tsconfig.json",
+      "sha256": "f215c56241cf84395053ad7e4e42f59f945d5cb701b8ac085dc114063c720a71"
+    },
+    {
+      "path": "vitest.config.ts",
+      "sha256": "73b76717ce2f288f4c96670cb8dc473cf3b3904cda052633b1ff1ee126adfc4c"
+    }
+  ],
+  "treeHashes": [
+    {
+      "tree": "src",
+      "files": 87,
+      "manifestSha256": "5b7f49783cfbc162392853f76780cfa0665962f055a4596d0aaaa057fe1999d9"
+    },
+    {
+      "tree": "dist",
+      "files": 174,
+      "manifestSha256": "8d36c006d4d41b7b3677733b33979ae40088cb5832728e0c3676de9f3bef4045"
+    },
+    {
+      "tree": "companion/src",
+      "files": 1,
+      "manifestSha256": "caa63294e7bc8721d9d1f96d0c7854d8cb482fa51828fda6d4a3517529a19b51"
+    },
+    {
+      "tree": "companion/dist",
+      "files": 2,
+      "manifestSha256": "b50518b6e5c4b3fc6ff3ee4035c43d90be5e158f4d0ddbb952bed243f85eeaa3"
+    },
+    {
+      "tree": "test/unit/t03",
+      "files": 25,
+      "manifestSha256": "c92989534802484fb439b5256ed62d81839fa38809d8d21af36c3520f1005638"
+    },
+    {
+      "tree": "test/unit/t05",
+      "files": 61,
+      "manifestSha256": "f92dac7f218816e399494a138e89a36c190d953fb88c09f91c2259986f778375"
+    },
+    {
+      "tree": "test/unit/t09",
+      "files": 4,
+      "manifestSha256": "8e69d69b2153c2ca13572f86df856a7d9b8c9751b3b9c6145de85af7ccb178b3"
+    },
+    {
+      "tree": "test/unit/t10",
+      "files": 3,
+      "manifestSha256": "bd213858f68b2158de47da1fc0789d67108e83df49931fd287790bbdc8fc8250"
+    }
+  ],
+  "selectedHashesStableAfterRun": true,
+  "importSmoke": {
+    "command": "node --input-type=module -e \"await import('./dist/creation/index.js');\"",
+    "timeoutMs": 5000,
+    "exitCode": 0,
+    "stdoutBytes": 0,
+    "stderrBytes": 0,
+    "passed": true
+  },
+  "limits": "Pure decisions and selected unchanged unit regressions only. No IO/persistence/mutation/backend/provider/recovery/MCP/release acceptance; no clean install/reproduction in S1."
+}

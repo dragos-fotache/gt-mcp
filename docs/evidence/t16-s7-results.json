@@ -1,0 +1,87 @@
+{
+  "exitCode": 0,
+  "success": true,
+  "passed": 46,
+  "failed": 0,
+  "pending": 0,
+  "todo": 0,
+  "stable": true,
+  "changed": [],
+  "hashCount": 620,
+  "selection": [
+    "test/backend-interoperability/account-deletion.test.mjs",
+    "test/backend-interoperability/android-sync.test.mjs",
+    "test/backend-interoperability/auth-restart.test.mjs",
+    "test/backend-interoperability/catalogue-roles.test.mjs",
+    "test/backend-interoperability/crash-cancellation.test.mjs",
+    "test/backend-interoperability/creation-decisions.test.mjs",
+    "test/backend-interoperability/creation-replay.test.mjs",
+    "test/backend-interoperability/races-lifecycle.test.mjs",
+    "test/backend-interoperability/read-boundaries.test.mjs"
+  ],
+  "results": [
+    {
+      "file": "test/backend-interoperability/account-deletion.test.mjs",
+      "status": "passed",
+      "passed": 1,
+      "failed": 0,
+      "other": 0
+    },
+    {
+      "file": "test/backend-interoperability/android-sync.test.mjs",
+      "status": "passed",
+      "passed": 1,
+      "failed": 0,
+      "other": 0
+    },
+    {
+      "file": "test/backend-interoperability/auth-restart.test.mjs",
+      "status": "passed",
+      "passed": 5,
+      "failed": 0,
+      "other": 0
+    },
+    {
+      "file": "test/backend-interoperability/catalogue-roles.test.mjs",
+      "status": "passed",
+      "passed": 3,
+      "failed": 0,
+      "other": 0
+    },
+    {
+      "file": "test/backend-interoperability/crash-cancellation.test.mjs",
+      "status": "passed",
+      "passed": 15,
+      "failed": 0,
+      "other": 0
+    },
+    {
+      "file": "test/backend-interoperability/creation-decisions.test.mjs",
+      "status": "passed",
+      "passed": 5,
+      "failed": 0,
+      "other": 0
+    },
+    {
+      "file": "test/backend-interoperability/creation-replay.test.mjs",
+      "status": "passed",
+      "passed": 4,
+      "failed": 0,
+      "other": 0
+    },
+    {
+      "file": "test/backend-interoperability/races-lifecycle.test.mjs",
+      "status": "passed",
+      "passed": 8,
+      "failed": 0,
+      "other": 0
+    },
+    {
+      "file": "test/backend-interoperability/read-boundaries.test.mjs",
+      "status": "passed",
+      "passed": 4,
+      "failed": 0,
+      "other": 0
+    }
+  ]
+}

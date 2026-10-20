@@ -1,0 +1,98 @@
+{
+  "runs": [
+    {
+      "run": "focused-first",
+      "exitCode": 1,
+      "success": false,
+      "passed": 24,
+      "failed": 1,
+      "pending": 0,
+      "todo": 0,
+      "stable": true,
+      "hashCount": 643
+    },
+    {
+      "run": "focused-second",
+      "exitCode": 0,
+      "success": true,
+      "passed": 32,
+      "failed": 0,
+      "pending": 0,
+      "todo": 0,
+      "stable": true,
+      "hashCount": 644
+    },
+    {
+      "run": "final-owning",
+      "exitCode": 0,
+      "success": true,
+      "passed": 32,
+      "failed": 0,
+      "pending": 0,
+      "todo": 0,
+      "stable": true,
+      "hashCount": 644
+    },
+    {
+      "run": "final-regressions",
+      "exitCode": 1,
+      "success": false,
+      "passed": 222,
+      "failed": 1,
+      "pending": 0,
+      "todo": 0,
+      "stable": true,
+      "hashCount": 644
+    },
+    {
+      "run": "accepted-owning",
+      "exitCode": 0,
+      "success": true,
+      "passed": 32,
+      "failed": 0,
+      "pending": 0,
+      "todo": 0,
+      "stable": true,
+      "hashCount": 644
+    },
+    {
+      "run": "accepted-regressions",
+      "exitCode": 0,
+      "success": true,
+      "passed": 223,
+      "failed": 0,
+      "pending": 0,
+      "todo": 0,
+      "stable": true,
+      "hashCount": 644
+    },
+    {
+      "run": "final-s3-owning",
+      "exitCode": 0,
+      "success": true,
+      "passed": 33,
+      "failed": 0,
+      "pending": 0,
+      "todo": 0,
+      "stable": true,
+      "hashCount": 644
+    },
+    {
+      "run": "final-s3-regressions",
+      "exitCode": 0,
+      "success": true,
+      "passed": 223,
+      "failed": 0,
+      "pending": 0,
+      "todo": 0,
+      "stable": true,
+      "hashCount": 644
+    }
+  ],
+  "observedRepairs": [
+    "Malformed header base64 initially returned resource_exhausted; corrected to store_corrupt, preserving vault overflow resource_exhausted.",
+    "Legacy relocated-root fixture copied as0755 under umask022; explicit0700 fixture and original fence_mismatch oracle retained.",
+    "Source review retained master-key equality check on owned cleanup; added real provider replacement regression."
+  ],
+  "initialToolchainDiscovery": "T01_NODE_HOME was unset; --version discovery only reported ambient26.11.1/npm12.2.0. All project checks/builds/tests used provisioned24.21.0/npm11.19.0."
+}

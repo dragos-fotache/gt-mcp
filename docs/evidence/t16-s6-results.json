@@ -1,0 +1,31 @@
+{
+  "disposition": "INCOMPLETE",
+  "owning": {
+    "files": 8,
+    "passed": 44,
+    "failed": 1,
+    "skipped": 0,
+    "pending": 0,
+    "todo": 0
+  },
+  "unchangedLocalRegressions": {
+    "files": 3,
+    "passed": 35,
+    "failed": 0,
+    "skipped": 0,
+    "pending": 0,
+    "todo": 0
+  },
+  "failure": {
+    "file": "test/backend-interoperability/account-deletion.test.mjs",
+    "stage": "actual deleted account status",
+    "backendReceiptHasNonzeroSubmillisecondPrecision": true,
+    "clientErrorCode": "account_status_failed",
+    "authoritativeCleanupAccepted": false
+  },
+  "stableOwningHashes": 614,
+  "ownedCleanupPassed": true,
+  "originalBackendInputsStable": true,
+  "backendRepairApplied": false,
+  "userScopeDecision": "pending"
+}

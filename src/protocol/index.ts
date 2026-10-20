@@ -1,10 +1,16 @@
 /**
- * T08-S2 portable seven-tool adapter. Import is inert; no stdio/process entry.
+ * Portable seven-tool adapter. Import is inert; no stdio/process entry.
  * The adapter owns its transferred runtime and one SDK transport lifecycle.
  */
-export { createReadToolServer, openConfiguredReadToolServer } from "./adapter.js";
+export {
+  createReadToolServer,
+  openConfiguredReadToolServer,
+  createToolServer,
+  openConfiguredToolServer,
+} from "./adapter.js";
 export type {
   ReadToolServerOptions,
+  ToolServerOptions,
   ConfiguredReadToolServerOptions,
   ReadToolServer,
 } from "./adapter.js";

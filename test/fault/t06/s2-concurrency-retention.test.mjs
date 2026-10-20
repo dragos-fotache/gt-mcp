@@ -438,7 +438,7 @@ describe("T06-S2 success-installation failure and cancellation fences", () => {
       // PREPARED write, so the documented T04 semantic is definite old-state
       // io_failure: the T04 owner stays usable while the AUTH facade fences.
       await h.facility.armFault({
-        point: "commit.before.prepare",
+        point: "replace.before.rename",
         action: "throw",
         occurrence: 2,
       });
@@ -539,7 +539,6 @@ describe("T06-S2 success-installation failure and cancellation fences", () => {
           return owner.binding;
         },
         readVaultBytes: (...args) => owner.readVaultBytes(...args),
-        readOperationStoreBytes: (...args) => owner.readOperationStoreBytes(...args),
         commit: (...args) => {
           // The real owned commit is tracked immediately, independently of
           // the public promise, so its outcome is always observed.
@@ -558,7 +557,6 @@ describe("T06-S2 success-installation failure and cancellation fences", () => {
         },
         bindAccount: (...args) => owner.bindAccount(...args),
         advanceSessionGeneration: (...args) => owner.advanceSessionGeneration(...args),
-        keyedIntentDigest: (...args) => owner.keyedIntentDigest(...args),
         close: (...args) => owner.close(...args),
       };
       successGate = {
@@ -616,7 +614,6 @@ describe("T06-S2 success-installation failure and cancellation fences", () => {
           return owner.binding;
         },
         readVaultBytes: (...args) => owner.readVaultBytes(...args),
-        readOperationStoreBytes: (...args) => owner.readOperationStoreBytes(...args),
         commit: (...args) => {
           // The real owned commit is tracked immediately, independently of
           // the public promise, so its outcome is always observed.
@@ -632,7 +629,6 @@ describe("T06-S2 success-installation failure and cancellation fences", () => {
         },
         bindAccount: (...args) => owner.bindAccount(...args),
         advanceSessionGeneration: (...args) => owner.advanceSessionGeneration(...args),
-        keyedIntentDigest: (...args) => owner.keyedIntentDigest(...args),
         close: (...args) => owner.close(...args),
       };
       commitGate = {

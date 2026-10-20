@@ -1,0 +1,80 @@
+{
+  "task": "T21-S6 and parent T21",
+  "status": "PASS",
+  "checks": [
+    {
+      "run": "main",
+      "passed": 1059,
+      "files": 103,
+      "exactResultSet": true,
+      "stable": true,
+      "cleanup": true
+    },
+    {
+      "run": "storage",
+      "passed": 16,
+      "files": 1,
+      "exactResultSet": true,
+      "stable": true,
+      "cleanup": true
+    },
+    {
+      "run": "cleanup",
+      "passed": 1,
+      "files": 1,
+      "exactResultSet": true,
+      "stable": true,
+      "cleanup": true
+    },
+    {
+      "run": "clean-main",
+      "passed": 1059,
+      "files": 103,
+      "exactResultSet": true,
+      "stable": true,
+      "cleanup": true
+    },
+    {
+      "run": "clean-storage",
+      "passed": 16,
+      "files": 1,
+      "exactResultSet": true,
+      "stable": true,
+      "cleanup": true
+    },
+    {
+      "run": "clean-cleanup",
+      "passed": 1,
+      "files": 1,
+      "exactResultSet": true,
+      "stable": true,
+      "cleanup": true
+    }
+  ],
+  "workspaceAndCleanEach": {
+    "passed": 1076,
+    "files": 105,
+    "failedSkippedPendingTodo": 0
+  },
+  "statusOnlyClosureDeltas": {
+    "AGENTS.md": {
+      "runtimeSha256": "413f2608b23ff5d068ddb6b24ccf79e2e0bd7eea66e0af65b0bac208b59e38cf",
+      "closureSha256": "6df73c14515aa1fbe58bc7c4ceb324ca0905d689d6ea2e862fa63a790daf183e"
+    },
+    "docs/compatibility.md": {
+      "runtimeSha256": "2f7ef239c4f4deee27bab0ea714d4108c17a44cc64b9a94bc9f7e22543140683",
+      "closureSha256": "843ec123acf50e245db597ba585ec043eafded5627cf03f0258f1f832614b6dd"
+    }
+  },
+  "otherFrozenHashesUnchanged": 571,
+  "shippedInputHashesUnchanged": 312,
+  "actualArchiveContentAndModesMatchInventory": 86,
+  "candidateSha256": "cb2c8f7b4e75c3823b107191ed5a9d4c16e72eda5274953fc85343ddafa58191",
+  "R1Sha256": "ed5877dd16fc79043bc8773d3d15bb6fed2887dc891100ccebf8ddf2b3b22563",
+  "s6DocumentLinksResolve": 30,
+  "sanitizedNewEvidenceAndHandoffs": true,
+  "productionFormatCheckAfterStatusClosure": true,
+  "noRuntimeReplayAfterStatusOnlyClosureClaimed": true,
+  "noStagingCommitsPiEditsLiveDeploymentOrBtrfsExecution": true,
+  "parentT21Accepted": true
+}

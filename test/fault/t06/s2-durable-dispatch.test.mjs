@@ -57,7 +57,6 @@ const ROTATED_ACCESS = "synthetic-qa-t06-s2-access.02";
 const ROTATED_REFRESH = "synthetic-qa-t06-s2-refresh.02";
 const ROTATED_ACCESS_EXPIRY = "2026-09-27T12:30:00.000Z";
 const ROTATED_REFRESH_EXPIRY = "2026-11-27T12:00:00.000Z";
-const OPERATIONS = '{"synthetic":"t06-s2-operation-evidence"}';
 
 function rotatedServiceBody() {
   return {
@@ -142,7 +141,6 @@ function makeCommitGateOwner(owner, track) {
       return owner.binding;
     },
     readVaultBytes: (...args) => owner.readVaultBytes(...args),
-    readOperationStoreBytes: (...args) => owner.readOperationStoreBytes(...args),
     commit: (...args) => {
       const pending = owner.commit(...args);
       track(pending);
@@ -158,7 +156,6 @@ function makeCommitGateOwner(owner, track) {
     },
     bindAccount: (...args) => owner.bindAccount(...args),
     advanceSessionGeneration: (...args) => owner.advanceSessionGeneration(...args),
-    keyedIntentDigest: (...args) => owner.keyedIntentDigest(...args),
     close: (...args) => owner.close(...args),
   };
   return {
@@ -362,8 +359,6 @@ describe("T06-S2 atomic same-account success, operations unchanged", () => {
       const installed = await installS1Grant(profile);
       await profile.close();
       profile = await facility.open(installed);
-      await profile.commit({ operationBytes: utf8(OPERATIONS) });
-      const operationsBefore = await profile.readOperationStoreBytes();
       // A separate test-owned CA view is passed to the facade; the pristine
       // fixture stays reserved for the server and reopened facades.
       const passedCa = Buffer.from(certPem);
@@ -396,8 +391,7 @@ describe("T06-S2 atomic same-account success, operations unchanged", () => {
         refreshToken: ROTATED_REFRESH,
         refreshExpiresAt: ROTATED_REFRESH_EXPIRY,
       });
-      expect(await profile.readOperationStoreBytes()).toEqual(operationsBefore);
-      expect(utf8Text(operationsBefore)).toBe(OPERATIONS);
+
       // Close/reopen checks stored state, NOT replay: the committed grant
       // opens cleanly with no pending and the same binding.
       state.invalidate();
@@ -406,7 +400,6 @@ describe("T06-S2 atomic same-account success, operations unchanged", () => {
       profile = await facility.open(installed);
       const reopened = await readVaultRecord(profile);
       expect(reopened).toEqual(stored);
-      expect(await profile.readOperationStoreBytes()).toEqual(operationsBefore);
       const again = await openRefreshSessionState({
         profile,
         transportConfig: { origin, testCaPem: certPem },
@@ -532,7 +525,7 @@ describe("T06-S2 representative preparation failure", () => {
       // commit.before.prepare fires before any PREPARED anchor attempt, so
       // the documented T04 semantic is definite old-state io_failure: no
       // durable pending exists and no dispatch may follow.
-      await facility.armFault({ point: "commit.before.prepare", action: "throw" });
+      await facility.armFault({ point: "replace.before.rename", action: "throw" });
       const error = await captureRejection(state.rotateRefresh(state.binding, freshSignal()));
       expect(isStorageError(error)).toBe(true);
       expect(isSessionError(error)).toBe(false);

@@ -17,10 +17,9 @@
 import path from "node:path";
 import { URL } from "node:url";
 import { StorageError } from "./errors.js";
-import type { OpenRequest, ProvisionRequest, StorageBinding } from "./types.js";
+import type { StorageBinding } from "./types.js";
 
 export const MAX_STORE_BYTES = 268435456 as const;
-export const DIGEST_KEY_VERSION = "gymtracka-digest-v1" as const;
 export const MIN_TIMEOUT_MS = 1 as const;
 export const MAX_TIMEOUT_MS = 15000 as const;
 export const DEFAULT_TIMEOUT_MS = 5000 as const;
@@ -128,7 +127,7 @@ export function optionalField(entries: CapturedEntries, key: string): unknown {
 }
 
 export function assertUuid(value: unknown): string {
-  if (typeof value !== "string" || !CANONICAL_UUID_RE.test(value)) {
+  if (typeof value !== "string" || value.length !== 36 || !CANONICAL_UUID_RE.test(value)) {
     fail();
   }
   return value;
@@ -189,43 +188,6 @@ export function assertBinding(value: unknown): StorageBinding {
     sessionGeneration,
     profileGenerationId,
   });
-}
-
-function isContained(container: string, candidate: string): boolean {
-  if (container === "/") {
-    return candidate.startsWith("/") && candidate !== "/";
-  }
-  const relative: string = path.relative(container, candidate);
-  return relative !== "" && !relative.startsWith("..") && !path.isAbsolute(relative);
-}
-
-/**
- * Resolve and shape-check roots. Returns canonical absolute paths and
- * rejects identity/overlap (including the filesystem-root edge case, which
- * naive separator concatenation mishandles). Symlink and safety checks
- * happen against the filesystem (fsutil) before any protected IO.
- */
-export function assertLocationRoots(
-  profileRoot: unknown,
-  anchorRoot: unknown,
-): { profileRoot: string; anchorRoot: string } {
-  if (typeof profileRoot !== "string" || typeof anchorRoot !== "string") {
-    fail();
-  }
-  if (
-    profileRoot.includes("\0") ||
-    anchorRoot.includes("\0") ||
-    !path.isAbsolute(profileRoot) ||
-    !path.isAbsolute(anchorRoot)
-  ) {
-    fail();
-  }
-  const profile: string = path.resolve(profileRoot);
-  const anchor: string = path.resolve(anchorRoot);
-  if (profile === anchor || isContained(anchor, profile) || isContained(profile, anchor)) {
-    fail();
-  }
-  return { profileRoot: profile, anchorRoot: anchor };
 }
 
 export function assertBusAddress(value: unknown): {
@@ -313,99 +275,4 @@ export function copyBytes(view: Uint8Array): Uint8Array {
     }
     throw new StorageError("invalid_argument");
   }
-}
-
-export function assertProvisionRequest(value: unknown): ProvisionRequest {
-  const entries: CapturedEntries = captureEntries(value);
-  assertExactKeys(entries, [
-    "profileRoot",
-    "anchorRoot",
-    "origin",
-    "profileGenerationId",
-    "secretServiceBusAddress",
-    "timeoutMs",
-  ]);
-  const roots: { profileRoot: string; anchorRoot: string } = assertLocationRoots(
-    lookup(entries, "profileRoot"),
-    lookup(entries, "anchorRoot"),
-  );
-  const origin: string = assertOrigin(lookup(entries, "origin"));
-  const profileGenerationId: string = assertUuid(lookup(entries, "profileGenerationId"));
-  const access: { socketPath: string; address: string } = assertBusAddress(
-    lookup(entries, "secretServiceBusAddress"),
-  );
-  const timeoutMs: number = assertTimeoutMs(optionalField(entries, "timeoutMs"));
-  return {
-    profileRoot: roots.profileRoot,
-    anchorRoot: roots.anchorRoot,
-    origin,
-    profileGenerationId,
-    secretServiceBusAddress: access.address,
-    timeoutMs,
-  };
-}
-
-export function assertOpenRequest(value: unknown): OpenRequest {
-  const entries: CapturedEntries = captureEntries(value);
-  assertExactKeys(entries, [
-    "profileRoot",
-    "anchorRoot",
-    "expectedBinding",
-    "secretServiceBusAddress",
-    "timeoutMs",
-  ]);
-  const roots: { profileRoot: string; anchorRoot: string } = assertLocationRoots(
-    lookup(entries, "profileRoot"),
-    lookup(entries, "anchorRoot"),
-  );
-  const expectedBinding: StorageBinding = assertBinding(lookup(entries, "expectedBinding"));
-  const access: { socketPath: string; address: string } = assertBusAddress(
-    lookup(entries, "secretServiceBusAddress"),
-  );
-  const timeoutMs: number = assertTimeoutMs(optionalField(entries, "timeoutMs"));
-  return {
-    profileRoot: roots.profileRoot,
-    anchorRoot: roots.anchorRoot,
-    expectedBinding,
-    secretServiceBusAddress: access.address,
-    timeoutMs,
-  };
-}
-
-/**
- * Two-phase update validation: all fields are type- and budget-checked
- * before any byte is copied, so over-budget material never reaches
- * copy/IPC/persistence.
- */
-export function assertStoreUpdate(value: unknown): {
-  vaultBytes?: Uint8Array;
-  operationBytes?: Uint8Array;
-} {
-  const entries: CapturedEntries = captureEntries(value);
-  assertExactKeys(entries, ["vaultBytes", "operationBytes"]);
-  let vault: Uint8Array | undefined;
-  let ops: Uint8Array | undefined;
-  let present: boolean = false;
-  for (const [key, entryValue] of entries) {
-    if (key === "vaultBytes" || key === "operationBytes") {
-      present = true;
-      const checked: Uint8Array = assertByteView(entryValue, true);
-      if (key === "vaultBytes") {
-        vault = checked;
-      } else {
-        ops = checked;
-      }
-    }
-  }
-  if (!present) {
-    fail();
-  }
-  const out: { vaultBytes?: Uint8Array; operationBytes?: Uint8Array } = {};
-  if (vault !== undefined) {
-    out.vaultBytes = copyBytes(vault);
-  }
-  if (ops !== undefined) {
-    out.operationBytes = copyBytes(ops);
-  }
-  return out;
 }

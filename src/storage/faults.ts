@@ -8,7 +8,7 @@
  * controls file on every probe so armFault ordering is observed.
  *
  * A probe that fires with action "throw" raises FaultArmed; the engine maps
- * it to io_failure before any PREPARED write was attempted and to
+ * it to io_failure before rename was attempted and to
  * commit_ambiguous (fencing the handle) in uncertain phases. Action
  * "kill-holder" terminates the worker immediately.
  */

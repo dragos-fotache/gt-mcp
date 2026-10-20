@@ -706,3 +706,23 @@ export async function closeDhSession(
     // Best effort: disconnect is the real session cleanup.
   }
 }
+
+/** Delete never invokes a prompt; ambiguous completion is recovered by a fresh search. */
+export async function deleteMasterItem(
+  client: DbusClient,
+  itemPath: string,
+  deadlineMs: number,
+): Promise<void> {
+  const reply = await client.call(
+    {
+      path: itemPath,
+      destination: SECRET_SERVICE_NAME,
+      interface: "org.freedesktop.Secret.Item",
+      member: "Delete",
+      signature: "",
+      body: [],
+    },
+    deadlineMs,
+  );
+  if (reply.length !== 1 || reply[0] !== "/") throw new StorageError("provider_failure");
+}

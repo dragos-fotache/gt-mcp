@@ -1,5 +1,15 @@
 # Decision — configuration-only routine creation
 
+> **Current recovery revision (T21-S1, 2026-10-17):** draft0.3 retains this
+> config-only write permission. It supersedes the creation journal/operationId,
+> durable retry/receipt/retirement and external-anchor assumptions below. Every
+> new create call is independent and may duplicate work. Credential encryption,
+> exact pending-refresh recovery and normal auth fences remain. See the
+> [successor interfaces](t21-single-record-storage-spec.md) and
+> [current shared contract](../../shared-docs/docs/mcp-contract/README.md).
+> The remaining text records the original draft0.2 decision/history; its execution
+> statuses are historical, not a claim about the current implementation.
+
 **Status:** user-approved local product-policy revision; implementation unverified.
 **Scope:** the portable MCP application, not a Pi extension.
 

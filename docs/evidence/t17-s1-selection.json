@@ -1,0 +1,7 @@
+[
+  "test/pi-integration/paths-policy.test.mjs",
+  "test/create-stdio/policy-identity.test.mjs",
+  "test/create-protocol/configured.test.mjs",
+  "test/create-protocol/dispatch.test.mjs",
+  "test/stdio-server/sdk-startup.test.mjs"
+]

@@ -4,8 +4,8 @@
  * Atomic durable replacement (same-directory O_EXCL temp, full short-write
  * handling, file fsync, parent-directory fsync, rename, parent-directory
  * fsync), restrictive permission/ownership/link validation, symlink-free
- * ancestor traversal checks, mountinfo ext4 gating with statfs
- * corroboration, and WRITE FLOCK lease discovery via /proc/self/fdinfo.
+ * ancestor traversal checks, and WRITE FLOCK lease discovery via
+ * /proc/self/fdinfo. No filesystem type gate.
  * All failures throw sanitized StorageError codes; native errno values
  * never propagate.
  */
@@ -17,7 +17,6 @@ import path from "node:path";
 import process from "node:process";
 import { StorageError } from "./errors.js";
 import type { FaultProbe } from "./faults.js";
-import { MAX_STORE_BYTES } from "./validate.js";
 
 export interface FileIdentity {
   dev: string;
@@ -209,7 +208,7 @@ export function fsyncDirectory(dir: string): void {
 export function readWholeFile(
   filePath: string,
   maxBytes: number,
-  missingCode: "store_missing" | "anchor_missing",
+  missingCode: "store_missing",
 ): Buffer {
   let fd: number;
   try {
@@ -338,71 +337,6 @@ export function assertSafeAncestors(absolutePath: string): void {
     if (checkOne(prefix) === "absent") {
       return;
     }
-  }
-}
-
-export function maxStoreFileBytes(): number {
-  return MAX_STORE_BYTES + 1024;
-}
-
-function unescapeMountpoint(raw: string): string {
-  return raw
-    .replace(/\\040/g, " ")
-    .replace(/\\011/g, "\t")
-    .replace(/\\012/g, "\n")
-    .replace(/\\134/g, "\\");
-}
-
-/**
- * Identify the containing mount's filesystem type via
- * /proc/self/mountinfo: longest component-boundary mountpoint match.
- * statfs corroborates the ext family when available; mountinfo decides.
- */
-export function assertAllowedFilesystem(canonicalPath: string, allowedFs: readonly string[]): void {
-  let table: string;
-  try {
-    table = fs.readFileSync("/proc/self/mountinfo", "utf8");
-  } catch {
-    throw new StorageError("io_failure");
-  }
-  let bestFs: string | null = null;
-  let bestLen: number = -1;
-  for (const line of table.split("\n")) {
-    const sep: number = line.indexOf(" - ");
-    if (sep < 0) {
-      continue;
-    }
-    const pre: string[] = line.substring(0, sep).split(" ");
-    const post: string[] = line.substring(sep + 3).split(" ");
-    const mountpointRaw: string | undefined = pre[4];
-    const fstype: string | undefined = post[0];
-    if (mountpointRaw === undefined || fstype === undefined) {
-      continue;
-    }
-    const mountpoint: string = unescapeMountpoint(mountpointRaw);
-    const matches: boolean =
-      mountpoint === "/" ||
-      canonicalPath === mountpoint ||
-      canonicalPath.startsWith(mountpoint + path.sep);
-    if (matches && mountpoint.length > bestLen) {
-      bestLen = mountpoint.length;
-      bestFs = fstype;
-    }
-  }
-  if (bestFs === null || !allowedFs.includes(bestFs)) {
-    throw new StorageError("unsupported_platform");
-  }
-  // Corroboration only: ext-family magic cannot distinguish ext2/3/4.
-  try {
-    const stats: fs.StatsFs = fs.statfsSync(canonicalPath);
-    if (bestFs === "ext4" && stats.type !== 0xef53) {
-      throw new StorageError("unsupported_platform");
-    }
-  } catch (error) {
-    if (error instanceof StorageError) {
-      throw error;
-    }
-    // statfs unavailable: mountinfo alone decides (documented limit).
   }
 }
 

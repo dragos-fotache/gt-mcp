@@ -1,0 +1,79 @@
+{
+  "task": "T21-S3",
+  "comparison": "Assignment-start working-tree SHA256 baseline; root README uses its archived pre-edit bytes captured before S3 documentation edits",
+  "changedExisting": [
+    {
+      "file": "README.md",
+      "before": "c367a38bd1c257847e661f93a0374e8534de406882e57499157e19c3616f0304",
+      "after": "6962683ab9a6fc375b5ea42f140f84ca855013af67a63f48007c44ef9a4b8cf3"
+    },
+    {
+      "file": "docs/README.md",
+      "before": "9361dc9b6b0c80d711ad8317852ce574e8ef9b923afa71b6a149253283b8bf5c",
+      "after": "35f7b8dbd7292c5d645bdd5e0d96005435a3273b022337aba0bf057dcd65db3d"
+    },
+    {
+      "file": "docs/implementation-plan.md",
+      "before": "84537ea49abcd212d2eed6dea161727566d07c08a858b3047dab79e40efeeb42",
+      "after": "776a521aa7a2d08f841b6acc22ba50f0db861a4079a642a5ec7e263a70e1e4a6"
+    },
+    {
+      "file": "docs/tasks/README.md",
+      "before": "98cafd857f382275cbaebd2bccbad0ac5975f49215d2a838d5aab62dde2d0f2e",
+      "after": "e00c9e3bd51072875f9e655e73d539fab05264e6926d336c6d9f4099694e5c66"
+    },
+    {
+      "file": "docs/tasks/t21-remove-durable-creation-recovery.md",
+      "before": "12788d465a55be6181f405a1d9528c5b58970b9fe7962badf2af85915d0163d8",
+      "after": "458799bd9603d0a11a613094bf538d02c8947f3884ebffd2d50489878d4c3b33"
+    },
+    {
+      "file": "docs/verification.md",
+      "before": "aee0149c93c28486e61894efa2b3e843a8b8c00347113fb47ea117e4e3130220",
+      "after": "cd2d949058b04627d1730152857a623d6f993a7d3e6ad5c58653a341b3d55447"
+    },
+    {
+      "file": "src/storage/validate.ts",
+      "before": "d87d84e9a7001a5aca2705a7ea23af794950f7ce6fe845ade6235ab7c5ff8c0b",
+      "after": "a93b9ee7fce0254a716574ad01371f660d9cf63b5c45304d4204be863eb5f82e"
+    },
+    {
+      "file": "test/fault/t04/provider.test.mjs",
+      "before": "d2cf4abf86735b9cf36ecd70b9aae4fb906412f436f3147b1ccc8cce4f9f7614",
+      "after": "08767728bb3bacd3df824f3d7e1c5cf92271ef8cfbc6c1ef6f1c664588dc88d2"
+    }
+  ],
+  "added": [
+    "docs/evidence/t21-s3-cleanup.json",
+    "docs/evidence/t21-s3-doc-closure.json",
+    "docs/evidence/t21-s3-environment.json",
+    "docs/evidence/t21-s3-execution-history.json",
+    "docs/evidence/t21-s3-fixture-diagnostic.json",
+    "docs/evidence/t21-s3-inventory.json",
+    "docs/evidence/t21-s3-regressions.json",
+    "docs/evidence/t21-s3-review.md",
+    "docs/evidence/t21-s3-scope-comparison.json",
+    "docs/evidence/t21-s3-selection.json",
+    "docs/evidence/t21-s3-static-checks.json",
+    "docs/handoffs/t21-s3.md",
+    "docs/tasks/t21-s3-work-order.md",
+    "src/storage/credential/client.ts",
+    "src/storage/credential/engine.ts",
+    "src/storage/credential/files.ts",
+    "src/storage/credential/format.ts",
+    "src/storage/credential/index.ts",
+    "src/storage/credential/types.ts",
+    "src/storage/credential/validate.ts",
+    "src/storage/credential/worker.ts",
+    "test/fault/t21/credential-store.test.mjs",
+    "test/fault/t21/worker.mjs",
+    "test/unit/t21/credential-entry.test.mjs",
+    "test/unit/t21/credential-format.test.mjs"
+  ],
+  "deleted": [],
+  "sharedContractAndBackendFilesUnchanged": 34,
+  "packageLockCompilerConfigAndAgentGuideUnchanged": true,
+  "oldProductionEntryAndCallersUnchanged": true,
+  "noStagingOrCommit": true,
+  "noPiChanges": true
+}
